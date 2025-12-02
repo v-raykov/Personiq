@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: rules-engine
+
+  flyway:
+    enabled: true
+    locations: classpath:db/master
+    default-schema: master
+    schemas: master
+    baseline-on-migrate: true
+
+  flyway-tenant:
+    locations: classpath:db/tenants
+
+  tenantSchemaPrefix: tenant_
+
+  masterSchema: master
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/rules_engine
+    username: rules_engine
+    password: rules_engine
+    hikari:
+      connection-init-sql: "SET search_path TO ${spring.masterSchema}"
+
+server:
+  port: 8081

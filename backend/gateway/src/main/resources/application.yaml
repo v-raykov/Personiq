@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: gateway
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/gateway
+    username: gateway
+    password: gateway
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: gateway
+    schemas: gateway
+    baseline-on-migrate: true
+
+
+server:
+  port: 8080
+
+rules-engine:
+  uri: "http://localhost:8081"
