@@ -1,6 +1,5 @@
 package com.raykov.gateway.config;
 
-import com.raykov.gateway.config.filter.AccountFilter;
 import com.raykov.gateway.config.filter.TenantValidationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -14,14 +13,12 @@ public class RoutingConfig {
     @Bean
     public RouteLocator routeLocator(@Value("${rules-engine.uri}") String rulesEngineUri,
                                      RouteLocatorBuilder builder,
-                                     TenantValidationFilter tenantValidationFilter,
-                                     AccountFilter accountFilter) {
+                                     TenantValidationFilter tenantValidationFilter) {
         return builder.routes()
                       .route("rules-engine", r -> r
                               .path("/{tenantId}/**")
                               .filters(f -> f
                                       .filter(tenantValidationFilter)
-                                      .filter(accountFilter)
                                       .stripPrefix(1))
                               .uri(rulesEngineUri))
                       .build();

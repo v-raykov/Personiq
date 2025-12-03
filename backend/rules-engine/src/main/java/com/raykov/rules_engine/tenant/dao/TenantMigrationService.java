@@ -16,7 +16,7 @@ public class TenantMigrationService {
 
     private final String locations;
 
-    public TenantMigrationService(@Value("spring.flyway-tenants.locations") String locations,
+    public TenantMigrationService(@Value("${spring.flyway-tenant.locations}") String locations,
                                   DataSource dataSource) {
         this.dataSource = dataSource;
         this.locations = locations;

@@ -4,13 +4,13 @@ spring:
 
   flyway:
     enabled: true
-    locations: classpath:db/master
+    locations: classpath:db/migration/master
     default-schema: master
     schemas: master
     baseline-on-migrate: true
 
   flyway-tenant:
-    locations: classpath:db/tenants
+    locations: classpath:db/migration/tenants
 
   tenantSchemaPrefix: tenant_
 
@@ -18,11 +18,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/rules_engine
+    url: jdbc:postgresql://localhost:5433/rules_engine?currentSchema=master
     username: rules_engine
     password: rules_engine
-    hikari:
-      connection-init-sql: "SET search_path TO ${spring.masterSchema}"
 
 server:
   port: 8081

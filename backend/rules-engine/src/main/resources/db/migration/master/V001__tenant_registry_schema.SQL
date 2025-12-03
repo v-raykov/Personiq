@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS tenant_registry (
     id BIGINT PRIMARY KEY,
-    schema_name VARCHAR(255) NOT NULL,
+    schema_name VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
