@@ -2,12 +2,14 @@ package com.raykov.rules_engine.domain.attribute;
 
 import com.raykov.rules_engine.domain.attribute.dao.AttributeDao;
 import com.raykov.rules_engine.domain.attribute.dao.AttributeRow;
+import com.raykov.rules_engine.domain.attribute.rest.AttributeResponseDto;
 import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
 import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AttributeService {
@@ -42,14 +44,32 @@ public class AttributeService {
     }
 
     public List<AttributeResponseDto> getAllAttributeValues(long ownerId, String ownerType) {
-        return attributeDao.getAllAttributeValues(ownerId, AttributeOwnerType.fromString(ownerType));
+        return attributeDao.getAllAttributeValues(ownerId, AttributeOwnerType.fromString(ownerType))
+                           .stream()
+                           .collect(Collectors.groupingBy(AttributeValue::name))
+                           .entrySet()
+                           .stream()
+                           .map(entry -> new AttributeResponseDto(
+                                   entry.getKey(),
+                                   entry.getValue().getFirst().valueType(),
+                                   entry.getValue().stream()
+                                        .map(AttributeValue::value)
+                                        .toList()
+                           ))
+                           .toList();
     }
 
-    public List<AttributeResponseDto> getAttributeValue(long ownerId, String ownerType, String attributeName) {
-        return attributeDao.getAttributeValue(ownerId, AttributeOwnerType.fromString(ownerType), attributeName)
-                           .stream()
-                           .map(value -> new AttributeResponseDto(attributeName, value.value()))
-                           .toList();
+    public AttributeResponseDto getAttributeValue(long ownerId, String ownerType, String attributeName) {
+        List<AttributeValue> attributeValues = attributeDao.getAttributeValue(
+                ownerId, AttributeOwnerType.fromString(ownerType), attributeName);
+
+        if (attributeValues.isEmpty()) {
+            return new AttributeResponseDto(attributeName, null, List.of());
+        }
+
+        return new AttributeResponseDto(attributeName, attributeValues.getFirst().valueType(), attributeValues.stream()
+                                                                                                              .map(AttributeValue::value)
+                                                                                                              .toList());
     }
 
     public void deleteAttributeValue(long ownerId, String ownerType, String attributeName, Optional<Integer> listIndex) {

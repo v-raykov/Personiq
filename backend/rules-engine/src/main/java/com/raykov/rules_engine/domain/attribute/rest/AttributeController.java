@@ -1,6 +1,5 @@
 package com.raykov.rules_engine.domain.attribute.rest;
 
-import com.raykov.rules_engine.domain.attribute.AttributeResponseDto;
 import com.raykov.rules_engine.domain.attribute.AttributeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +42,7 @@ public class AttributeController {
     }
 
     @GetMapping("/value/{attributeName}")
-    public List<AttributeResponseDto> getAttributeValue(@RequestParam long ownerId,
+    public AttributeResponseDto getAttributeValue(@RequestParam long ownerId,
                                                         @PathVariable String ownerType,
                                                         @PathVariable String attributeName) {
         return attributeService.getAttributeValue(ownerId, ownerType, attributeName);

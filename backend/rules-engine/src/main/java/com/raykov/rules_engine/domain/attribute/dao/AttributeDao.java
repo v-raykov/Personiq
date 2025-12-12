@@ -1,6 +1,5 @@
 package com.raykov.rules_engine.domain.attribute.dao;
 
-import com.raykov.rules_engine.domain.attribute.AttributeResponseDto;
 import com.raykov.rules_engine.domain.attribute.AttributeValue;
 import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
 import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
@@ -150,11 +149,13 @@ public class AttributeDao {
         jdbcTemplate.update(sql, params);
     }
 
-    public List<AttributeResponseDto> getAllAttributeValues(long ownerId, AttributeOwnerType ownerType) {
+    public List<AttributeValue> getAllAttributeValues(long ownerId, AttributeOwnerType ownerType) {
         String sql = """
-                         SELECT name, value FROM attribute_value
-                         WHERE owner_id = :ownerId
-                           AND owner_type = CAST(:ownerType AS attribute_owner_types)
+                     SELECT owner_id, owner_type, name, value, value_type, list_index
+                     FROM attribute_value
+                     WHERE owner_id = :ownerId
+                       AND owner_type = CAST(:ownerType AS attribute_owner_types)
+                     ORDER BY list_index
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()
@@ -162,7 +163,11 @@ public class AttributeDao {
                 .addValue("ownerType", ownerType.name());
 
         return jdbcTemplate.query(sql, params, (rs, _) ->
-                new AttributeResponseDto(rs.getString("name"), rs.getString("value")));
+                new AttributeValue(rs.getLong("owner_id"),
+                                   AttributeOwnerType.valueOf(rs.getString("owner_type")),
+                                   rs.getString("name"),
+                                   AttributeValueType.valueOf(rs.getString("value_type")),
+                                   rs.getString("value")));
     }
 
     private AttributeValueType getAttributeValueType(AttributeOwnerType ownerType, String name) {
