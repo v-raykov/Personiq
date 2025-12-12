@@ -8,6 +8,7 @@ import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerAttributeService {
@@ -41,7 +42,18 @@ public class CustomerAttributeService {
         attributeDao.updateAttributeValue(customerId, AttributeOwnerType.CUSTOMER, attributeName, value);
     }
 
-    public List<AttributeResponseDto> getAttributeValues(long customerId) {
-        return attributeDao.getAttributeValues(customerId, AttributeOwnerType.CUSTOMER);
+    public List<AttributeResponseDto> getAllAttributeValues(long customerId) {
+        return attributeDao.getAllAttributeValues(customerId, AttributeOwnerType.CUSTOMER);
+    }
+
+    public List<AttributeResponseDto> getAttributeValue(long customerId, String attributeName) {
+        return attributeDao.getAttributeValue(customerId, AttributeOwnerType.CUSTOMER, attributeName)
+                           .stream()
+                           .map(value -> new AttributeResponseDto(attributeName, value.value()))
+                           .toList();
+    }
+
+    public void deleteAttributeValue(long customerId, String attributeName, Optional<Integer> listIndex) {
+        attributeDao.deleteAttributeValue(customerId, AttributeOwnerType.CUSTOMER, attributeName, listIndex);
     }
 }
