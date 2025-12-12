@@ -1,4 +1,4 @@
-package com.raykov.rules_engine.domain.attribute;
+package com.raykov.rules_engine.domain.attribute.dao;
 
 import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
 import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;

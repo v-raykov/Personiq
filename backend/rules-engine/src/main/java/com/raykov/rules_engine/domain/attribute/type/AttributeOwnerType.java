@@ -1,7 +1,11 @@
 package com.raykov.rules_engine.domain.attribute.type;
 
 public enum AttributeOwnerType {
-    EVENT,
+    ACTION,
     CUSTOMER,
-    PRODUCT
+    PRODUCT;
+
+    public static AttributeOwnerType fromString(String name) {
+        return AttributeOwnerType.valueOf(name.toUpperCase());
+    }
 }

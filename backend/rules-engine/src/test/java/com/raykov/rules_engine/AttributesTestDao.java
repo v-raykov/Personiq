@@ -1,6 +1,6 @@
 package com.raykov.rules_engine;
 
-import com.raykov.rules_engine.domain.attribute.AttributeRow;
+import com.raykov.rules_engine.domain.attribute.dao.AttributeRow;
 import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
 import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
