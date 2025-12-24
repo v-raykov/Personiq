@@ -1,14 +1,15 @@
 package com.raykov.rules_engine.domain.attribute;
 
 import com.raykov.rules_engine.domain.attribute.dao.AttributeDao;
-import com.raykov.rules_engine.domain.attribute.dao.AttributeRow;
-import com.raykov.rules_engine.domain.attribute.rest.AttributeResponseDto;
+import com.raykov.rules_engine.domain.attribute.dao.AttributeValueDao;
+import com.raykov.rules_engine.domain.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.attribute.model.AttributeValue;
+import com.raykov.rules_engine.domain.attribute.model.AttributeValueRow;
 import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
 import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,63 +17,65 @@ public class AttributeService {
 
     private final AttributeDao attributeDao;
 
-    public AttributeService(AttributeDao attributeDao) {
+    private final AttributeValueDao attributeValueDao;
+
+    public AttributeService(AttributeDao attributeDao, AttributeValueDao attributeValueDao) {
         this.attributeDao = attributeDao;
+        this.attributeValueDao = attributeValueDao;
     }
 
-    public void createAttribute(String ownerType, String name, String type) {
+    public long createAttribute(AttributeOwnerType ownerType, String name, String type, boolean isList) {
         AttributeValueType attributeValueType = AttributeValueType.fromString(type);
 
-        AttributeRow attributeRow = new AttributeRow(AttributeOwnerType.fromString(ownerType),
-                                                     name,
-                                                     attributeValueType);
+        Attribute attributeRow = new Attribute(ownerType,
+                                               name,
+                                               attributeValueType,
+                                               isList);
 
-        attributeDao.insertAttribute(attributeRow);
-
+        return attributeDao.insertAttribute(attributeRow);
     }
 
-    public List<String> getAttributes(String ownerType) {
-        return attributeDao.getAttributes(AttributeOwnerType.fromString(ownerType));
+    public List<Attribute> getAttributes(AttributeOwnerType ownerType) {
+        return attributeDao.getAttributes(ownerType);
     }
 
-    public void deleteAttribute(String ownerType, String attributeName) {
-        attributeDao.deleteAttribute(AttributeOwnerType.fromString(ownerType), attributeName);
+    public void deleteAttribute(long attributeId) {
+        attributeDao.deleteAttribute(attributeId);
     }
 
-    public void updateAttribute(long ownerId, String ownerType, String attributeName, String value) {
-        attributeDao.updateAttributeValue(ownerId, AttributeOwnerType.fromString(ownerType), attributeName, value);
+    public Map<Long, Attribute> getAttributesByIds(Collection<Long> attributeIds) {
+        if (attributeIds.isEmpty()) {
+            return Map.of();
+        }
+        return attributeDao.getAttributesByIds(attributeIds);
     }
 
-    public List<AttributeResponseDto> getAllAttributeValues(long ownerId, String ownerType) {
-        return attributeDao.getAllAttributeValues(ownerId, AttributeOwnerType.fromString(ownerType))
-                           .stream()
-                           .collect(Collectors.groupingBy(AttributeValue::name))
-                           .entrySet()
-                           .stream()
-                           .map(entry -> new AttributeResponseDto(
-                                   entry.getKey(),
-                                   entry.getValue().getFirst().valueType(),
-                                   entry.getValue().stream()
-                                        .map(AttributeValue::value)
-                                        .toList()
-                           ))
-                           .toList();
+    public void updateAttributeValue(long customerId, long attributeId, String value) {
+        attributeValueDao.updateAttributeValue(customerId, attributeId, value);
     }
 
-    public AttributeResponseDto getAttributeValue(long ownerId, String ownerType, String attributeName) {
-        List<AttributeValue> attributeValues = attributeDao.getAttributeValue(
-                ownerId, AttributeOwnerType.fromString(ownerType), attributeName);
+    public List<AttributeValueRow> getAllAttributeValuesByOwnerId(long ownerId) {
+        return attributeValueDao.getAllAttributeValues(List.of(ownerId));
+    }
 
-        if (attributeValues.isEmpty()) {
-            return new AttributeResponseDto(attributeName, null, List.of());
+    public AttributeValueRow getAttributeValue(long ownerId, long attributeId) {
+        return attributeValueDao.getAttributeValue(ownerId, attributeId);
+    }
+
+    public void deleteAttributeValue(long ownerId, long attributeId, String attributeValue) {
+        attributeValueDao.deleteAttributeValue(ownerId, attributeId, attributeValue);
+    }
+
+    public Map<Long, List<AttributeValue>> getAttributeValuesByOwnerIds(Set<Long> ownerIds) {
+        if (ownerIds.isEmpty()) {
+            return Map.of();
         }
 
-        return new AttributeResponseDto(attributeName, attributeValues.getFirst().valueType(), attributeValues.stream()
-                                                                                                              .map(AttributeValue::value)
-                                                                                                              .toList());
+        return attributeValueDao.getAllAttributeValues(ownerIds).stream()
+                                .collect(Collectors.groupingBy(
+                                        AttributeValueRow::ownerId,
+                                        Collectors.mapping(AttributeValue::fromAttributeValueRow, Collectors.toList()))
+                                );
     }
 
-    public void deleteAttributeValue(long ownerId, String ownerType, String attributeName, Optional<Integer> listIndex) {
-        attributeDao.deleteAttributeValue(ownerId, AttributeOwnerType.fromString(ownerType), attributeName, listIndex);
-    }
 }
