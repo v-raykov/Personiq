@@ -46,7 +46,7 @@ public class AttributeDao {
 
     public List<Attribute> getAttributes(AttributeOwnerType ownerType) {
         String sql = """
-                         SELECT id, name, value_type, is_list
+                         SELECT id, name, value_type, is_list, owner_type
                          FROM attribute
                          WHERE owner_type = CAST(:ownerType AS attribute_owner_type)
                      """;
