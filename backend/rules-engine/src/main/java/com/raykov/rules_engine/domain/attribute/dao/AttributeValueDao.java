@@ -20,21 +20,31 @@ public class AttributeValueDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void updateAttributeValue(long ownerId, long attributeId, String value) {
+    public void updateAttributeValue(long ownerId, long attributeId, long executedActionId, String value) {
         String sql = """
-                         INSERT INTO attribute_value(owner_id, attribute_id, value)
-                         VALUES (:ownerId, :attributeId, ARRAY[:value])
-                         ON CONFLICT (owner_id, attribute_id)
-                         DO UPDATE SET value = CASE
-                                                   WHEN (SELECT is_list FROM attribute WHERE id = :attributeId)
-                                                   THEN attribute_value.value || EXCLUDED.value
-                                                   ELSE EXCLUDED.value
-                                               END
+                         INSERT INTO attribute_value (owner_id, attribute_id, executed_action_id, value)
+                         SELECT
+                             :ownerId,
+                             :attributeId,
+                             :executedActionId,
+                             CASE
+                                 WHEN (SELECT is_list FROM attribute WHERE id = :attributeId)
+                                 THEN COALESCE((
+                                     SELECT value
+                                     FROM attribute_value
+                                     WHERE owner_id = :ownerId
+                                       AND attribute_id = :attributeId
+                                     ORDER BY executed_action_id DESC
+                                     LIMIT 1
+                                 ), '{}'::text[]) || ARRAY[:value]
+                                 ELSE ARRAY[:value]
+                             END;
                      """;
 
         jdbcTemplate.update(sql, new MapSqlParameterSource()
                 .addValue("ownerId", ownerId)
                 .addValue("attributeId", attributeId)
+                .addValue("executedActionId", executedActionId)
                 .addValue("value", value)
         );
     }
@@ -65,7 +75,7 @@ public class AttributeValueDao {
         }
 
         String sql = """
-                     SELECT
+                     SELECT DISTINCT ON (av.owner_id, av.attribute_id)
                          av.owner_id,
                          av.attribute_id,
                          a.owner_type,
@@ -76,7 +86,11 @@ public class AttributeValueDao {
                      FROM attribute_value av
                      JOIN attribute a ON av.attribute_id = a.id
                      WHERE av.owner_id IN (:ownerIds)
-                     ORDER BY a.name
+                     ORDER BY
+                         av.owner_id,
+                         av.attribute_id,
+                         av.executed_action_id DESC,
+                         a.name
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()
@@ -100,18 +114,20 @@ public class AttributeValueDao {
 
     public AttributeValueRow getAttributeValue(long ownerId, long attributeId) {
         String sql = """
-                         SELECT
-                             av.owner_id,
-                             av.attribute_id,
-                             a.owner_type,
-                             a.name,
-                             a.value_type,
-                             a.is_list,
-                             av.value
-                         FROM attribute_value av
-                         JOIN attribute a ON av.attribute_id = a.id
-                         WHERE av.owner_id = :ownerId
-                           AND av.attribute_id = :attributeId
+                     SELECT
+                         av.owner_id,
+                         av.attribute_id,
+                         a.owner_type,
+                         a.name,
+                         a.value_type,
+                         a.is_list,
+                         av.value
+                     FROM attribute_value av
+                     JOIN attribute a ON av.attribute_id = a.id
+                     WHERE av.owner_id = :ownerId
+                       AND av.attribute_id = :attributeId
+                     ORDER BY av.executed_action_id DESC
+                     LIMIT 1
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()

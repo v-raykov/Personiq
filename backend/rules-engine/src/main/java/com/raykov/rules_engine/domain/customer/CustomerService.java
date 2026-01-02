@@ -17,10 +17,6 @@ public class CustomerService {
         this.attributeService = attributeService;
     }
 
-    public void updateAttributeValue(long customerId, long attributeId, String value) {
-        attributeService.updateAttributeValue(customerId, attributeId, value);
-    }
-
     public List<AttributeValueRow> getAllAttributeValues(long ownerId) {
         return attributeService.getAllAttributeValuesByOwnerId(ownerId);
     }
@@ -33,8 +29,8 @@ public class CustomerService {
         attributeService.deleteAttributeValue(ownerId, attributeId, attributeValue);
     }
 
-    public void createAttribute(String name, String type, boolean isList) {
-        attributeService.createAttribute(AttributeOwnerType.CUSTOMER, name, type, isList);
+    public long createAttribute(String name, String type, boolean isList) {
+        return attributeService.createAttribute(AttributeOwnerType.CUSTOMER, name, type, isList);
     }
 
     public List<Attribute> getAttributes() {

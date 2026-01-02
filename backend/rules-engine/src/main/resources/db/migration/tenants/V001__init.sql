@@ -12,17 +12,6 @@ CREATE TABLE IF NOT EXISTS attribute
     UNIQUE (name, owner_type)
 );
 
-CREATE TABLE attribute_value
-(
-    owner_id     BIGINT NOT NULL,
-    attribute_id BIGINT NOT NULL,
-    value        TEXT[] NOT NULL,
-    PRIMARY KEY (owner_id, attribute_id),
-    FOREIGN KEY (attribute_id)
-        REFERENCES attribute (id)
-        ON DELETE CASCADE
-);
-
 CREATE TABLE action
 (
     id   BIGSERIAL PRIMARY KEY,
@@ -31,11 +20,26 @@ CREATE TABLE action
 
 CREATE TABLE executed_action
 (
-    id        BIGSERIAL PRIMARY KEY,
-    action_id BIGINT NOT NULL,
+    id          BIGSERIAL PRIMARY KEY,
+    action_id   BIGINT NOT NULL,
     customer_id BIGINT NOT NULL,
     FOREIGN KEY (action_id)
         REFERENCES action (id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE attribute_value
+(
+    owner_id           BIGINT NOT NULL,
+    attribute_id       BIGINT NOT NULL,
+    executed_action_id BIGINT NOT NULL,
+    value              TEXT[] NOT NULL,
+    PRIMARY KEY (owner_id, executed_action_id, attribute_id),
+    FOREIGN KEY (attribute_id)
+        REFERENCES attribute (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (executed_action_id)
+        REFERENCES executed_action (id)
         ON DELETE CASCADE
 );
 
@@ -45,3 +49,6 @@ CREATE TABLE attribute_action
     attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE,
     PRIMARY KEY (attribute_id)
 );
+
+INSERT INTO action (name)
+VALUES ('MANUAL_CUSTOMER_ATTRIBUTE_UPDATE');

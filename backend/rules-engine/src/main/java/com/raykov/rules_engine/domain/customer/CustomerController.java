@@ -18,8 +18,8 @@ public class CustomerController {
     }
 
     @PostMapping
-    public void createAttribute(@RequestBody PutAttributeRequest request) {
-        customerService.createAttribute(request.name(), request.type(), request.isList());
+    public long createAttribute(@RequestBody PutAttributeRequest request) {
+        return customerService.createAttribute(request.name(), request.type(), request.isList());
     }
 
     @GetMapping
@@ -30,13 +30,6 @@ public class CustomerController {
     @DeleteMapping
     public void deleteAttribute(@RequestParam long attributeId) {
         customerService.deleteAttribute(attributeId);
-    }
-
-    @PutMapping("/value/{attributeId}")
-    public void setAttributeValue(@PathVariable long attributeId,
-                                  @RequestParam long customerId,
-                                  @RequestParam String value) {
-        customerService.updateAttributeValue(customerId, attributeId, value);
     }
 
     @GetMapping("/value/{attributeId}")
@@ -53,7 +46,7 @@ public class CustomerController {
     }
 
     @GetMapping("/value")
-    public List<AttributeValueRow> getAllAttributeValues(@RequestParam long ownerId) {
-        return customerService.getAllAttributeValues(ownerId);
+    public List<AttributeValueRow> getAllAttributeValues(@RequestParam long customerId) {
+        return customerService.getAllAttributeValues(customerId);
     }
 }

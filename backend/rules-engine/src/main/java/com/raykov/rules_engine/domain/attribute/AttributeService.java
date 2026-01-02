@@ -50,8 +50,8 @@ public class AttributeService {
         return attributeDao.getAttributesByIds(attributeIds);
     }
 
-    public void updateAttributeValue(long customerId, long attributeId, String value) {
-        attributeValueDao.updateAttributeValue(customerId, attributeId, value);
+    public void updateAttributeValue(long customerId, long attributeId, long executedActionId, String value) {
+        attributeValueDao.updateAttributeValue(customerId, attributeId, executedActionId, value);
     }
 
     public List<AttributeValueRow> getAllAttributeValuesByOwnerId(long ownerId) {
