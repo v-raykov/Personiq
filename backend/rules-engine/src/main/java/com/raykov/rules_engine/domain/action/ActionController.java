@@ -34,9 +34,8 @@ public class ActionController {
     }
 
     @PutMapping("/{actionId}")
-    public void createActionAttribute(@PathVariable long actionId, @RequestBody PutAttributeRequest request) {
-        actionService.createActionAttribute(actionId, request.name(), request.type(), request.isList());
-
+    public long createActionAttribute(@PathVariable long actionId, @RequestBody PutAttributeRequest request) {
+        return actionService.createActionAttribute(actionId, request.name(), request.type(), request.isList());
     }
 
     @DeleteMapping

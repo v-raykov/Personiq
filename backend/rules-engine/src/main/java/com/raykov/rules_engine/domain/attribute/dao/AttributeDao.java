@@ -25,7 +25,7 @@ public class AttributeDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Long insertAttribute(Attribute row) {
+    public Long insertAttribute(Attribute row, AttributeOwnerType ownerType) {
         String sql = """
                          INSERT INTO attribute (owner_type, name, value_type, is_list)
                          VALUES (CAST(:ownerType AS attribute_owner_type),
@@ -36,7 +36,7 @@ public class AttributeDao {
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("ownerType", row.ownerType().name())
+                .addValue("ownerType", ownerType.name())
                 .addValue("name", row.name())
                 .addValue("valueType", row.valueType().name())
                 .addValue("isList", row.isList());
@@ -86,7 +86,6 @@ public class AttributeDao {
     private static Attribute createAttributeFromResultSet(ResultSet rs) throws SQLException {
         return new Attribute(
                 rs.getLong("id"),
-                AttributeOwnerType.valueOf(rs.getString("owner_type")),
                 rs.getString("name"),
                 AttributeValueType.valueOf(rs.getString("value_type")),
                 rs.getBoolean("is_list")

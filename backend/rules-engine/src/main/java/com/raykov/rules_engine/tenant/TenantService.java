@@ -30,7 +30,6 @@ public class TenantService {
         tenantMigrationService.migrateAllTenantSchemas(getTenants());
     }
 
-    @Transactional
     public void createTenantSchema(long tenantId) {
         String schemaName = generateSchemaName(tenantId);
 

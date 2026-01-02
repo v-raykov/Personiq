@@ -34,7 +34,7 @@ public class CustomerService {
     }
 
     public List<Attribute> getAttributes() {
-        return attributeService.getAttributes(AttributeOwnerType.CUSTOMER);
+        return attributeService.getAttributesByOwnerType(AttributeOwnerType.CUSTOMER);
     }
 
     public void deleteAttribute(long attributeId) {

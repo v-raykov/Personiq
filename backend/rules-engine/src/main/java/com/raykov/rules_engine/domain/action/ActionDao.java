@@ -79,6 +79,7 @@ public class ActionDao {
                      FROM action a
                      LEFT JOIN attribute_action aa
                             ON aa.action_id = a.id
+                     WHERE a.id > 0
                      GROUP BY a.id
                      ORDER BY a.id
                      """;

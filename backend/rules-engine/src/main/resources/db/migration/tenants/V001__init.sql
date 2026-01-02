@@ -50,5 +50,5 @@ CREATE TABLE attribute_action
     PRIMARY KEY (attribute_id)
 );
 
-INSERT INTO action (name)
-VALUES ('MANUAL_CUSTOMER_ATTRIBUTE_UPDATE');
+INSERT INTO action (id, name)
+VALUES (-1,'MANUAL_CUSTOMER_ATTRIBUTE_UPDATE');

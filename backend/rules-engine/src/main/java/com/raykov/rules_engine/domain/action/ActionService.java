@@ -35,9 +35,11 @@ public class ActionService {
         actionDao.deleteAction(actionId);
     }
 
-    public void createActionAttribute(long actionId, String name, String type, boolean isList) {
+    @Transactional
+    public long createActionAttribute(long actionId, String name, String type, boolean isList) {
         long attributeId = attributeService.createAttribute(AttributeOwnerType.ACTION, name, type, isList);
         actionDao.addAttributeToAction(actionId, attributeId);
+        return attributeId;
     }
 
     public void deleteAttribute(long attributeId) {
@@ -83,7 +85,7 @@ public class ActionService {
 
     public void updateCustomerAttributes(long customerId, Map<Long, String> attributes) {
         attributes.forEach((attribute_id, value) -> {
-            long executedActionId = actionDao.insertExecutedAction(1, customerId);
+            long executedActionId = actionDao.insertExecutedAction(-1, customerId);
             attributeService.updateAttributeValue(customerId, attribute_id, executedActionId, value);
         });
     }

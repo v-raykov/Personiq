@@ -4,7 +4,6 @@ import com.raykov.rules_engine.domain.action.ActionController;
 import com.raykov.rules_engine.domain.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.attribute.model.AttributeValueRow;
 import com.raykov.rules_engine.domain.attribute.model.PutAttributeRequest;
-import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
 import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
 import com.raykov.rules_engine.domain.customer.CustomerController;
 import org.junit.jupiter.api.Test;
@@ -24,8 +23,6 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     @Autowired
     private ActionController actionController;
 
-    private static final AttributeOwnerType OWNER_TYPE = AttributeOwnerType.CUSTOMER;
-
     @Test
     public void createAttribute_verifyPersisted() {
         String name = "name";
@@ -38,7 +35,6 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         Attribute attribute = attributes.getFirst();
 
         assertThat(attribute.name()).isEqualTo(name);
-        assertThat(attribute.ownerType()).isEqualTo(OWNER_TYPE);
         assertThat(attribute.valueType()).isEqualTo(AttributeValueType.STRING);
         assertThat(attribute.isList()).isFalse();
     }

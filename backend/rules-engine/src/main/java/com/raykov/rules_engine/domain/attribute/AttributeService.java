@@ -27,15 +27,14 @@ public class AttributeService {
     public long createAttribute(AttributeOwnerType ownerType, String name, String type, boolean isList) {
         AttributeValueType attributeValueType = AttributeValueType.fromString(type);
 
-        Attribute attributeRow = new Attribute(ownerType,
-                                               name,
+        Attribute attribute = new Attribute(name,
                                                attributeValueType,
                                                isList);
 
-        return attributeDao.insertAttribute(attributeRow);
+        return attributeDao.insertAttribute(attribute, ownerType);
     }
 
-    public List<Attribute> getAttributes(AttributeOwnerType ownerType) {
+    public List<Attribute> getAttributesByOwnerType(AttributeOwnerType ownerType) {
         return attributeDao.getAttributes(ownerType);
     }
 
