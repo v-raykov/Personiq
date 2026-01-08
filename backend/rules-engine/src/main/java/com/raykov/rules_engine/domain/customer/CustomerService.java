@@ -31,11 +31,13 @@ public class CustomerService {
     }
 
     public long createAttribute(String name, String type, boolean isList) {
-        return attributeService.createAttribute(AttributeOwnerType.CUSTOMER, name, type, isList);
+        long attributeId =  attributeService.createAttribute(name, type, isList);
+        attributeService.addAttributeToCustomers(attributeId);
+        return attributeId;
     }
 
     public List<Attribute> getAttributes() {
-        return attributeService.getAttributesByOwnerType(AttributeOwnerType.CUSTOMER);
+        return attributeService.getCustomerAttributes();
     }
 
     public void deleteAttribute(long attributeId) {

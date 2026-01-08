@@ -1,15 +1,17 @@
-CREATE TYPE attribute_owner_type AS ENUM ('CUSTOMER', 'ACTION', 'PRODUCT');
-
 CREATE TYPE attribute_value_type AS ENUM ('STRING', 'BOOLEAN', 'DATE', 'NUMBER');
 
-CREATE TABLE IF NOT EXISTS attribute
+CREATE TABLE attribute
 (
     id         BIGSERIAL PRIMARY KEY,
     name       VARCHAR(255)         NOT NULL,
     value_type attribute_value_type NOT NULL,
-    owner_type attribute_owner_type NOT NULL,
-    is_list    BOOLEAN DEFAULT FALSE,
-    UNIQUE (name, owner_type)
+    is_list    BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE attribute_customer
+(
+    attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE,
+    PRIMARY KEY (attribute_id)
 );
 
 CREATE TABLE action
@@ -28,6 +30,14 @@ CREATE TABLE executed_action
         ON DELETE CASCADE
 );
 
+CREATE TABLE attribute_action
+(
+    action_id    BIGINT REFERENCES action,
+    attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE,
+    PRIMARY KEY (attribute_id)
+);
+
+
 CREATE TABLE attribute_value
 (
     id           BIGSERIAL PRIMARY KEY,
@@ -39,13 +49,3 @@ CREATE TABLE attribute_value
         REFERENCES attribute (id)
         ON DELETE CASCADE
 );
-
-CREATE TABLE attribute_action
-(
-    action_id    BIGINT REFERENCES action,
-    attribute_id BIGINT REFERENCES attribute ON DELETE CASCADE,
-    PRIMARY KEY (attribute_id)
-);
-
-INSERT INTO action (id, name)
-VALUES (-1, 'MANUAL_CUSTOMER_ATTRIBUTE_UPDATE');

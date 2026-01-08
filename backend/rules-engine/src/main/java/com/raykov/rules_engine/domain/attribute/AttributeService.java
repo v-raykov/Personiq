@@ -24,16 +24,12 @@ public class AttributeService {
         this.attributeValueDao = attributeValueDao;
     }
 
-    public long createAttribute(AttributeOwnerType ownerType, String name, String type, boolean isList) {
+    public long createAttribute(String name, String type, boolean isList) {
         AttributeValueType attributeValueType = AttributeValueType.fromString(type);
 
         Attribute attribute = new Attribute(name, attributeValueType, isList);
 
-        return attributeDao.insertAttribute(attribute, ownerType);
-    }
-
-    public List<Attribute> getAttributesByOwnerType(AttributeOwnerType ownerType) {
-        return attributeDao.getAttributes(ownerType);
+        return attributeDao.insertAttribute(attribute);
     }
 
     public void deleteAttribute(long attributeId) {
@@ -75,4 +71,11 @@ public class AttributeService {
                                 );
     }
 
+    public List<Attribute> getCustomerAttributes() {
+        return attributeDao.getCustomerAttributes();
+    }
+
+    public void addAttributeToCustomers(long attributeId) {
+        attributeDao.addAttributeToCustomers(attributeId);
+    }
 }

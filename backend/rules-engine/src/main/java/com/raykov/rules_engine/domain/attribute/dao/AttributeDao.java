@@ -25,38 +25,22 @@ public class AttributeDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Long insertAttribute(Attribute row, AttributeOwnerType ownerType) {
+    public Long insertAttribute(Attribute row) {
         String sql = """
-                         INSERT INTO attribute (owner_type, name, value_type, is_list)
-                         VALUES (CAST(:ownerType AS attribute_owner_type),
-                                 :name,
+                         INSERT INTO attribute (name, value_type, is_list)
+                         VALUES (:name,
                                  CAST(:valueType AS attribute_value_type),
                                  :isList)
                          RETURNING id;
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("ownerType", ownerType.name())
                 .addValue("name", row.name())
                 .addValue("valueType", row.valueType().name())
                 .addValue("isList", row.isList());
 
         return jdbcTemplate.queryForObject(sql, params, Long.class);
     }
-
-    public List<Attribute> getAttributes(AttributeOwnerType ownerType) {
-        String sql = """
-                         SELECT id, name, value_type, is_list, owner_type
-                         FROM attribute
-                         WHERE owner_type = CAST(:ownerType AS attribute_owner_type)
-                     """;
-
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("ownerType", ownerType.name());
-
-        return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet);
-    }
-
 
     public void deleteAttribute(long attributeId) {
         String sql = """
@@ -71,7 +55,7 @@ public class AttributeDao {
 
     public Map<Long, Attribute> getAttributesByIds(Collection<Long> attributeIds) {
         String sql = """
-                     SELECT id, name, value_type, is_list, owner_type
+                     SELECT id, name, value_type, is_list
                      FROM attribute
                      WHERE id IN (:attributeIds)
                      """;
@@ -81,6 +65,28 @@ public class AttributeDao {
         return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet)
                            .stream()
                            .collect(Collectors.toMap(Attribute::id, Function.identity()));
+    }
+
+    public List<Attribute> getCustomerAttributes() {
+        String sql = """
+                     SELECT a.id, a.name, a.value_type, a.is_list
+                     FROM attribute a
+                     JOIN attribute_customer ac ON a.id = ac.attribute_id
+                     """;
+
+        return jdbcTemplate.query(sql, AttributeDao::createAttributeFromResultSet);
+    }
+
+
+    public void addAttributeToCustomers(long attributeId) {
+        String sql = """
+                     INSERT INTO attribute_customer
+                     VALUES (:attributeId)
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("attributeId", attributeId);
+
+        jdbcTemplate.update(sql, params);
     }
 
     private static Attribute createAttributeFromResultSet(ResultSet rs, int ignored) throws SQLException {

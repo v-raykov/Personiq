@@ -37,7 +37,7 @@ public class ActionService {
 
     @Transactional
     public long createActionAttribute(long actionId, String name, String type, boolean isList) {
-        long attributeId = attributeService.createAttribute(AttributeOwnerType.ACTION, name, type, isList);
+        long attributeId = attributeService.createAttribute(name, type, isList);
         actionDao.addAttributeToAction(actionId, attributeId);
         return attributeId;
     }

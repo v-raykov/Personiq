@@ -77,7 +77,6 @@ public class AttributeValueDao {
                      SELECT DISTINCT ON (av.owner_id, av.attribute_id)
                          av.owner_id,
                          av.attribute_id,
-                         a.owner_type,
                          a.name,
                          a.value_type,
                          a.is_list,
@@ -103,7 +102,6 @@ public class AttributeValueDao {
                      SELECT
                          av.owner_id,
                          av.attribute_id,
-                         a.owner_type,
                          a.name,
                          a.value_type,
                          a.is_list,
@@ -127,7 +125,6 @@ public class AttributeValueDao {
         return new AttributeValueRow(
                 rs.getLong("owner_id"),
                 rs.getLong("attribute_id"),
-                AttributeOwnerType.valueOf(rs.getString("owner_type")),
                 rs.getString("name"),
                 AttributeValueType.valueOf(rs.getString("value_type")),
                 List.of((String[]) rs.getArray("value").getArray()),
