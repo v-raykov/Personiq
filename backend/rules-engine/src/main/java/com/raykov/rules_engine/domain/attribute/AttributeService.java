@@ -27,9 +27,7 @@ public class AttributeService {
     public long createAttribute(AttributeOwnerType ownerType, String name, String type, boolean isList) {
         AttributeValueType attributeValueType = AttributeValueType.fromString(type);
 
-        Attribute attribute = new Attribute(name,
-                                               attributeValueType,
-                                               isList);
+        Attribute attribute = new Attribute(name, attributeValueType, isList);
 
         return attributeDao.insertAttribute(attribute, ownerType);
     }

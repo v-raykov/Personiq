@@ -54,8 +54,7 @@ public class AttributeDao {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("ownerType", ownerType.name());
 
-        return jdbcTemplate.query(sql, params,
-                                  (rs, _) -> createAttributeFromResultSet(rs));
+        return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet);
     }
 
 
@@ -76,14 +75,15 @@ public class AttributeDao {
                      FROM attribute
                      WHERE id IN (:attributeIds)
                      """;
-        return jdbcTemplate.query(sql,
-                                  new MapSqlParameterSource("attributeIds", attributeIds),
-                                  (rs, _) -> createAttributeFromResultSet(rs))
+
+        MapSqlParameterSource params = new MapSqlParameterSource("attributeIds", attributeIds);
+
+        return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet)
                            .stream()
                            .collect(Collectors.toMap(Attribute::id, Function.identity()));
     }
 
-    private static Attribute createAttributeFromResultSet(ResultSet rs) throws SQLException {
+    private static Attribute createAttributeFromResultSet(ResultSet rs, int ignored) throws SQLException {
         return new Attribute(
                 rs.getLong("id"),
                 rs.getString("name"),

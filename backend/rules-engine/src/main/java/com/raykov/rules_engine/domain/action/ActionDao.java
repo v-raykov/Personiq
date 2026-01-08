@@ -26,9 +26,9 @@ public class ActionDao {
                      RETURNING id
                      """;
 
-        return jdbcTemplate.queryForObject(sql,
-                                           new MapSqlParameterSource("name", name),
-                                           Long.class);
+        MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+
+        return jdbcTemplate.queryForObject(sql, params, Long.class);
     }
 
     public void deleteAction(long actionId) {
@@ -36,7 +36,10 @@ public class ActionDao {
                      DELETE FROM action
                      WHERE id = :id
                      """;
-        jdbcTemplate.update(sql, new MapSqlParameterSource("id", actionId));
+
+        MapSqlParameterSource params = new MapSqlParameterSource("id", actionId);
+
+        jdbcTemplate.update(sql, params);
     }
 
     public void addAttributeToAction(long actionId, long attributeId) {
@@ -44,18 +47,23 @@ public class ActionDao {
                      INSERT INTO attribute_action (attribute_id, action_id)
                      VALUES (:actionId, :attributeId)
                      """;
-        jdbcTemplate.update(sql, new MapSqlParameterSource()
+        MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("actionId", actionId)
-                .addValue("attributeId", attributeId));
+                .addValue("attributeId", attributeId);
+
+        jdbcTemplate.update(sql, params);
     }
 
     public Set<Long> getAllAttributeIds(long actionId) {
         String sql = """
-                     SELECT attribute_id
+                     SELECT DISTINCT attribute_id
                      FROM attribute_action
                      WHERE action_id = :id
                      """;
-        return new HashSet<>(jdbcTemplate.queryForList(sql, new MapSqlParameterSource("id", actionId), Long.class));
+
+        MapSqlParameterSource params = new MapSqlParameterSource("id", actionId);
+
+        return new HashSet<>(jdbcTemplate.queryForList(sql, params, Long.class));
     }
 
     public Long insertExecutedAction(long actionId, long customerId) {

@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -96,21 +98,8 @@ public class AttributeValueDao {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("ownerIds", ownerIds);
 
-        return jdbcTemplate.query(
-                sql,
-                params,
-                (rs, _) -> new AttributeValueRow(
-                        rs.getLong("owner_id"),
-                        rs.getLong("attribute_id"),
-                        AttributeOwnerType.valueOf(rs.getString("owner_type")),
-                        rs.getString("name"),
-                        AttributeValueType.valueOf(rs.getString("value_type")),
-                        List.of((String[]) rs.getArray("value").getArray()),
-                        rs.getBoolean("is_list")
-                )
-        );
+        return jdbcTemplate.query(sql, params, AttributeValueDao::createAttributeValueRow);
     }
-
 
     public AttributeValueRow getAttributeValue(long ownerId, long attributeId) {
         String sql = """
@@ -134,7 +123,11 @@ public class AttributeValueDao {
                 .addValue("ownerId", ownerId)
                 .addValue("attributeId", attributeId);
 
-        return jdbcTemplate.queryForObject(sql, params, (rs, _) -> new AttributeValueRow(
+        return jdbcTemplate.queryForObject(sql, params, AttributeValueDao::createAttributeValueRow);
+    }
+
+    private static AttributeValueRow createAttributeValueRow(ResultSet rs, int ignored) throws SQLException {
+        return new AttributeValueRow(
                 rs.getLong("owner_id"),
                 rs.getLong("attribute_id"),
                 AttributeOwnerType.valueOf(rs.getString("owner_type")),
@@ -142,6 +135,6 @@ public class AttributeValueDao {
                 AttributeValueType.valueOf(rs.getString("value_type")),
                 List.of((String[]) rs.getArray("value").getArray()),
                 rs.getBoolean("is_list")
-        ));
+        );
     }
 }
