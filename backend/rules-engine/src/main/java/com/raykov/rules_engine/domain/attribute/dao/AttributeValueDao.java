@@ -22,13 +22,12 @@ public class AttributeValueDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void updateAttributeValue(long ownerId, long attributeId, long executedActionId, String value) {
+    public void updateAttributeValue(long ownerId, long attributeId, String value) {
         String sql = """
-                         INSERT INTO attribute_value (owner_id, attribute_id, executed_action_id, value)
+                         INSERT INTO attribute_value (owner_id, attribute_id, value)
                          SELECT
                              :ownerId,
                              :attributeId,
-                             :executedActionId,
                              CASE
                                  WHEN (SELECT is_list FROM attribute WHERE id = :attributeId)
                                  THEN COALESCE((
@@ -36,7 +35,7 @@ public class AttributeValueDao {
                                      FROM attribute_value
                                      WHERE owner_id = :ownerId
                                        AND attribute_id = :attributeId
-                                     ORDER BY executed_action_id DESC
+                                     ORDER BY id DESC
                                      LIMIT 1
                                  ), '{}'::text[]) || ARRAY[:value]
                                  ELSE ARRAY[:value]
@@ -46,7 +45,6 @@ public class AttributeValueDao {
         jdbcTemplate.update(sql, new MapSqlParameterSource()
                 .addValue("ownerId", ownerId)
                 .addValue("attributeId", attributeId)
-                .addValue("executedActionId", executedActionId)
                 .addValue("value", value)
         );
     }
@@ -70,7 +68,6 @@ public class AttributeValueDao {
         );
     }
 
-
     public List<AttributeValueRow> getAllAttributeValues(Collection<Long> ownerIds) {
         if (ownerIds.isEmpty()) {
             return List.of();
@@ -91,7 +88,7 @@ public class AttributeValueDao {
                      ORDER BY
                          av.owner_id,
                          av.attribute_id,
-                         av.executed_action_id DESC,
+                         av.id DESC,
                          a.name
                      """;
 
@@ -115,7 +112,7 @@ public class AttributeValueDao {
                      JOIN attribute a ON av.attribute_id = a.id
                      WHERE av.owner_id = :ownerId
                        AND av.attribute_id = :attributeId
-                     ORDER BY av.executed_action_id DESC
+                     ORDER BY av.id DESC
                      LIMIT 1
                      """;
 

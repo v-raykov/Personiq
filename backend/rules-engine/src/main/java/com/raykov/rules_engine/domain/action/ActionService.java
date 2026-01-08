@@ -55,7 +55,7 @@ public class ActionService {
         long executedActionId = actionDao.insertExecutedAction(actionId, customerId);
 
         attributes.forEach((attribute_id, value) ->
-                                   attributeService.updateAttributeValue(executedActionId, attribute_id, executedActionId, value));
+                                   attributeService.updateAttributeValue(executedActionId, attribute_id, value));
     }
 
     public List<Action> getActions() {
@@ -81,12 +81,5 @@ public class ActionService {
                       .stream()
                       .map(action -> action.withAttributes(attributeValues.getOrDefault(action.id(), List.of())))
                       .toList();
-    }
-
-    public void updateCustomerAttributes(long customerId, Map<Long, String> attributes) {
-        attributes.forEach((attribute_id, value) -> {
-            long executedActionId = actionDao.insertExecutedAction(-1, customerId);
-            attributeService.updateAttributeValue(customerId, attribute_id, executedActionId, value);
-        });
     }
 }

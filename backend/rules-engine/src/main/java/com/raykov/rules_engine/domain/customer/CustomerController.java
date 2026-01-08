@@ -6,6 +6,7 @@ import com.raykov.rules_engine.domain.attribute.model.PutAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/customer-attribute")
@@ -36,6 +37,11 @@ public class CustomerController {
     public AttributeValueRow getAttributeValue(@PathVariable long attributeId,
                                                @RequestParam long customerId) {
         return customerService.getAttributeValue(customerId, attributeId);
+    }
+
+    @PostMapping("/value")
+    public void updateCustomerAttributes(@RequestParam long customerId, @RequestBody Map<Long, String> attributes) {
+        customerService.updateCustomerAttributes(customerId, attributes);
     }
 
     @DeleteMapping("/value/{attributeId}")

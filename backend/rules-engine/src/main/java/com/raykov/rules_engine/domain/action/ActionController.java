@@ -43,11 +43,6 @@ public class ActionController {
         actionService.deleteAttribute(attributeId);
     }
 
-    @PostMapping("/customer-update")
-    public void updateCustomerAttributes(@RequestParam long customerId, @RequestBody Map<Long, String> attributes) {
-        actionService.updateCustomerAttributes(customerId, attributes);
-    }
-
     @PostMapping("/{actionId}/execute")
     public void executeAction(@PathVariable long actionId,
                               @RequestParam long customerId,
