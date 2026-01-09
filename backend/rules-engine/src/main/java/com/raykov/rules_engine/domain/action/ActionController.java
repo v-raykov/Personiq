@@ -1,8 +1,7 @@
 package com.raykov.rules_engine.domain.action;
 
-import com.raykov.rules_engine.domain.action.model.Action;
-import com.raykov.rules_engine.domain.action.model.ExecutedAction;
-import com.raykov.rules_engine.domain.attribute.model.PutAttributeRequest;
+import com.raykov.rules_engine.domain.core.EntityAttributes;
+import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class ActionController {
     }
 
     @GetMapping
-    public List<Action> getActions() {
+    public List<EntityAttributes> getActions() {
         return actionService.getActions();
     }
 

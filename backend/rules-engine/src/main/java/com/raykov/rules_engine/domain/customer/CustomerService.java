@@ -1,9 +1,8 @@
 package com.raykov.rules_engine.domain.customer;
 
-import com.raykov.rules_engine.domain.attribute.model.Attribute;
-import com.raykov.rules_engine.domain.attribute.AttributeService;
-import com.raykov.rules_engine.domain.attribute.model.AttributeValueRow;
-import com.raykov.rules_engine.domain.attribute.type.AttributeOwnerType;
+import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.attribute.Attribute;
+import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,39 +11,43 @@ import java.util.Map;
 @Service
 public class CustomerService {
 
-    private final AttributeService attributeService;
+    private static final long customerEntityId = 1L;
 
-    public CustomerService(AttributeService attributeService) {
-        this.attributeService = attributeService;
+    private final EntityAttributeManager entityAttributeManager;
+
+    public CustomerService(EntityAttributeManager entityAttributeManager) {
+        this.entityAttributeManager = entityAttributeManager;
     }
 
-    public List<AttributeValueRow> getAllAttributeValues(long ownerId) {
-        return attributeService.getAllAttributeValuesByOwnerId(ownerId);
-    }
-
-    public AttributeValueRow getAttributeValue(long ownerId, long attributeId) {
-        return attributeService.getAttributeValue(ownerId, attributeId);
-    }
-
-    public void deleteAttributeValue(long ownerId, long attributeId, String attributeValue) {
-        attributeService.deleteAttributeValue(ownerId, attributeId, attributeValue);
+    public long registerCustomer() {
+        return entityAttributeManager.createEntityInstance(customerEntityId);
     }
 
     public long createAttribute(String name, String type, boolean isList) {
-        long attributeId =  attributeService.createAttribute(name, type, isList);
-        attributeService.addAttributeToCustomers(attributeId);
-        return attributeId;
+        return entityAttributeManager.createAttribute(customerEntityId, name, type, isList);
     }
 
     public List<Attribute> getAttributes() {
-        return attributeService.getCustomerAttributes();
+        return entityAttributeManager.getAllAttributesByEntityId(customerEntityId);
     }
 
     public void deleteAttribute(long attributeId) {
-        attributeService.deleteAttribute(attributeId);
+        entityAttributeManager.deleteAttribute(attributeId);
+    }
+
+    public List<AttributeValueRow> getAllAttributeValues(long customerId) {
+        return entityAttributeManager.getAllAttributeValuesByEntityInstanceId(customerId);
+    }
+
+    public AttributeValueRow getAttributeValue(long attributeId, long customerId) {
+        return entityAttributeManager.getAttributeValue(attributeId, customerId);
     }
 
     public void updateCustomerAttributes(long customerId, Map<Long, String> attributes) {
-        attributes.forEach((attribute_id, value) -> attributeService.updateAttributeValue(customerId, attribute_id, value));
+        attributes.forEach((attributeId, value) -> entityAttributeManager.updateAttributeValue(attributeId, customerId, value));
+    }
+
+    public void deleteAttributeValue(long attributeId, long customerId, String attributeValue) {
+        entityAttributeManager.deleteAttributeValue(attributeId, customerId, attributeValue);
     }
 }

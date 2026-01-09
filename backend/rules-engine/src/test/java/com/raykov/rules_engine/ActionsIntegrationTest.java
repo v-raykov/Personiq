@@ -1,12 +1,12 @@
 package com.raykov.rules_engine;
 
 import com.raykov.rules_engine.domain.action.ActionController;
-import com.raykov.rules_engine.domain.action.model.Action;
-import com.raykov.rules_engine.domain.action.model.ExecutedAction;
-import com.raykov.rules_engine.domain.attribute.model.Attribute;
-import com.raykov.rules_engine.domain.attribute.model.AttributeValue;
-import com.raykov.rules_engine.domain.attribute.model.PutAttributeRequest;
-import com.raykov.rules_engine.domain.attribute.type.AttributeValueType;
+import com.raykov.rules_engine.domain.action.ExecutedAction;
+import com.raykov.rules_engine.domain.core.EntityAttributes;
+import com.raykov.rules_engine.domain.core.attribute.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
+import com.raykov.rules_engine.domain.core.value.AttributeValue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,23 +22,26 @@ public class ActionsIntegrationTest extends SpringBaseTest {
 
     @Test
     public void createAction() {
-        actionController.createAction("action");
+        long id = actionController.createAction("action");
 
-        List<Action> actions = actionController.getActions();
+        List<EntityAttributes> actions = actionController.getActions();
 
         assertThat(actions).hasSize(1);
-        assertThat(actions).containsExactly(new Action(1L, "action", List.of()));
+        assertThat(actions).containsExactly(new EntityAttributes(id, "action", List.of()));
     }
 
     @Test
     public void addAttributeToAction() {
         long actionId = actionController.createAction("action");
-        actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
+        long attributeId = actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
 
-        List<Action> actions = actionController.getActions();
+        List<EntityAttributes> actions = actionController.getActions();
 
         assertThat(actions).hasSize(1);
-        assertThat(actions).containsExactly(new Action(1L, "action", List.of(new Attribute(1L, "attribute", AttributeValueType.STRING, false))));
+        assertThat(actions).containsExactly(new EntityAttributes(actionId,
+                                                                 "action",
+                                                                 List.of(new Attribute(attributeId, actionId, "attribute", AttributeValueType.STRING, false)))
+        );
     }
 
     @Test
