@@ -35,7 +35,7 @@ public class ActionService {
     }
 
     @Transactional
-    public void executeAction(long actionId, long customerId, Map<Long, String> attributes) {
+    public long executeAction(long actionId, long customerId, Map<Long, String> attributes) {
         if (!entityAttributeManager.getAllAttributeIdsByEntityId(actionId).equals(attributes.keySet())) {
             throw new IllegalArgumentException("Not all attributes are provided for action with id: " + actionId);
         }
@@ -43,7 +43,8 @@ public class ActionService {
         long executedActionId = entityAttributeManager.createEntityInstance(actionId, customerId);
 
         attributes.forEach((attribute_id, value) ->
-                                   entityAttributeManager.updateAttributeValue(executedActionId, attribute_id, value));
+                                   entityAttributeManager.updateAttributeValue(attribute_id, executedActionId, value));
+        return executedActionId;
     }
 
     public List<EntityAttributes> getActions() {

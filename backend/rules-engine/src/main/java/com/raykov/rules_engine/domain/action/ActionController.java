@@ -43,10 +43,10 @@ public class ActionController {
     }
 
     @PostMapping("/{actionId}/execute")
-    public void executeAction(@PathVariable long actionId,
+    public long executeAction(@PathVariable long actionId,
                               @RequestParam long customerId,
                               @RequestBody Map<Long, String> attributes) {
-        actionService.executeAction(actionId, customerId, attributes);
+        return actionService.executeAction(actionId, customerId, attributes);
     }
 
     @GetMapping("/executed")

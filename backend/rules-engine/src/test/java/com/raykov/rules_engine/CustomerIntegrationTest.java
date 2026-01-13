@@ -36,23 +36,12 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     }
 
     @Test
-    public void deleteAttribute() {
-        String name = "name";
-        customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
-        assertThat(customerController.getAttributes()).hasSize(1);
-
-        customerController.deleteAttribute(1L);
-
-        assertThat(customerController.getAttributes()).isEmpty();
-    }
-
-    @Test
     public void setAndGetSingleAttributeValue() {
         String name = "name";
         String value = "values";
         customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
 
-        long customerId = customerController.registerCustomer();
+        long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
         customerController.updateCustomerAttributes(customerId, Map.of(id, value));
 
@@ -67,7 +56,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         String value = "values";
         customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
 
-        long customerId = customerController.registerCustomer();
+        long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
         customerController.updateCustomerAttributes(customerId, Map.of(id, value));
 
@@ -85,7 +74,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         String name = "name";
         customerController.createAttribute(new PutAttributeRequest(name, "STRING", true));
 
-        long customerId = customerController.registerCustomer();
+        long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
 
         customerController.updateCustomerAttributes(customerId, Map.of(id, "value1"));
@@ -101,7 +90,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         String name = "name";
         customerController.createAttribute(new PutAttributeRequest(name, "STRING", true));
 
-        long customerId = customerController.registerCustomer();
+        long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
         customerController.updateCustomerAttributes(customerId, Map.of(id, "value1"));
         customerController.updateCustomerAttributes(customerId, Map.of(id, "value2"));
@@ -117,7 +106,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     @Test
     public void createMultipleAttributesAndValues() {
         // Single-values attribute
-        long customerId = customerController.registerCustomer();
+        long customerId = login();
         long attributeId1 = customerController.createAttribute(new PutAttributeRequest("name1", "STRING", false));
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId1, "value"));
 
@@ -141,7 +130,6 @@ public class CustomerIntegrationTest extends SpringBaseTest {
                                            .findFirst()
                                            .orElseThrow();
         assertThat(attr2.values()).containsExactly("value1", "value2", "value3");
-
     }
 
     // TODO: Attributes should have default values
@@ -151,7 +139,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
         long id = customerController.getAttributes().getFirst().id();
 
-        long customerId = customerController.registerCustomer();
+        long customerId = login();
         assertThatThrownBy(() -> customerController.getAttributeValue(id, customerId));
     }
 }

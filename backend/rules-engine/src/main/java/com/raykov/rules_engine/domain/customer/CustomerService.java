@@ -2,6 +2,7 @@ package com.raykov.rules_engine.domain.customer;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.attribute.Attribute;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
 import org.springframework.stereotype.Service;
 
@@ -36,11 +37,11 @@ public class CustomerService {
     }
 
     public List<AttributeValueRow> getAllAttributeValues(long customerId) {
-        return entityAttributeManager.getAllAttributeValuesByEntityInstanceId(customerId);
+        return entityAttributeManager.getAllAttributeValuesByEntityInstanceId(customerId, EntityType.CUSTOMER);
     }
 
     public AttributeValueRow getAttributeValue(long attributeId, long customerId) {
-        return entityAttributeManager.getAttributeValue(attributeId, customerId);
+        return entityAttributeManager.getAttributeValue(attributeId, customerId, EntityType.CUSTOMER);
     }
 
     public void updateCustomerAttributes(long customerId, Map<Long, String> attributes) {

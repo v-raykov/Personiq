@@ -37,6 +37,15 @@ public class EntityAttributeManager {
     }
 
     public long createEntityInstance(long entityId, Long targetInstanceId) {
+        List<Long> customerIds = entityDao.getAllInstancesByType(EntityType.CUSTOMER)
+                                          .stream()
+                                          .map(EntityInstance::id)
+                                          .toList();
+
+        if (targetInstanceId != null && !customerIds.contains(targetInstanceId)) {
+            throw new IllegalArgumentException("Target instance id is not a customer");
+        }
+
         return entityDao.createEntityInstance(entityId, targetInstanceId);
     }
 
@@ -56,12 +65,12 @@ public class EntityAttributeManager {
         attributeDao.deleteAttribute(attributeId);
     }
 
-    public List<AttributeValueRow> getAllAttributeValuesByEntityInstanceId(long entityInstanceId) {
-        return attributeValueDao.getAllByEntityInstanceIds(List.of(entityInstanceId));
+    public List<AttributeValueRow> getAllAttributeValuesByEntityInstanceId(long entityInstanceId, EntityType entityType) {
+        return attributeValueDao.getAllByEntityInstanceIds(List.of(entityInstanceId), entityType);
     }
 
-    public AttributeValueRow getAttributeValue(long attributeId, long entityInstanceId) {
-        return attributeValueDao.getByEntityInstanceId(attributeId, entityInstanceId);
+    public AttributeValueRow getAttributeValue(long attributeId, long entityInstanceId, EntityType entityType) {
+        return attributeValueDao.getByEntityInstanceId(attributeId, entityInstanceId, entityType);
     }
 
     public void updateAttributeValue(long attributeId, long entityInstanceId, String value) {
@@ -76,8 +85,8 @@ public class EntityAttributeManager {
         return entityDao.createEntity(name, entityType);
     }
 
-    public void deleteEntity(long actionId) {
-        entityDao.deleteEntity(actionId);
+    public void deleteEntity(long entityId) {
+        entityDao.deleteEntity(entityId);
     }
 
     public List<EntityAttributes> getAllEntitiesByType(EntityType entityType) {
@@ -103,7 +112,7 @@ public class EntityAttributeManager {
                                                       .map(EntityInstance::id)
                                                       .toList();
 
-        Map<Long, List<AttributeValue>> values = attributeValueDao.getAllByEntityInstanceIds(entityInstanceIds)
+        Map<Long, List<AttributeValue>> values = attributeValueDao.getAllByEntityInstanceIds(entityInstanceIds, entityType)
                                                                   .stream()
                                                                   .collect(Collectors.groupingBy(
                                                                           AttributeValueRow::entityInstanceId,

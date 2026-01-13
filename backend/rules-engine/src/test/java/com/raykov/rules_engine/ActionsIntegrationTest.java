@@ -7,12 +7,14 @@ import com.raykov.rules_engine.domain.core.attribute.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
 import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
 import com.raykov.rules_engine.domain.core.value.AttributeValue;
+import com.raykov.rules_engine.domain.customer.CustomerController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class ActionsIntegrationTest extends SpringBaseTest {
@@ -46,14 +48,25 @@ public class ActionsIntegrationTest extends SpringBaseTest {
 
     @Test
     public void executeAction() {
+        long customerId = login();
         long actionId = actionController.createAction("action");
         long attributeId = actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
 
-        actionController.executeAction(actionId, 1L, Map.of(attributeId, "value"));
+        long executedActionId = actionController.executeAction(actionId, customerId, Map.of(attributeId, "value"));
+
 
         List<ExecutedAction> executedActions = actionController.getExecutedActions();
         assertThat(executedActions).hasSize(1);
+
         List<AttributeValue> attributes = List.of(new AttributeValue(attributeId, "attribute", AttributeValueType.STRING, List.of("value"), false));
-        assertThat(executedActions).containsExactly(new ExecutedAction(1L, actionId, 1L, attributes));
+        assertThat(executedActions).containsExactly(new ExecutedAction(executedActionId, actionId, customerId, attributes));
+    }
+
+    @Test
+    public void executeAction_withInvalidTargetInstanceId_shouldThrow() {
+        long actionId = actionController.createAction("action");
+        long attributeId = actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
+
+        assertThatThrownBy(() -> actionController.executeAction(actionId, 1L, Map.of(attributeId, "value")));
     }
 }

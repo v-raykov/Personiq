@@ -1,6 +1,7 @@
 package com.raykov.rules_engine.domain.core.value;
 
 import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -19,7 +20,7 @@ public class AttributeValueDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<AttributeValueRow> getAllByEntityInstanceIds(List<Long> entityInstanceIds) {
+    public List<AttributeValueRow> getAllByEntityInstanceIds(List<Long> entityInstanceIds, EntityType entityType) {
         if (entityInstanceIds.isEmpty()) {
             return List.of();
         }
@@ -34,7 +35,9 @@ public class AttributeValueDao {
                          COALESCE(av.value, '{}') AS value
                      FROM attribute_value av
                      JOIN attribute a ON av.attribute_id = a.id
+                     JOIN entity e ON a.entity_id = e.id
                      WHERE av.entity_instance_id IN (:entityInstanceIds)
+                         AND e.entity_type = CAST(:entityType AS entity_type)
                      ORDER BY
                          av.entity_instance_id,
                          av.attribute_id,
@@ -43,12 +46,13 @@ public class AttributeValueDao {
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("entityInstanceIds", entityInstanceIds);
+                .addValue("entityInstanceIds", entityInstanceIds)
+                .addValue("entityType", entityType.name());
 
         return jdbcTemplate.query(sql, params, AttributeValueDao::createAttributeValueRow);
     }
 
-    public AttributeValueRow getByEntityInstanceId(long attributeId, long entityInstanceId) {
+    public AttributeValueRow getByEntityInstanceId(long attributeId, long entityInstanceId, EntityType entityType) {
         String sql = """
                      SELECT
                          av.entity_instance_id,
@@ -59,17 +63,25 @@ public class AttributeValueDao {
                          av.value
                      FROM attribute_value av
                      JOIN attribute a ON av.attribute_id = a.id
+                     JOIN entity e ON a.entity_id = e.id
                      WHERE av.attribute_id = :attributeId
                        AND av.entity_instance_id = :entityInstanceId
+                       AND e.entity_type = CAST(:entityType AS entity_type)
+                       AND a.removed = FALSE
+                       AND e.removed = FALSE
                      ORDER BY av.id DESC
                      LIMIT 1
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("attributeId", attributeId)
-                .addValue("entityInstanceId", entityInstanceId);
+                .addValue("entityInstanceId", entityInstanceId)
+                .addValue("entityType", entityType.name());
 
-        return jdbcTemplate.queryForObject(sql, params, AttributeValueDao::createAttributeValueRow);
+        return jdbcTemplate.query(sql, params, AttributeValueDao::createAttributeValueRow)
+                           .stream()
+                           .findFirst()
+                           .orElse(null);
     }
 
     public void updateAttributeValue(long attributeId, long entityInstanceId, String value) {

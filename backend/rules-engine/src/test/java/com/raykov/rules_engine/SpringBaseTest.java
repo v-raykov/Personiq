@@ -1,5 +1,6 @@
 package com.raykov.rules_engine;
 
+import com.raykov.rules_engine.domain.customer.CustomerController;
 import com.raykov.rules_engine.tenant.TenantController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private CustomerController customerController;
 
     private long tenantId;
 
@@ -63,5 +67,9 @@ public abstract class SpringBaseTest {
             conn.prepareStatement("DROP SCHEMA IF EXISTS tenant_" + tenantId + " CASCADE;").execute();
             conn.prepareStatement("DELETE FROM tenant_registry WHERE id = " + tenantId + ";").execute();
         }
+    }
+
+    protected long login() {
+        return customerController.registerCustomer();
     }
 }
