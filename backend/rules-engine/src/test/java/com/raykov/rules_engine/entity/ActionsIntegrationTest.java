@@ -1,13 +1,13 @@
-package com.raykov.rules_engine;
+package com.raykov.rules_engine.entity;
 
+import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionController;
 import com.raykov.rules_engine.domain.action.ExecutedAction;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
 import com.raykov.rules_engine.domain.core.attribute.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
-import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.core.value.AttributeValue;
-import com.raykov.rules_engine.domain.customer.CustomerController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,8 +23,8 @@ public class ActionsIntegrationTest extends SpringBaseTest {
     private ActionController actionController;
 
     @Test
-    public void createAction() {
-        long id = actionController.createAction("action");
+    public void createAction_verifyPersisted() {
+        long id = actionController.createAction("action", null);
 
         List<EntityAttributes> actions = actionController.getActions();
 
@@ -34,8 +34,8 @@ public class ActionsIntegrationTest extends SpringBaseTest {
 
     @Test
     public void addAttributeToAction() {
-        long actionId = actionController.createAction("action");
-        long attributeId = actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
+        long actionId = actionController.createAction("action", null);
+        long attributeId = actionController.createActionAttribute(actionId, new CreateAttributeRequest("attribute", "STRING", false));
 
         List<EntityAttributes> actions = actionController.getActions();
 
@@ -49,8 +49,8 @@ public class ActionsIntegrationTest extends SpringBaseTest {
     @Test
     public void executeAction() {
         long customerId = login();
-        long actionId = actionController.createAction("action");
-        long attributeId = actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
+        long actionId = actionController.createAction("action", null);
+        long attributeId = actionController.createActionAttribute(actionId, new CreateAttributeRequest("attribute", "STRING", false));
 
         long executedActionId = actionController.executeAction(actionId, customerId, Map.of(attributeId, "value"));
 
@@ -64,9 +64,29 @@ public class ActionsIntegrationTest extends SpringBaseTest {
 
     @Test
     public void executeAction_withInvalidTargetInstanceId_shouldThrow() {
-        long actionId = actionController.createAction("action");
-        long attributeId = actionController.createActionAttribute(actionId, new PutAttributeRequest("attribute", "STRING", false));
+        long actionId = actionController.createAction("action", null);
+        long attributeId = actionController.createActionAttribute(actionId, new CreateAttributeRequest("attribute", "STRING", false));
 
         assertThatThrownBy(() -> actionController.executeAction(actionId, 1L, Map.of(attributeId, "value")));
+    }
+
+    @Test
+    public void createAction_includingAttributesRequest() {
+        List<CreateAttributeRequest> attributes = List.of(
+                new CreateAttributeRequest("attribute1", "STRING", false),
+                new CreateAttributeRequest("attribute2", "NUMBER", false),
+                new CreateAttributeRequest("attribute3", "STRING", true)
+        );
+        long actionId = actionController.createAction("action", attributes);
+
+        List<EntityAttributes> actions = actionController.getActions();
+
+        assertThat(actions).hasSize(1);
+        assertThat(actions).containsExactly(new EntityAttributes(actionId,
+                                                                 "action",
+                                                                 List.of(new Attribute(1L, actionId, "attribute1", AttributeValueType.STRING, false),
+                                                                         new Attribute(2L, actionId, "attribute2", AttributeValueType.NUMBER, false),
+                                                                         new Attribute(3L, actionId, "attribute3", AttributeValueType.STRING, true)))
+        );
     }
 }

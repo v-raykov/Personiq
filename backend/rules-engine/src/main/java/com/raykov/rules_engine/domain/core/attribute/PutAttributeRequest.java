@@ -1,5 +1,0 @@
-package com.raykov.rules_engine.domain.core.attribute;
-
-public record PutAttributeRequest(String name, String type, boolean isList) {
-
-}

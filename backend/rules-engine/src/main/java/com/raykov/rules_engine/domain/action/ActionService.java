@@ -2,6 +2,7 @@ package com.raykov.rules_engine.domain.action;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
+import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +19,14 @@ public class ActionService {
         this.entityAttributeManager = entityAttributeManager;
     }
 
-    public long createAction(String name) {
-        return entityAttributeManager.createEntity(name, EntityType.ACTION);
+    public long createAction(String name, List<CreateAttributeRequest> attributes) {
+        long id = entityAttributeManager.createEntity(name, EntityType.ACTION);
+
+        if (attributes != null && !attributes.isEmpty()) {
+            attributes.forEach(attribute ->
+                                       entityAttributeManager.createAttribute(id, attribute.name(), attribute.type(), attribute.isList()));
+        }
+        return id;
     }
 
     public void deleteAction(long actionId) {

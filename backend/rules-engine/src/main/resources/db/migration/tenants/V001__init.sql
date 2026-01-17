@@ -1,5 +1,11 @@
 CREATE TYPE attribute_value_type AS ENUM ('STRING', 'BOOLEAN', 'DATE', 'NUMBER');
 CREATE TYPE entity_type AS ENUM ('CUSTOMER', 'ACTION', 'ITEM');
+CREATE TYPE update_operation AS ENUM (
+    'ADDITION', 'SUBTRACTION', 'MULTIPLICATION','DIVISION','INCREMENT','DECREMENT',
+    'CONCATENATION',
+    'SET_FALSE', 'SET_TRUE', 'FLIP',
+    'SET',
+    'SET_NOW');
 
 CREATE TABLE entity
 (
@@ -33,6 +39,17 @@ CREATE TABLE attribute_value
     attribute_id       BIGINT NOT NULL REFERENCES attribute,
     entity_instance_id BIGINT NOT NULL REFERENCES entity_instance,
     value              TEXT[] NOT NULL
+);
+
+CREATE TABLE reaction
+(
+    id                  BIGSERIAL PRIMARY KEY,
+    trigger_entity_id   BIGINT           NOT NULL REFERENCES entity,
+    target_attribute_id BIGINT           NOT NULL REFERENCES attribute,
+    operation           update_operation NOT NULL,
+    value               TEXT,
+    isValueAttributeId  BOOLEAN          NOT NULL,
+    removed             BOOLEAN DEFAULT FALSE
 );
 
 INSERT INTO entity(entity_type, name)

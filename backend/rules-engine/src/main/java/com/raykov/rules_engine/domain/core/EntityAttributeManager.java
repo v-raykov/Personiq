@@ -50,7 +50,7 @@ public class EntityAttributeManager {
     }
 
     public long createAttribute(long entityId, String name, String type, boolean isList) {
-        AttributeValueType valueType = AttributeValueType.valueOf(type);
+        AttributeValueType valueType = AttributeValueType.valueOf(type.toUpperCase());
 
         Attribute attribute = new Attribute(name, valueType, isList);
 
@@ -129,5 +129,23 @@ public class EntityAttributeManager {
                            .stream()
                            .map(Attribute::id)
                            .collect(Collectors.toSet());
+    }
+
+    public Attribute getAttributeById(String attributeId) {
+        try {
+            return getAttributeById(Long.parseLong(attributeId));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid attribute id");
+        }
+    }
+
+    public Attribute getAttributeById(long attributeId) {
+        return attributeDao.getAttributeById(attributeId)
+                           .orElseThrow(() -> new IllegalArgumentException("Attribute with this id does not exist"));
+    }
+
+    public Entity getEntityById(long entityId, EntityType entityType) {
+        return entityDao.getEntityById(entityId, entityType)
+                        .orElseThrow(() -> new IllegalArgumentException("Action with this id does not exist"));
     }
 }

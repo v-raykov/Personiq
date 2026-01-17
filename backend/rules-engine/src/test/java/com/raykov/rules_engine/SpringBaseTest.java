@@ -1,5 +1,8 @@
 package com.raykov.rules_engine;
 
+import com.raykov.rules_engine.domain.action.ActionController;
+import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.customer.CustomerController;
 import com.raykov.rules_engine.tenant.TenantController;
 import org.junit.jupiter.api.AfterEach;
@@ -32,6 +35,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private CustomerController customerController;
+
+    @Autowired
+    private ActionController actionController;
 
     private long tenantId;
 
@@ -71,5 +77,30 @@ public abstract class SpringBaseTest {
 
     protected long login() {
         return customerController.registerCustomer();
+    }
+
+    protected long createCustomerAttribute() {
+        return createCustomerAttribute("STRING");
+    }
+
+    protected long createCustomerAttribute(String type) {
+        String attributeName = "attribute" + ThreadLocalRandom.current();
+        CreateAttributeRequest request = new CreateAttributeRequest(attributeName, type, false);
+        return customerController.createAttribute(request);
+    }
+
+    protected long createAction() {
+        String actionName = "action" + ThreadLocalRandom.current();
+        return actionController.createAction(actionName, null);
+    }
+
+    protected long createActionAttribute(long actionId) {
+        return createActionAttribute(actionId, "STRING");
+    }
+
+    protected long createActionAttribute(long actionId, String type) {
+        String attributeName = "attribute" + ThreadLocalRandom.current();
+        CreateAttributeRequest request = new CreateAttributeRequest(attributeName, type, false);
+        return actionController.createActionAttribute(actionId, request);
     }
 }

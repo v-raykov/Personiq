@@ -1,7 +1,7 @@
 package com.raykov.rules_engine.domain.action;
 
 import com.raykov.rules_engine.domain.core.EntityAttributes;
-import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +18,8 @@ public class ActionController {
     }
 
     @PostMapping
-    public long createAction(@RequestParam String name) {
-        return actionService.createAction(name);
+    public long createAction(@RequestParam String name, @RequestBody List<CreateAttributeRequest> attributes) {
+        return actionService.createAction(name, attributes);
     }
 
     @GetMapping
@@ -33,7 +33,7 @@ public class ActionController {
     }
 
     @PutMapping("/{actionId}")
-    public long createActionAttribute(@PathVariable long actionId, @RequestBody PutAttributeRequest request) {
+    public long createActionAttribute(@PathVariable long actionId, @RequestBody CreateAttributeRequest request) {
         return actionService.createActionAttribute(actionId, request.name(), request.type(), request.isList());
     }
 

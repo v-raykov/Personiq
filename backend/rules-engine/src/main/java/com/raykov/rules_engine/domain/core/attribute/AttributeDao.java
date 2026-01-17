@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class AttributeDao {
@@ -84,10 +85,23 @@ public class AttributeDao {
                        AND removed = FALSE
                      """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("entityIds", entityIds);
+        SqlParameterSource params = new MapSqlParameterSource("entityIds", entityIds);
 
         return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet);
     }
 
+    public Optional<Attribute> getAttributeById(long attributeId) {
+        String sql = """
+                     SELECT id, name, entity_id, value_type, is_list
+                     FROM attribute
+                     WHERE id = :id
+                        AND removed = FALSE
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("id", attributeId);
+
+        return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet)
+                           .stream()
+                           .findFirst();
+    }
 }

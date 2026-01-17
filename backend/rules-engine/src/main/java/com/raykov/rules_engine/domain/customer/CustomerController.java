@@ -2,7 +2,7 @@ package com.raykov.rules_engine.domain.customer;
 
 import com.raykov.rules_engine.domain.core.attribute.Attribute;
 import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
-import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class CustomerController {
     }
 
     @PostMapping("/attribute")
-    public long createAttribute(@RequestBody PutAttributeRequest request) {
+    public long createAttribute(@RequestBody CreateAttributeRequest request) {
         return customerService.createAttribute(request.name(), request.type(), request.isList());
     }
 

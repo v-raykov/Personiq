@@ -1,8 +1,9 @@
-package com.raykov.rules_engine;
+package com.raykov.rules_engine.entity;
 
+import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.core.attribute.Attribute;
 import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
-import com.raykov.rules_engine.domain.core.attribute.PutAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
 import com.raykov.rules_engine.domain.customer.CustomerController;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     @Test
     public void createAttribute_verifyPersisted() {
         String name = "name";
-        PutAttributeRequest request = new PutAttributeRequest(name, "STRING", false);
+        CreateAttributeRequest request = new CreateAttributeRequest(name, "STRING", false);
 
         customerController.createAttribute(request);
 
@@ -39,7 +40,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     public void setAndGetSingleAttributeValue() {
         String name = "name";
         String value = "values";
-        customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
+        customerController.createAttribute(new CreateAttributeRequest(name, "STRING", false));
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
@@ -54,7 +55,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     public void deleteSingleAttributeValue() {
         String name = "name";
         String value = "values";
-        customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
+        customerController.createAttribute(new CreateAttributeRequest(name, "STRING", false));
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
@@ -72,7 +73,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     @Test
     public void setAndGetListAttributeValues() {
         String name = "name";
-        customerController.createAttribute(new PutAttributeRequest(name, "STRING", true));
+        customerController.createAttribute(new CreateAttributeRequest(name, "STRING", true));
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
@@ -88,7 +89,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     @Test
     public void deleteValueFromListAttribute() {
         String name = "name";
-        customerController.createAttribute(new PutAttributeRequest(name, "STRING", true));
+        customerController.createAttribute(new CreateAttributeRequest(name, "STRING", true));
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
@@ -107,11 +108,11 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     public void createMultipleAttributesAndValues() {
         // Single-values attribute
         long customerId = login();
-        long attributeId1 = customerController.createAttribute(new PutAttributeRequest("name1", "STRING", false));
+        long attributeId1 = customerController.createAttribute(new CreateAttributeRequest("name1", "STRING", false));
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId1, "value"));
 
         // List attribute
-        long attributeId2 = customerController.createAttribute(new PutAttributeRequest("name2", "STRING", true));
+        long attributeId2 = customerController.createAttribute(new CreateAttributeRequest("name2", "STRING", true));
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value1"));
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value2"));
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value3"));
@@ -136,10 +137,10 @@ public class CustomerIntegrationTest extends SpringBaseTest {
     @Test
     public void getAttributeValue_whenValueIsNotSet_throws() {
         String name = "name";
-        customerController.createAttribute(new PutAttributeRequest(name, "STRING", false));
+        customerController.createAttribute(new CreateAttributeRequest(name, "STRING", false));
         long id = customerController.getAttributes().getFirst().id();
 
         long customerId = login();
-        assertThatThrownBy(() -> customerController.getAttributeValue(id, customerId));
+        assertThat(customerController.getAttributeValue(id, customerId)).isNull();
     }
 }

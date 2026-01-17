@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class EntityDao {
@@ -83,4 +84,21 @@ public class EntityDao {
         return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getLong("target_instance_id")));
     }
 
+    public Optional<Entity> getEntityById(long entityId, EntityType entityType) {
+        String sql = """
+                     SELECT name, entity_type
+                     FROM entity
+                     WHERE id = :id
+                       AND entity_type = CAST(:entityType AS entity_type)
+                       AND removed = FALSE
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", entityId)
+                .addValue("entityType", entityType.name());
+
+        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(entityId, rs.getString("name")))
+                           .stream()
+                           .findFirst();
+    }
 }

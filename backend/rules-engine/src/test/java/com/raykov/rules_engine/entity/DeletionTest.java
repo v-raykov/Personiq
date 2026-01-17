@@ -1,5 +1,6 @@
-package com.raykov.rules_engine;
+package com.raykov.rules_engine.entity;
 
+import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.junit.jupiter.api.Test;
