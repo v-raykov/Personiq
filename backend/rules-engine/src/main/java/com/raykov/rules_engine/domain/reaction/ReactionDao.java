@@ -23,7 +23,7 @@ public class ReactionDao {
 
     public Long createReaction(Long actionId, Long attributeId, UpdateOperation operation, String value, boolean isValueAttributeId) {
         String sql = """
-                     INSERT INTO reaction(trigger_entity_id, target_attribute_id, operation, value, isValueAttributeId)
+                     INSERT INTO reaction(rule_id, target_attribute_id, operation, value, is_value_attribute_id)
                      VALUES (:triggerEntityId, :targetAttributeId, CAST(:operation AS update_operation), :value, :isValueAttributeId)
                      RETURNING id
                      """;
@@ -40,7 +40,7 @@ public class ReactionDao {
 
     public List<Reaction> getAllReactions() {
         String sql = """
-                     SELECT id, trigger_entity_id, target_attribute_id, operation, value, isValueAttributeId
+                     SELECT id, rule_id, target_attribute_id, operation, value, is_value_attribute_id
                      FROM reaction
                      WHERE removed = FALSE
                      """;
@@ -49,6 +49,6 @@ public class ReactionDao {
     }
 
     private static Reaction mapReaction(ResultSet rs, int ignored) throws SQLException {
-        return new Reaction(rs.getLong("id"), rs.getLong("trigger_entity_id"), rs.getLong("target_attribute_id"), UpdateOperation.valueOf(rs.getString("operation")), rs.getString("value"), rs.getBoolean("isValueAttributeId"));
+        return new Reaction(rs.getLong("id"), rs.getLong("rule_id"), rs.getLong("target_attribute_id"), UpdateOperation.valueOf(rs.getString("operation")), rs.getString("value"), rs.getBoolean("is_value_attribute_id"));
     }
 }

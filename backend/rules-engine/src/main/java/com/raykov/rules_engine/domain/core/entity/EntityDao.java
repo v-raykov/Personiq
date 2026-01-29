@@ -101,4 +101,19 @@ public class EntityDao {
                            .stream()
                            .findFirst();
     }
+
+    public Optional<Entity> getEntitiesById(long id) {
+        String sql = """
+                     SELECT name, entity_type
+                     FROM entity
+                     WHERE id = :id
+                        AND removed = FALSE
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("id", id);
+
+        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(id, rs.getString("name")))
+                           .stream()
+                           .findFirst();
+    }
 }

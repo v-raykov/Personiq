@@ -12,6 +12,7 @@ import com.raykov.rules_engine.domain.core.value.AttributeValueDao;
 import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -146,6 +147,12 @@ public class EntityAttributeManager {
 
     public Entity getEntityById(long entityId, EntityType entityType) {
         return entityDao.getEntityById(entityId, entityType)
-                        .orElseThrow(() -> new IllegalArgumentException("Action with this id does not exist"));
+                        .orElseThrow(() -> new IllegalArgumentException("Entity with this id does not exist"));
     }
+
+    public Entity getEntityById(long id) {
+        return entityDao.getEntitiesById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Entity with this id does not exist"));
+    }
+
 }

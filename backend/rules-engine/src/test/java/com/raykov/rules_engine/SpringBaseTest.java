@@ -2,8 +2,9 @@ package com.raykov.rules_engine;
 
 import com.raykov.rules_engine.domain.action.ActionController;
 import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.customer.CustomerController;
+import com.raykov.rules_engine.domain.rule.RuleController;
+import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.tenant.TenantController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private ActionController actionController;
+
+    @Autowired
+    private RuleController ruleController;
 
     private long tenantId;
 
@@ -84,13 +88,13 @@ public abstract class SpringBaseTest {
     }
 
     protected long createCustomerAttribute(String type) {
-        String attributeName = "attribute" + ThreadLocalRandom.current();
+        String attributeName = "attribute" + ThreadLocalRandom.current().nextLong();
         CreateAttributeRequest request = new CreateAttributeRequest(attributeName, type, false);
         return customerController.createAttribute(request);
     }
 
     protected long createAction() {
-        String actionName = "action" + ThreadLocalRandom.current();
+        String actionName = "action" + ThreadLocalRandom.current().nextLong();
         return actionController.createAction(actionName, null);
     }
 
@@ -99,8 +103,16 @@ public abstract class SpringBaseTest {
     }
 
     protected long createActionAttribute(long actionId, String type) {
-        String attributeName = "attribute" + ThreadLocalRandom.current();
+        String attributeName = "attribute" + ThreadLocalRandom.current().nextLong();
         CreateAttributeRequest request = new CreateAttributeRequest(attributeName, type, false);
         return actionController.createActionAttribute(actionId, request);
+    }
+
+    protected long createRule(long actionId, String expression) {
+        return ruleController.createRule(new CreateRuleRequest(actionId, expression));
+    }
+
+    protected long createRule(String expression) {
+        return ruleController.createRule(new CreateRuleRequest(createAction(), expression));
     }
 }

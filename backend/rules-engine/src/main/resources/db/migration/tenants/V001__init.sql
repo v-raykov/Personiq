@@ -41,15 +41,23 @@ CREATE TABLE attribute_value
     value              TEXT[] NOT NULL
 );
 
+CREATE TABLE rule
+(
+    id                BIGSERIAL PRIMARY KEY,
+    trigger_entity_id BIGINT NOT NULL REFERENCES entity,
+    expression        JSONB  NOT NULL,
+    removed           BOOLEAN DEFAULT FALSE
+);
+
 CREATE TABLE reaction
 (
-    id                  BIGSERIAL PRIMARY KEY,
-    trigger_entity_id   BIGINT           NOT NULL REFERENCES entity,
-    target_attribute_id BIGINT           NOT NULL REFERENCES attribute,
-    operation           update_operation NOT NULL,
-    value               TEXT,
-    isValueAttributeId  BOOLEAN          NOT NULL,
-    removed             BOOLEAN DEFAULT FALSE
+    id                    BIGSERIAL PRIMARY KEY,
+    rule_id               BIGINT           NOT NULL REFERENCES rule,
+    target_attribute_id   BIGINT           NOT NULL REFERENCES attribute,
+    operation             update_operation NOT NULL,
+    value                 TEXT,
+    is_value_attribute_id BOOLEAN          NOT NULL,
+    removed               BOOLEAN DEFAULT FALSE
 );
 
 INSERT INTO entity(entity_type, name)

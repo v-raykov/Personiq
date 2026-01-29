@@ -2,10 +2,10 @@ package com.raykov.rules_engine.domain.reaction;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.attribute.Attribute;
-import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import com.raykov.rules_engine.domain.reaction.model.Reaction;
 import com.raykov.rules_engine.domain.reaction.operation.UpdateOperation;
+import com.raykov.rules_engine.domain.rule.RuleService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,14 +18,17 @@ public class ReactionService {
 
     private final ReactionDao reactionDao;
 
-    public ReactionService(EntityAttributeManager entityAttributeManager, ReactionDao reactionDao) {
+    private final RuleService ruleService;
+
+    public ReactionService(EntityAttributeManager entityAttributeManager, ReactionDao reactionDao, RuleService ruleService) {
         this.entityAttributeManager = entityAttributeManager;
         this.reactionDao = reactionDao;
+        this.ruleService = ruleService;
     }
 
     public long createReaction(CreateReactionRequest request) {
         UpdateOperation operation = UpdateOperation.valueOf(request.operation().toUpperCase());
-        entityAttributeManager.getEntityById(request.actionId(), EntityType.ACTION);
+        ruleService.getRuleById(request.ruleId());
         Attribute attribute = entityAttributeManager.getAttributeById(request.attributeId());
 
         if (!operation.isValidOperationForAttributeType(attribute.valueType())) {
@@ -41,7 +44,7 @@ public class ReactionService {
             validateOperationForParameterValue(request.value(), operation);
         }
 
-        return reactionDao.createReaction(request.actionId(), request.attributeId(), operation, request.value(), request.isValueAttributeId());
+        return reactionDao.createReaction(request.ruleId(), request.attributeId(), operation, request.value(), request.isValueAttributeId());
     }
 
     public List<Reaction> getAllReactions() {
