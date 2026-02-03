@@ -12,7 +12,6 @@ import com.raykov.rules_engine.domain.core.value.AttributeValueDao;
 import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

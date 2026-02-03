@@ -3,6 +3,7 @@ package com.raykov.rules_engine.domain.action;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
 import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.entity.Entity;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,5 +64,9 @@ public class ActionService {
                                      .stream()
                                      .map(ExecutedAction::fromEntityInstanceAttributes)
                                      .toList();
+    }
+
+    public Entity getActionById(long id) {
+        return entityAttributeManager.getEntityById(id, EntityType.ACTION);
     }
 }

@@ -1,5 +1,8 @@
 package com.raykov.rules_engine.domain.rule.service;
 
+import com.raykov.rules_engine.domain.core.attribute.operation.AttributeTypeCompatibilityService;
+import com.raykov.rules_engine.domain.core.attribute.operation.ConditionalRuleOperation;
+import com.raykov.rules_engine.domain.core.attribute.operation.LogicalRuleOperation;
 import com.raykov.rules_engine.domain.rule.node.ConditionalRuleNode;
 import com.raykov.rules_engine.domain.rule.node.LogicalRuleNode;
 import com.raykov.rules_engine.domain.rule.node.RuleNode;
@@ -13,6 +16,12 @@ import java.util.regex.Pattern;
 
 @Service
 public class RuleParserService {
+
+    private final AttributeTypeCompatibilityService attributeTypeCompatibilityService;
+
+    public RuleParserService(AttributeTypeCompatibilityService attributeTypeCompatibilityService) {
+        this.attributeTypeCompatibilityService = attributeTypeCompatibilityService;
+    }
 
     public RuleNode parse(String expression) {
         List<String> tokens = tokenize(expression);
@@ -54,12 +63,14 @@ public class RuleParserService {
         if (!m.matches()) throw new IllegalArgumentException("Malformed condition: " + raw);
 
         long attrId = Long.parseLong(m.group(1));
-        var operation = ConditionalRuleNode.RuleOperation.getBySign(m.group(2))
-                                                         .orElseThrow(() -> new IllegalArgumentException(m.group(2) + " is not a valid operation sign"));
+        var operation = ConditionalRuleOperation.getBySign(m.group(2))
+                                                .orElseThrow(() -> new IllegalArgumentException(m.group(2) + " is not a valid operation sign"));
         String valPart = m.group(3);
 
         boolean isAttr = valPart.startsWith("attr_");
         String finalValue = isAttr ? valPart.substring(5) : valPart;
+
+        attributeTypeCompatibilityService.validate(attrId, operation, finalValue, isAttr);
 
         return new ConditionalRuleNode(operation, attrId, finalValue, isAttr);
     }
@@ -76,7 +87,7 @@ public class RuleParserService {
         RuleNode right = nodes.pop();
         RuleNode left = nodes.pop();
         return new LogicalRuleNode(op.equals("&")
-                                           ? LogicalRuleNode.RuleOperation.AND
-                                           : LogicalRuleNode.RuleOperation.OR, left, right);
+                                           ? LogicalRuleOperation.AND
+                                           : LogicalRuleOperation.OR, left, right);
     }
 }

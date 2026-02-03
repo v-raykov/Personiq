@@ -1,8 +1,8 @@
-package com.raykov.rules_engine.domain.reaction.operation;
+package com.raykov.rules_engine.domain.core.attribute.operation;
 
 import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
 
-public enum UpdateOperation {
+public enum UpdateOperation implements AttributeOperation {
     ADDITION,
     SUBTRACTION,
     MULTIPLICATION,
@@ -16,9 +16,11 @@ public enum UpdateOperation {
     SET,
     SET_NOW;
 
-    public boolean isValidOperationForAttributeType(AttributeValueType type) {
+    @Override
+    public boolean isSupportedFor(AttributeValueType type) {
         return switch (this) {
-            case ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, INCREMENT, DECREMENT -> type == AttributeValueType.NUMBER;
+            case ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, INCREMENT, DECREMENT ->
+                    type == AttributeValueType.NUMBER;
             case CONCATENATION -> type == AttributeValueType.STRING;
             case SET_FALSE, SET_TRUE, FLIP -> type == AttributeValueType.BOOLEAN;
             case SET_NOW -> type == AttributeValueType.DATE;

@@ -1,7 +1,7 @@
 package com.raykov.rules_engine.domain.reaction;
 
 import com.raykov.rules_engine.domain.reaction.model.Reaction;
-import com.raykov.rules_engine.domain.reaction.operation.UpdateOperation;
+import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;

@@ -6,6 +6,7 @@ import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -24,7 +25,7 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "ADDITION", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid operation for target attribute with type: STRING");
+                .hasMessage("Invalid operation: 'ADDITION' for type: STRING");
     }
 
     @Test
@@ -36,31 +37,31 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid operation for target attribute with type: NUMBER");
+                .hasMessage("Invalid operation: 'CONCATENATION' for type: NUMBER");
     }
 
     @Test
     public void valueParameter_invalidOperationForTargetAttributeType_Boolean_shouldThrow() {
         long attributeId = createCustomerAttribute("BOOLEAN");
-        long ruleId = createRule("%d = 5".formatted(attributeId));
+        long ruleId = createRule("%d = true".formatted(attributeId));
 
         // When & Then
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid operation for target attribute with type: BOOLEAN");
+                .hasMessage("Invalid operation: 'CONCATENATION' for type: BOOLEAN");
     }
 
     @Test
     public void valueParameter_invalidOperationForTargetAttributeType_Date_shouldThrow() {
         long attributeId = createCustomerAttribute("DATE");
-        long ruleId = createRule("%d = 5".formatted(attributeId));
+        long ruleId = createRule("%d = %s".formatted(attributeId, ZonedDateTime.now()));
 
         // When & Then
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid operation for target attribute with type: DATE");
+                .hasMessage("Invalid operation: 'CONCATENATION' for type: DATE");
     }
 
     @Test
@@ -72,31 +73,31 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "ADDITION", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid value parameter type for operation: ADDITION");
+                .hasMessage("Invalid value parameter: 'value' for type: NUMBER");
     }
 
     @Test
     public void valueParameter_invalidOperationForValueType_Boolean_shouldThrow() {
         long attributeId = createCustomerAttribute("BOOLEAN");
-        long ruleId = createRule("%d = 5".formatted(attributeId));
+        long ruleId = createRule("%d = true".formatted(attributeId));
 
         // When & Then
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "FLIP", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid value parameter type for operation: FLIP");
+                .hasMessage("Operation FLIP must not have a value.");
     }
 
     @Test
     public void valueParameter_invalidOperationForValueType_Date_shouldThrow() {
         long attributeId = createCustomerAttribute("DATE");
-        long ruleId = createRule("%d = 5".formatted(attributeId));
+        long ruleId = createRule("%d = %s".formatted(attributeId, ZonedDateTime.now()));
 
         // When & Then
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "SET_NOW", "value", false);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid value parameter type for operation: SET_NOW");
+                .hasMessage("Operation SET_NOW must not have a value.");
     }
 
     @Test
@@ -110,7 +111,7 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "ADDITION", String.valueOf(actionAttributeId), true);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Target and parameter attribute types have to match");
+                .hasMessage("Target and Parameter attribute types must match.");
     }
 
     @Test
@@ -124,7 +125,7 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Target and parameter attribute types have to match");
+                .hasMessage("Target and Parameter attribute types must match.");
     }
 
     @Test
@@ -138,7 +139,7 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Target and parameter attribute types have to match");
+                .hasMessage("Target and Parameter attribute types must match.");
     }
 
     @Test
@@ -152,7 +153,7 @@ public class ReactionCreationValidationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
         assertThatThrownBy(() -> reactionController.createReaction(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Target and parameter attribute types have to match");
+                .hasMessage("Target and Parameter attribute types must match.");
     }
 
     @Test

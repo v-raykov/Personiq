@@ -2,6 +2,7 @@ package com.raykov.rules_engine.domain.rule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.raykov.rules_engine.domain.action.ActionService;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.domain.rule.model.Rule;
 import com.raykov.rules_engine.domain.rule.model.RuleDbo;
@@ -24,15 +25,19 @@ public class RuleService {
 
     private final RuleDao ruleDao;
 
-    public RuleService(RuleParserService parser, RuleFormatterService formatter, ObjectMapper objectMapper, RuleDao ruleDao) {
+    private final ActionService actionService;
+
+    public RuleService(RuleParserService parser, RuleFormatterService formatter, ObjectMapper objectMapper, RuleDao ruleDao, ActionService actionService) {
         this.parser = parser;
         this.formatter = formatter;
         this.objectMapper = objectMapper;
         this.ruleDao = ruleDao;
+        this.actionService = actionService;
     }
 
-    // TODO: ADD VALIDATION
     public long createRule(CreateRuleRequest request) {
+        actionService.getActionById(request.triggerdByActionId());
+
         try {
             RuleNode rule = parser.parse(request.ruleExpression());
 

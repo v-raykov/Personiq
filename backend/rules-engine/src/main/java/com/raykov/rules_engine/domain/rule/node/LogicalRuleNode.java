@@ -1,10 +1,7 @@
 package com.raykov.rules_engine.domain.rule.node;
 
-public record LogicalRuleNode(RuleOperation operation, RuleNode left, RuleNode right) implements RuleNode {
+import com.raykov.rules_engine.domain.core.attribute.operation.LogicalRuleOperation;
 
-    public enum RuleOperation {
-        AND,
-        OR,
-    }
+public record LogicalRuleNode(LogicalRuleOperation operation, RuleNode left, RuleNode right) implements RuleNode {
 
 }
