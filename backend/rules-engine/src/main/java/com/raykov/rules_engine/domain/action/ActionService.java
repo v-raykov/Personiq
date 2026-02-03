@@ -6,7 +6,6 @@ import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.core.entity.Entity;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -42,17 +41,8 @@ public class ActionService {
         entityAttributeManager.deleteAttribute(attributeId);
     }
 
-    @Transactional
     public long executeAction(long actionId, long customerId, Map<Long, String> attributes) {
-        if (!entityAttributeManager.getAllAttributeIdsByEntityId(actionId).equals(attributes.keySet())) {
-            throw new IllegalArgumentException("Not all attributes are provided for action with id: " + actionId);
-        }
-
-        long executedActionId = entityAttributeManager.createEntityInstance(actionId, customerId);
-
-        attributes.forEach((attribute_id, value) ->
-                                   entityAttributeManager.updateAttributeValue(attribute_id, executedActionId, value));
-        return executedActionId;
+        return entityAttributeManager.createEntityInstanceAndSetAttributeValue(actionId, customerId, attributes);
     }
 
     public List<EntityAttributes> getActions() {

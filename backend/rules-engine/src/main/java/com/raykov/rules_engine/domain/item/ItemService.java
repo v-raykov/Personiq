@@ -45,14 +45,6 @@ public class ItemService {
     }
 
     public long grantItem(long itemId, long customerId, Map<Long, String> attributes) {
-        if (!entityAttributeManager.getAllAttributeIdsByEntityId(itemId).equals(attributes.keySet())) {
-            throw new IllegalArgumentException("Not all attributes are provided for action with id: " + itemId);
-        }
-
-        long grantedItemId = entityAttributeManager.createEntityInstance(itemId, customerId);
-
-        attributes.forEach((attribute_id, value) ->
-                                   entityAttributeManager.updateAttributeValue(attribute_id, grantedItemId, value));
-        return grantedItemId;
+        return entityAttributeManager.createEntityInstanceAndSetAttributeValue(itemId, customerId, attributes);
     }
 }

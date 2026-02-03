@@ -11,6 +11,7 @@ import com.raykov.rules_engine.domain.core.value.AttributeValue;
 import com.raykov.rules_engine.domain.core.value.AttributeValueDao;
 import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,19 @@ public class EntityAttributeManager {
         }
 
         return entityDao.createEntityInstance(entityId, targetInstanceId);
+    }
+
+    @Transactional
+    public long createEntityInstanceAndSetAttributeValue(long entityId, long customerId, Map<Long, String> attributes) {
+        if (!getAllAttributeIdsByEntityId(entityId).equals(attributes.keySet())) {
+            throw new IllegalArgumentException("Not all attributes are provided for entity with id: " + entityId);
+        }
+
+        long entityInstanceId = createEntityInstance(entityId, customerId);
+
+        attributes.forEach((attributeId, value) -> updateAttributeValue(attributeId, entityInstanceId, value));
+
+        return entityInstanceId;
     }
 
     public long createAttribute(long entityId, String name, String type, boolean isList) {
