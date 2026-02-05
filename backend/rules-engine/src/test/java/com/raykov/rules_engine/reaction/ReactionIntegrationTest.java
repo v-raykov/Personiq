@@ -1,17 +1,16 @@
 package com.raykov.rules_engine.reaction;
 
 import com.raykov.rules_engine.SpringBaseTest;
+import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import com.raykov.rules_engine.domain.reaction.ReactionController;
 import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import com.raykov.rules_engine.domain.reaction.model.Reaction;
-import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.ZONED_DATE_TIME;
 
 public class ReactionIntegrationTest extends SpringBaseTest {
 

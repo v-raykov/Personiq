@@ -1,4 +1,4 @@
-package com.raykov.rules_engine.domain.core.attribute;
+package com.raykov.rules_engine.domain.core.attribute.model;
 
 public enum AttributeValueType {
     STRING,

@@ -2,17 +2,28 @@ package com.raykov.rules_engine.domain.rule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.raykov.rules_engine.domain.action.ActionService;
+import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.attribute.AttributeService;
+import com.raykov.rules_engine.domain.core.attribute.operation.LogicalRuleOperation;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.domain.rule.model.Rule;
 import com.raykov.rules_engine.domain.rule.model.RuleDbo;
 import com.raykov.rules_engine.domain.rule.model.RuleResponse;
+import com.raykov.rules_engine.domain.rule.node.ConditionalRuleNode;
+import com.raykov.rules_engine.domain.rule.node.LogicalRuleNode;
 import com.raykov.rules_engine.domain.rule.node.RuleNode;
+import com.raykov.rules_engine.domain.rule.service.RuleComparisonService;
 import com.raykov.rules_engine.domain.rule.service.RuleFormatterService;
 import com.raykov.rules_engine.domain.rule.service.RuleParserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RuleService {
@@ -25,20 +36,25 @@ public class RuleService {
 
     private final RuleDao ruleDao;
 
-    private final ActionService actionService;
+    private final RuleComparisonService ruleComparisonService;
 
-    public RuleService(RuleParserService parser, RuleFormatterService formatter, ObjectMapper objectMapper, RuleDao ruleDao, ActionService actionService) {
+    private final AttributeService attributeService;
+
+    private final EntityAttributeManager entityAttributeManager;
+
+    public RuleService(RuleParserService parser, RuleFormatterService formatter, ObjectMapper objectMapper, RuleDao ruleDao, RuleComparisonService ruleComparisonService, AttributeService attributeService, EntityAttributeManager entityAttributeManager) {
         this.parser = parser;
         this.formatter = formatter;
         this.objectMapper = objectMapper;
         this.ruleDao = ruleDao;
-        this.actionService = actionService;
+        this.ruleComparisonService = ruleComparisonService;
+        this.attributeService = attributeService;
+        this.entityAttributeManager = entityAttributeManager;
     }
 
     public long createRule(CreateRuleRequest request) {
-        actionService.getActionById(request.triggerdByActionId());
-
         try {
+            entityAttributeManager.getEntityById(request.triggerdByActionId(), EntityType.ACTION);
             RuleNode rule = parser.parse(request.ruleExpression());
 
             String expression = objectMapper.writeValueAsString(rule);
@@ -62,6 +78,43 @@ public class RuleService {
         return ruleDao.getRuleById(id)
                       .map(this::createRuleFromDbo)
                       .orElseThrow(() -> new IllegalArgumentException("Rule with this id does not exist"));
+    }
+
+    public List<Rule> getRulesByTriggerActionId(long actionId) {
+        return ruleDao.getRulesByTriggerActionId(actionId)
+                      .stream()
+                      .map(this::createRuleFromDbo)
+                      .toList();
+    }
+
+    public boolean isRuleApplicable(Rule rule, long executedActionId, long customerId) {
+        Map<Long, AttributeValue> attributeValues =
+                attributeService.getAttributeValuesByIdsAndEntityInstanceIds(collectIds(rule.ruleRoot()), List.of(executedActionId, customerId));
+
+        return evaluate(rule.ruleRoot(), attributeValues);
+    }
+
+    private boolean evaluate(RuleNode node, Map<Long, AttributeValue> attributeValues) {
+        return switch (node) {
+            case LogicalRuleNode log -> log.operation() == LogicalRuleOperation.AND
+                                        ? evaluate(log.left(), attributeValues) && evaluate(log.right(), attributeValues)
+                                        : evaluate(log.left(), attributeValues) || evaluate(log.right(), attributeValues);
+            case ConditionalRuleNode cond -> cond.isValueAttributeId()
+                                             ? ruleComparisonService.compareAttributes(attributeValues.get(cond.attributeId()), cond.operation(), attributeValues.get(Long.parseLong(cond.value())))
+                                             : ruleComparisonService.compareScalar(attributeValues.get(cond.attributeId()), cond.operation(), cond.value());
+            default -> throw new IllegalStateException("Unknown node type");
+        };
+    }
+
+    private Set<Long> collectIds(RuleNode node) {
+        return switch (node) {
+            case LogicalRuleNode log -> Stream.concat(collectIds(log.left()).stream(), collectIds(log.right()).stream())
+                                              .collect(Collectors.toUnmodifiableSet());
+            case ConditionalRuleNode cond -> cond.isValueAttributeId()
+                                             ? Set.of(cond.attributeId(), Long.parseLong(cond.value()))
+                                             : Set.of(cond.attributeId());
+            default -> Set.of();
+        };
     }
 
     private Rule createRuleFromDbo(RuleDbo dbo) {

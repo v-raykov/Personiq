@@ -48,6 +48,19 @@ public class ReactionDao {
         return jdbcTemplate.query(sql, Map.of(), ReactionDao::mapReaction);
     }
 
+    public List<Reaction> getReactionsByRuleIds(List<Long> ruleIds) {
+        String sql = """
+                     SELECT id, rule_id, target_attribute_id, operation, value, is_value_attribute_id
+                     FROM reaction
+                     WHERE rule_id IN (:ruleIds)
+                         AND removed = FALSE
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("ruleIds", ruleIds);
+
+        return jdbcTemplate.query(sql, params, ReactionDao::mapReaction);
+    }
+
     private static Reaction mapReaction(ResultSet rs, int ignored) throws SQLException {
         return new Reaction(rs.getLong("id"), rs.getLong("rule_id"), rs.getLong("target_attribute_id"), UpdateOperation.valueOf(rs.getString("operation")), rs.getString("value"), rs.getBoolean("is_value_attribute_id"));
     }

@@ -1,10 +1,10 @@
 package com.raykov.rules_engine.entity;
 
 import com.raykov.rules_engine.SpringBaseTest;
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
-import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
 import com.raykov.rules_engine.domain.customer.CustomerController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CustomerIntegrationTest extends SpringBaseTest {
 
@@ -46,7 +45,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         long id = customerController.getAttributes().getFirst().id();
         customerController.updateCustomerAttributes(customerId, Map.of(id, value));
 
-        AttributeValueRow result = customerController.getAttributeValue(id, customerId);
+        AttributeValue result = customerController.getAttributeValue(id, customerId);
         assertThat(result.values()).containsExactly(value);
         assertThat(result.valueType()).isEqualTo(AttributeValueType.STRING);
     }
@@ -61,12 +60,12 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         long id = customerController.getAttributes().getFirst().id();
         customerController.updateCustomerAttributes(customerId, Map.of(id, value));
 
-        AttributeValueRow beforeDelete = customerController.getAttributeValue(id, customerId);
+        AttributeValue beforeDelete = customerController.getAttributeValue(id, customerId);
         assertThat(beforeDelete.values()).containsExactly(value);
 
         customerController.deleteAttributeValue(id, customerId, value);
 
-        AttributeValueRow afterDelete = customerController.getAttributeValue(id, customerId);
+        AttributeValue afterDelete = customerController.getAttributeValue(id, customerId);
         assertThat(afterDelete.values()).isEmpty();
     }
 
@@ -82,7 +81,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         customerController.updateCustomerAttributes(customerId, Map.of(id, "value2"));
         customerController.updateCustomerAttributes(customerId, Map.of(id, "value3"));
 
-        AttributeValueRow result = customerController.getAttributeValue(id, customerId);
+        AttributeValue result = customerController.getAttributeValue(id, customerId);
         assertThat(result.values()).containsExactly("value1", "value2", "value3");
     }
 
@@ -100,7 +99,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         // Delete one values
         customerController.deleteAttributeValue(id, customerId, "value2");
 
-        AttributeValueRow result = customerController.getAttributeValue(id, customerId);
+        AttributeValue result = customerController.getAttributeValue(id, customerId);
         assertThat(result.values()).containsExactly("value1", "value3");
     }
 
@@ -117,19 +116,19 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value2"));
         customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value3"));
 
-        List<AttributeValueRow> allValues = customerController.getAllAttributeValues(customerId);
+        List<AttributeValue> allValues = customerController.getAllAttributeValues(customerId);
 
         assertThat(allValues).hasSize(2);
-        AttributeValueRow attr1 = allValues.stream()
-                                           .filter(a -> a.name().equals("name1"))
-                                           .findFirst()
-                                           .orElseThrow();
+        AttributeValue attr1 = allValues.stream()
+                                        .filter(a -> a.name().equals("name1"))
+                                        .findFirst()
+                                        .orElseThrow();
         assertThat(attr1.values()).containsExactly("value");
 
-        AttributeValueRow attr2 = allValues.stream()
-                                           .filter(a -> a.name().equals("name2"))
-                                           .findFirst()
-                                           .orElseThrow();
+        AttributeValue attr2 = allValues.stream()
+                                        .filter(a -> a.name().equals("name2"))
+                                        .findFirst()
+                                        .orElseThrow();
         assertThat(attr2.values()).containsExactly("value1", "value2", "value3");
     }
 

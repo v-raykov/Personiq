@@ -1,7 +1,7 @@
 package com.raykov.rules_engine.entity;
 
 import com.raykov.rules_engine.SpringBaseTest;
-import com.raykov.rules_engine.domain.core.attribute.operation.AttributeTypeCompatibilityService;
+import com.raykov.rules_engine.domain.core.attribute.AttributeService;
 import com.raykov.rules_engine.domain.core.attribute.operation.ConditionalRuleOperation;
 import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
 
     @Autowired
-    private AttributeTypeCompatibilityService compatibilityService;
+    private AttributeService attributeService;
 
     @ParameterizedTest()
     @CsvSource({
@@ -27,7 +27,7 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     void scalarParameter_valid(String attributeType, UpdateOperation operation, String value) {
         long attributeId = createCustomerAttribute(attributeType);
 
-        assertThatNoException().isThrownBy(() -> compatibilityService.validate(attributeId, operation, value, false));
+        assertThatNoException().isThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, operation, value, false));
     }
 
     @ParameterizedTest()
@@ -39,7 +39,7 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     })
     void scalarParameter_invalid(String attributeType, UpdateOperation operation, String value) {
         long attributeId = createCustomerAttribute(attributeType);
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, operation, value, false))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, operation, value, false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching(".*");
     }
@@ -51,8 +51,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     void attributeParameter_valid(String targetType, UpdateOperation operation, String paramType) {
         long targetAttributeId = createCustomerAttribute(targetType);
         long parameterAttributeId = createCustomerAttribute(paramType);
-        assertThatNoException().isThrownBy(() -> compatibilityService.validate(targetAttributeId, operation,
-                                                                               String.valueOf(parameterAttributeId), true));
+        assertThatNoException().isThrownBy(() -> attributeService.validateTypeCompatibility(targetAttributeId, operation,
+                                                                           String.valueOf(parameterAttributeId), true));
     }
 
     @ParameterizedTest(name = "[{index}] INVALID attribute-param {0} + {1}")
@@ -62,8 +62,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     void attributeParameter_invalid(String targetType, UpdateOperation operation, String paramType) {
         long targetAttributeId = createCustomerAttribute(targetType);
         long parameterAttributeId = createCustomerAttribute(paramType);
-        assertThatThrownBy(() -> compatibilityService.validate(targetAttributeId, operation,
-                                                               String.valueOf(parameterAttributeId), true))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(targetAttributeId, operation,
+                                                           String.valueOf(parameterAttributeId), true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("Target and Parameter attribute types must match.");
     }
@@ -72,8 +72,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     void givenAttributeParameterReferencingItself_whenValidated_thenThrow() {
         long attributeId = createCustomerAttribute("NUMBER");
         assertThatThrownBy(() ->
-                                   compatibilityService.validate(attributeId, UpdateOperation.ADDITION,
-                                                                 String.valueOf(attributeId), true)
+                                   attributeService.validateTypeCompatibility(attributeId, UpdateOperation.ADDITION,
+                                                             String.valueOf(attributeId), true)
         ).isInstanceOf(IllegalArgumentException.class)
          .hasMessageMatching(".*cannot reference itself.");
     }
@@ -81,8 +81,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     @Test
     void givenOperationRequiringValue_whenValueIsNull_thenThrow() {
         long attributeId = createCustomerAttribute("NUMBER");
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, UpdateOperation.ADDITION,
-                                                               null, false))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, UpdateOperation.ADDITION,
+                                                           null, false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("Operation .* must have a value.");
     }
@@ -90,8 +90,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     @Test
     void givenOperationForbiddingValue_whenValueProvided_thenThrow() {
         long attributeId = createCustomerAttribute("DATE");
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, UpdateOperation.SET_NOW,
-                                                               "2024-01-01", false))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, UpdateOperation.SET_NOW,
+                                                           "2024-01-01", false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("Operation .* must not have a value.");
     }
@@ -99,8 +99,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     @Test
     void givenEmptyValue_whenValueRequired_thenThrow() {
         long attributeId = createCustomerAttribute("STRING");
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, UpdateOperation.CONCATENATION,
-                                                               "", false))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, UpdateOperation.CONCATENATION,
+                                                           "", false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("Operation .* must have a value.");
     }
@@ -108,8 +108,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     @Test
     void givenWhitespaceValue_whenValueRequired_thenThrow() {
         long attributeId = createCustomerAttribute("STRING");
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, UpdateOperation.CONCATENATION,
-                                                               "   ", false))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, UpdateOperation.CONCATENATION,
+                                                           "   ", false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("Operation .* must have a value.");
     }
@@ -117,8 +117,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     @Test
     void givenIsAttributeIdTrue_whenValueIsNotNumeric_thenThrow() {
         long attributeId = createCustomerAttribute("NUMBER");
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, UpdateOperation.ADDITION,
-                                                               "abc", true))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, UpdateOperation.ADDITION,
+                                                           "abc", true))
                 .isInstanceOf(NumberFormatException.class);
     }
 
@@ -126,8 +126,8 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     void givenOperationThatDoesNotSupportAttributeParameters_whenUsed_thenThrow() {
         long attributeId = createCustomerAttribute("DATE");
         long parameterAttributeId = createCustomerAttribute("DATE");
-        assertThatThrownBy(() -> compatibilityService.validate(attributeId, UpdateOperation.SET_NOW,
-                                                               String.valueOf(parameterAttributeId), true))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attributeId, UpdateOperation.SET_NOW,
+                                                           String.valueOf(parameterAttributeId), true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("Operation .* must not have a value.");
     }
@@ -142,7 +142,7 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     })
     void rule_scalarParameter_valid(String type, ConditionalRuleOperation op, String val) {
         long id = createCustomerAttribute(type);
-        assertThatNoException().isThrownBy(() -> compatibilityService.validate(id, op, val, false));
+        assertThatNoException().isThrownBy(() -> attributeService.validateTypeCompatibility(id, op, val, false));
     }
 
     @ParameterizedTest(name = "Rule Invalid: {0} {1}")
@@ -154,7 +154,7 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
     })
     void rule_scalarParameter_invalid(String type, ConditionalRuleOperation op, String val) {
         long id = createCustomerAttribute(type);
-        assertThatThrownBy(() -> compatibilityService.validate(id, op, val, false))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(id, op, val, false))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -163,7 +163,7 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
         long attr1 = createCustomerAttribute("NUMBER");
         long attr2 = createCustomerAttribute("NUMBER");
 
-        assertThatNoException().isThrownBy(() -> compatibilityService.validate(attr1, ConditionalRuleOperation.GREATER_THAN, String.valueOf(attr2), true));
+        assertThatNoException().isThrownBy(() -> attributeService.validateTypeCompatibility(attr1, ConditionalRuleOperation.GREATER_THAN, String.valueOf(attr2), true));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class AttributeTypeCompatibilityServiceTest extends SpringBaseTest {
         long attr1 = createCustomerAttribute("NUMBER");
         long attr2 = createCustomerAttribute("STRING");
 
-        assertThatThrownBy(() -> compatibilityService.validate(attr1, ConditionalRuleOperation.EQUAL_TO, String.valueOf(attr2), true))
+        assertThatThrownBy(() -> attributeService.validateTypeCompatibility(attr1, ConditionalRuleOperation.EQUAL_TO, String.valueOf(attr2), true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("match");
     }

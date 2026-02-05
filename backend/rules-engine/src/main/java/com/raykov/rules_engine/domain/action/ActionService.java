@@ -2,10 +2,13 @@ package com.raykov.rules_engine.domain.action;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.entity.Entity;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
+import com.raykov.rules_engine.domain.reaction.ReactionService;
+import com.raykov.rules_engine.domain.rule.RuleService;
+import com.raykov.rules_engine.domain.rule.model.Rule;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -15,8 +18,14 @@ public class ActionService {
 
     private final EntityAttributeManager entityAttributeManager;
 
-    public ActionService(EntityAttributeManager entityAttributeManager) {
+    private final RuleService ruleService;
+
+    private final ReactionService reactionService;
+
+    public ActionService(EntityAttributeManager entityAttributeManager, RuleService ruleService, ReactionService reactionService) {
         this.entityAttributeManager = entityAttributeManager;
+        this.ruleService = ruleService;
+        this.reactionService = reactionService;
     }
 
     public long createAction(String name, List<CreateAttributeRequest> attributes) {
@@ -41,8 +50,21 @@ public class ActionService {
         entityAttributeManager.deleteAttribute(attributeId);
     }
 
+    @Transactional
     public long executeAction(long actionId, long customerId, Map<Long, String> attributes) {
-        return entityAttributeManager.createEntityInstanceAndSetAttributeValue(actionId, customerId, attributes);
+        long executedActionId = entityAttributeManager.createEntityInstanceAndSetAttributeValue(actionId, customerId, attributes);
+
+        List<Long> applicableRuleIds = ruleService.getRulesByTriggerActionId(actionId)
+                                                  .stream()
+                                                  .filter(rule -> ruleService.isRuleApplicable(rule, executedActionId, customerId))
+                                                  .map(Rule::id)
+                                                  .toList();
+
+        if (!applicableRuleIds.isEmpty()) {
+            reactionService.executeReaction(executedActionId, customerId, applicableRuleIds);
+        }
+
+        return executedActionId;
     }
 
     public List<EntityAttributes> getActions() {
@@ -54,9 +76,5 @@ public class ActionService {
                                      .stream()
                                      .map(ExecutedAction::fromEntityInstanceAttributes)
                                      .toList();
-    }
-
-    public Entity getActionById(long id) {
-        return entityAttributeManager.getEntityById(id, EntityType.ACTION);
     }
 }

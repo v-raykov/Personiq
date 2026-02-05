@@ -1,4 +1,4 @@
-package com.raykov.rules_engine.domain.core.attribute;
+package com.raykov.rules_engine.domain.core.attribute.model;
 
 public record Attribute(Long id, Long entityId, String name, AttributeValueType valueType,
                         boolean isList) {

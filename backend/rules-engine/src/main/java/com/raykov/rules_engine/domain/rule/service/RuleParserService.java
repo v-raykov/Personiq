@@ -1,6 +1,6 @@
 package com.raykov.rules_engine.domain.rule.service;
 
-import com.raykov.rules_engine.domain.core.attribute.operation.AttributeTypeCompatibilityService;
+import com.raykov.rules_engine.domain.core.attribute.AttributeService;
 import com.raykov.rules_engine.domain.core.attribute.operation.ConditionalRuleOperation;
 import com.raykov.rules_engine.domain.core.attribute.operation.LogicalRuleOperation;
 import com.raykov.rules_engine.domain.rule.node.ConditionalRuleNode;
@@ -17,10 +17,10 @@ import java.util.regex.Pattern;
 @Service
 public class RuleParserService {
 
-    private final AttributeTypeCompatibilityService attributeTypeCompatibilityService;
+    private final AttributeService attributeService;
 
-    public RuleParserService(AttributeTypeCompatibilityService attributeTypeCompatibilityService) {
-        this.attributeTypeCompatibilityService = attributeTypeCompatibilityService;
+    public RuleParserService(AttributeService attributeService) {
+        this.attributeService = attributeService;
     }
 
     public RuleNode parse(String expression) {
@@ -70,7 +70,7 @@ public class RuleParserService {
         boolean isAttr = valPart.startsWith("attr_");
         String finalValue = isAttr ? valPart.substring(5) : valPart;
 
-        attributeTypeCompatibilityService.validate(attrId, operation, finalValue, isAttr);
+        attributeService.validateTypeCompatibility(attrId, operation, finalValue, isAttr);
 
         return new ConditionalRuleNode(operation, attrId, finalValue, isAttr);
     }

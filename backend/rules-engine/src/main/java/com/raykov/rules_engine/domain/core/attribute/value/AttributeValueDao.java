@@ -1,6 +1,6 @@
-package com.raykov.rules_engine.domain.core.value;
+package com.raykov.rules_engine.domain.core.attribute.value;
 
-import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -9,7 +9,10 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class AttributeValueDao {
@@ -20,7 +23,7 @@ public class AttributeValueDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<AttributeValueRow> getAllByEntityInstanceIds(List<Long> entityInstanceIds, EntityType entityType) {
+    public List<AttributeValue> getAllByEntityInstanceIds(List<Long> entityInstanceIds, EntityType entityType) {
         if (entityInstanceIds.isEmpty()) {
             return List.of();
         }
@@ -52,7 +55,7 @@ public class AttributeValueDao {
         return jdbcTemplate.query(sql, params, AttributeValueDao::createAttributeValueRow);
     }
 
-    public AttributeValueRow getByEntityInstanceId(long attributeId, long entityInstanceId, EntityType entityType) {
+    public AttributeValue getByEntityInstanceId(long attributeId, long entityInstanceId, EntityType entityType) {
         String sql = """
                      SELECT
                          av.entity_instance_id,
@@ -130,8 +133,37 @@ public class AttributeValueDao {
         );
     }
 
-    private static AttributeValueRow createAttributeValueRow(ResultSet rs, int ignored) throws SQLException {
-        return new AttributeValueRow(
+
+    public Map<Long, AttributeValue> getAttributesByIdsAndEntityInstanceIds(Collection<Long> attributeIds, List<Long> entityInstanceIds) {
+        String sql = """
+                     SELECT
+                         av.entity_instance_id,
+                         av.attribute_id,
+                         a.name,
+                         a.value_type,
+                         a.is_list,
+                         av.value
+                     FROM attribute_value av
+                     JOIN attribute a ON av.attribute_id = a.id
+                     JOIN entity e ON a.entity_id = e.id
+                     WHERE av.attribute_id IN (:attributeIds)
+                       AND av.entity_instance_id IN (:entityInstanceIds)
+                       AND a.removed = FALSE
+                       AND e.removed = FALSE
+                     ORDER BY av.id DESC
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("attributeIds", attributeIds)
+                .addValue("entityInstanceIds", entityInstanceIds);
+
+        return jdbcTemplate.query(sql, params, AttributeValueDao::createAttributeValueRow)
+                           .stream()
+                           .collect(Collectors.toUnmodifiableMap(AttributeValue::attributeId, value -> value));
+    }
+
+    private static AttributeValue createAttributeValueRow(ResultSet rs, int ignored) throws SQLException {
+        return new AttributeValue(
                 rs.getLong("entity_instance_id"),
                 rs.getLong("attribute_id"),
                 rs.getString("name"),

@@ -1,7 +1,7 @@
 package com.raykov.rules_engine.domain.rule.service;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.entity.Entity;
 import com.raykov.rules_engine.domain.rule.node.ConditionalRuleNode;
 import com.raykov.rules_engine.domain.rule.node.LogicalRuleNode;

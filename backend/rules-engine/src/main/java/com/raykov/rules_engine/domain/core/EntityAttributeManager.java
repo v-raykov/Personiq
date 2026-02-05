@@ -1,18 +1,19 @@
 package com.raykov.rules_engine.domain.core;
 
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.AttributeDao;
-import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.entity.Entity;
 import com.raykov.rules_engine.domain.core.entity.EntityDao;
 import com.raykov.rules_engine.domain.core.entity.EntityInstance;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
-import com.raykov.rules_engine.domain.core.value.AttributeValue;
-import com.raykov.rules_engine.domain.core.value.AttributeValueDao;
-import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValueDao;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValueResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,11 +80,11 @@ public class EntityAttributeManager {
         attributeDao.deleteAttribute(attributeId);
     }
 
-    public List<AttributeValueRow> getAllAttributeValuesByEntityInstanceId(long entityInstanceId, EntityType entityType) {
+    public List<AttributeValue> getAllAttributeValuesByEntityInstanceId(long entityInstanceId, EntityType entityType) {
         return attributeValueDao.getAllByEntityInstanceIds(List.of(entityInstanceId), entityType);
     }
 
-    public AttributeValueRow getAttributeValue(long attributeId, long entityInstanceId, EntityType entityType) {
+    public AttributeValue getAttributeValue(long attributeId, long entityInstanceId, EntityType entityType) {
         return attributeValueDao.getByEntityInstanceId(attributeId, entityInstanceId, entityType);
     }
 
@@ -126,12 +127,12 @@ public class EntityAttributeManager {
                                                       .map(EntityInstance::id)
                                                       .toList();
 
-        Map<Long, List<AttributeValue>> values = attributeValueDao.getAllByEntityInstanceIds(entityInstanceIds, entityType)
-                                                                  .stream()
-                                                                  .collect(Collectors.groupingBy(
-                                                                          AttributeValueRow::entityInstanceId,
-                                                                          Collectors.mapping(AttributeValue::fromAttributeValueRow, Collectors.toList()))
-                                                                  );
+        Map<Long, List<AttributeValueResponse>> values = attributeValueDao.getAllByEntityInstanceIds(entityInstanceIds, entityType)
+                                                                          .stream()
+                                                                          .collect(Collectors.groupingBy(
+                                                                                  AttributeValue::entityInstanceId,
+                                                                                  Collectors.mapping(AttributeValueResponse::fromAttributeValueRow, Collectors.toList()))
+                                                                          );
 
         return entityInstances.stream()
                               .map(row -> new EntityInstanceAttributes(row.id(), row.entityId(), row.targetInstanceId(), values.get(row.id())))
@@ -143,14 +144,6 @@ public class EntityAttributeManager {
                            .stream()
                            .map(Attribute::id)
                            .collect(Collectors.toSet());
-    }
-
-    public Attribute getAttributeById(String attributeId) {
-        try {
-            return getAttributeById(Long.parseLong(attributeId));
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid attribute id");
-        }
     }
 
     public Attribute getAttributeById(long attributeId) {
@@ -168,4 +161,7 @@ public class EntityAttributeManager {
                         .orElseThrow(() -> new IllegalArgumentException("Entity with this id does not exist"));
     }
 
+    public Map<Long, AttributeValue> getAttributeValuesByIdsAndEntityInstanceIds(Collection<Long> attributeIds, List<Long> entityInstanceIds) {
+        return attributeValueDao.getAttributesByIdsAndEntityInstanceIds(attributeIds, entityInstanceIds);
+    }
 }

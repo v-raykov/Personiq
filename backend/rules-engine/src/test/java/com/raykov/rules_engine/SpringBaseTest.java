@@ -1,7 +1,8 @@
 package com.raykov.rules_engine;
 
 import com.raykov.rules_engine.domain.action.ActionController;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.customer.CustomerController;
 import com.raykov.rules_engine.domain.rule.RuleController;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
@@ -42,6 +43,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private RuleController ruleController;
+
+    @Autowired
+    private EntityAttributeManager entityAttributeManager;
 
     private long tenantId;
 
@@ -114,5 +118,9 @@ public abstract class SpringBaseTest {
 
     protected long createRule(String expression) {
         return ruleController.createRule(new CreateRuleRequest(createAction(), expression));
+    }
+
+    protected void setAttributeValue(long attributeId, long customerId, String value) {
+        entityAttributeManager.updateAttributeValue(attributeId, customerId, value);
     }
 }

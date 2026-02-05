@@ -1,9 +1,9 @@
 package com.raykov.rules_engine.domain.customer;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
-import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,11 +36,11 @@ public class CustomerService {
         entityAttributeManager.deleteAttribute(attributeId);
     }
 
-    public List<AttributeValueRow> getAllAttributeValues(long customerId) {
+    public List<AttributeValue> getAllAttributeValues(long customerId) {
         return entityAttributeManager.getAllAttributeValuesByEntityInstanceId(customerId, EntityType.CUSTOMER);
     }
 
-    public AttributeValueRow getAttributeValue(long attributeId, long customerId) {
+    public AttributeValue getAttributeValue(long attributeId, long customerId) {
         return entityAttributeManager.getAttributeValue(attributeId, customerId, EntityType.CUSTOMER);
     }
 

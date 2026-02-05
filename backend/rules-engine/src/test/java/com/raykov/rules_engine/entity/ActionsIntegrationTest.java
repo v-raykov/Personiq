@@ -4,10 +4,10 @@ import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionController;
 import com.raykov.rules_engine.domain.action.ExecutedAction;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
-import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValueResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -58,7 +58,7 @@ public class ActionsIntegrationTest extends SpringBaseTest {
         List<ExecutedAction> executedActions = actionController.getExecutedActions();
         assertThat(executedActions).hasSize(1);
 
-        List<AttributeValue> attributes = List.of(new AttributeValue(attributeId, "attribute", AttributeValueType.STRING, List.of("value"), false));
+        List<AttributeValueResponse> attributes = List.of(new AttributeValueResponse(attributeId, "attribute", AttributeValueType.STRING, List.of("value"), false));
         assertThat(executedActions).containsExactly(new ExecutedAction(executedActionId, actionId, customerId, attributes));
     }
 

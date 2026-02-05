@@ -1,14 +1,16 @@
-package com.raykov.rules_engine.domain.core.attribute.operation;
+package com.raykov.rules_engine.domain.core.attribute;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
-import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.operation.AttributeOperation;
+import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
-public class AttributeTypeCompatibilityService {
+class AttributeTypeCompatibilityService {
 
     private final EntityAttributeManager entityAttributeManager;
 
@@ -16,7 +18,7 @@ public class AttributeTypeCompatibilityService {
         this.entityAttributeManager = entityAttributeManager;
     }
 
-    public void validate(long attributeId, AttributeOperation operation, String value, boolean isValueAttributeId) {
+    void validate(long attributeId, AttributeOperation operation, String value, boolean isValueAttributeId) {
         Attribute attribute = entityAttributeManager.getAttributeById(attributeId);
 
         if (!operation.isSupportedFor(attribute.valueType())) {
@@ -54,7 +56,7 @@ public class AttributeTypeCompatibilityService {
         }
     }
 
-    public void validateScalarType(AttributeValueType type, String value) {
+    private void validateScalarType(AttributeValueType type, String value) {
         try {
             switch (type) {
                 case NUMBER -> new BigDecimal(value);

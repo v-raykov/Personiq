@@ -1,9 +1,6 @@
 package com.raykov.rules_engine.domain.rule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.raykov.rules_engine.domain.rule.model.Rule;
 import com.raykov.rules_engine.domain.rule.model.RuleDbo;
-import com.raykov.rules_engine.domain.rule.node.RuleNode;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -24,7 +21,7 @@ public class RuleDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public long createRule(long actionId, String expression) {
+    public Long createRule(long actionId, String expression) {
         String sql = """
                      INSERT INTO rule (trigger_entity_id, expression)
                      VALUES (:actionId, :expression::jsonb)
@@ -62,6 +59,19 @@ public class RuleDao {
         return jdbcTemplate.query(sql, params, RuleDao::createRuleDbo)
                            .stream()
                            .findFirst();
+    }
+
+    public List<RuleDbo> getRulesByTriggerActionId(long actionId) {
+        String sql = """
+                     SELECT id, trigger_entity_id, expression
+                     FROM rule
+                     WHERE trigger_entity_id = :actionId
+                        AND removed = FALSE
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("actionId", actionId);
+
+        return jdbcTemplate.query(sql, params, RuleDao::createRuleDbo);
     }
 
     private static RuleDbo createRuleDbo(ResultSet rs, int ignored) throws SQLException {

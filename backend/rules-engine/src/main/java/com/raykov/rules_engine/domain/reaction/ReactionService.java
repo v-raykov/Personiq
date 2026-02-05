@@ -1,41 +1,39 @@
 package com.raykov.rules_engine.domain.reaction;
 
-import com.raykov.rules_engine.domain.core.EntityAttributeManager;
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
-import com.raykov.rules_engine.domain.core.attribute.operation.AttributeTypeCompatibilityService;
+import com.raykov.rules_engine.domain.core.attribute.AttributeService;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
 import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import com.raykov.rules_engine.domain.reaction.model.Reaction;
-import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import com.raykov.rules_engine.domain.rule.RuleService;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 public class ReactionService {
 
-    private final EntityAttributeManager entityAttributeManager;
-
     private final ReactionDao reactionDao;
+
+    private final AttributeService attributeService;
 
     private final RuleService ruleService;
 
-    private final AttributeTypeCompatibilityService attributeTypeCompatibilityService;
-
-    public ReactionService(EntityAttributeManager entityAttributeManager, ReactionDao reactionDao, RuleService ruleService, AttributeTypeCompatibilityService attributeTypeCompatibilityService) {
-        this.entityAttributeManager = entityAttributeManager;
+    public ReactionService(ReactionDao reactionDao, AttributeService attributeService, RuleService ruleService) {
         this.reactionDao = reactionDao;
+        this.attributeService = attributeService;
         this.ruleService = ruleService;
-        this.attributeTypeCompatibilityService = attributeTypeCompatibilityService;
     }
 
     public long createReaction(CreateReactionRequest request) {
-        UpdateOperation operation = UpdateOperation.valueOf(request.operation().toUpperCase());
         ruleService.getRuleById(request.ruleId());
-        Attribute attribute = entityAttributeManager.getAttributeById(request.attributeId());
+        UpdateOperation operation = UpdateOperation.valueOf(request.operation().toUpperCase());
+        Attribute attribute = attributeService.getAttributeById(request.attributeId());
 
-        attributeTypeCompatibilityService.validate(attribute.id(), operation, request.value(), request.isValueAttributeId());
+        attributeService.validateTypeCompatibility(attribute.id(), operation, request.value(), request.isValueAttributeId());
 
         return reactionDao.createReaction(request.ruleId(), request.attributeId(), operation, request.value(), request.isValueAttributeId());
     }
@@ -44,24 +42,22 @@ public class ReactionService {
         return reactionDao.getAllReactions();
     }
 
-    // TODO: Make this method not shit AND date validation should have a more descriptive message
-    private void validateOperationForParameterValue(String value, UpdateOperation operation) {
-        try {
-            switch (operation) {
-                case ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, INCREMENT, DECREMENT -> new BigDecimal(value);
-                case SET_FALSE, SET_TRUE, FLIP -> {
-                    if (!(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"))) {
-                        throw new IllegalArgumentException();
-                    }
-                }
-                case SET_NOW -> {
-                    if (value != null) {
-                        throw new IllegalArgumentException();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid value parameter type for operation: " + operation.name());
+    public void executeReaction(long executedActionId, long customerId, List<Long> ruleIds) {
+        List<Reaction> reactions = reactionDao.getReactionsByRuleIds(ruleIds);
+        List<Long> attributeIds = reactions.stream()
+                                           .flatMap(r -> r.isValueAttributeId()
+                                                         ? Stream.of(r.attributeId(), Long.parseLong(r.value()))
+                                                         : Stream.of(r.attributeId()))
+                                           .toList();
+        if (attributeIds.isEmpty()) {
+            return;
         }
+        Map<Long, AttributeValue> attributes = attributeService.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, List.of(customerId, executedActionId));
+        reactions.forEach(r -> { if (r.isValueAttributeId()) {
+            attributeService.updateAttributeValueWithScalar(attributes.get(r.attributeId()), r.value(), r.operation());
+        } else {
+            attributeService.updateAttributeValueWithAttribute(attributes.get(r.attributeId()), attributes.get(Long.parseLong(r.value())), r.operation());
+        }
+        });
     }
 }

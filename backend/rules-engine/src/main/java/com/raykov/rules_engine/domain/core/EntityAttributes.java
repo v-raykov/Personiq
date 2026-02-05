@@ -1,6 +1,6 @@
 package com.raykov.rules_engine.domain.core;
 
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 
 import java.util.List;
 

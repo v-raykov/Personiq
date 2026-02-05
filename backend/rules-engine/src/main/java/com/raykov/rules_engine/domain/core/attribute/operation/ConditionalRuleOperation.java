@@ -1,6 +1,6 @@
 package com.raykov.rules_engine.domain.core.attribute.operation;
 
-import com.raykov.rules_engine.domain.core.attribute.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 
 import java.util.Arrays;
 import java.util.Optional;

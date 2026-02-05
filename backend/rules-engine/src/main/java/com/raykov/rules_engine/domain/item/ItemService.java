@@ -2,7 +2,7 @@ package com.raykov.rules_engine.domain.item;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.raykov.rules_engine.domain.customer;
 
-import com.raykov.rules_engine.domain.core.attribute.Attribute;
-import com.raykov.rules_engine.domain.core.value.AttributeValueRow;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,8 +39,8 @@ public class CustomerController {
     }
 
     @GetMapping("/attribute/value/{attributeId}")
-    public AttributeValueRow getAttributeValue(@PathVariable long attributeId,
-                                               @RequestParam long customerId) {
+    public AttributeValue getAttributeValue(@PathVariable long attributeId,
+                                            @RequestParam long customerId) {
         return customerService.getAttributeValue(attributeId, customerId);
     }
 
@@ -57,7 +57,7 @@ public class CustomerController {
     }
 
     @GetMapping("/attribute/value")
-    public List<AttributeValueRow> getAllAttributeValues(@RequestParam long customerId) {
+    public List<AttributeValue> getAllAttributeValues(@RequestParam long customerId) {
         return customerService.getAllAttributeValues(customerId);
     }
 }

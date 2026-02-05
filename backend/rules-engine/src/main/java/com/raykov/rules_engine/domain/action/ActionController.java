@@ -1,7 +1,7 @@
 package com.raykov.rules_engine.domain.action;
 
 import com.raykov.rules_engine.domain.core.EntityAttributes;
-import com.raykov.rules_engine.domain.core.attribute.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
