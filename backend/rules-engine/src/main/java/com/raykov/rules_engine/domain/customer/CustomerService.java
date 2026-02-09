@@ -3,9 +3,10 @@ package com.raykov.rules_engine.domain.customer;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -41,11 +42,20 @@ public class CustomerService {
     }
 
     public AttributeValue getAttributeValue(long attributeId, long customerId) {
-        return entityAttributeManager.getAttributeValue(attributeId, customerId, EntityType.CUSTOMER);
+        return entityAttributeManager.getAttributeValue(attributeId, customerId)
+                .orElseThrow();
     }
 
-    public void updateCustomerAttributes(long customerId, Map<Long, String> attributes) {
-        attributes.forEach((attributeId, value) -> entityAttributeManager.updateAttributeValue(attributeId, customerId, value));
+    public void updateCustomerAttributes(long customerId, Map<Long, String> attributes, boolean overwriteList) {
+        Collection<AttributeValue> attributeValues =
+                entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributes.keySet(), List.of(customerId))
+                                      .stream()
+                                      .map(av -> !av.isList() || overwriteList
+                                                 ? av.withUpdatedValue(attributes.get(av.attributeId()))
+                                                 : av.withAppendedValue(attributes.get(av.attributeId())))
+                                      .toList();
+
+        entityAttributeManager.updateAttributeValues(attributeValues);
     }
 
     public void deleteAttributeValue(long attributeId, long customerId, String attributeValue) {

@@ -1,22 +1,16 @@
 package com.raykov.rules_engine.domain.core;
 
-import com.raykov.rules_engine.domain.core.attribute.AttributeDao;
-import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
-import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
+import com.raykov.rules_engine.domain.core.attribute.dao.AttributeDao;
+import com.raykov.rules_engine.domain.core.attribute.dao.AttributeValueDao;
+import com.raykov.rules_engine.domain.core.attribute.model.*;
 import com.raykov.rules_engine.domain.core.entity.Entity;
 import com.raykov.rules_engine.domain.core.entity.EntityDao;
 import com.raykov.rules_engine.domain.core.entity.EntityInstance;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValueDao;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValueResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,8 +78,12 @@ public class EntityAttributeManager {
         return attributeValueDao.getAllByEntityInstanceIds(List.of(entityInstanceId), entityType);
     }
 
-    public AttributeValue getAttributeValue(long attributeId, long entityInstanceId, EntityType entityType) {
-        return attributeValueDao.getByEntityInstanceId(attributeId, entityInstanceId, entityType);
+    public Optional<AttributeValue> getAttributeValue(long attributeId, long entityInstanceId) {
+        Map<Long, Long> instanceToEntityMap = entityDao.getInstanceToEntityMap(List.of(entityInstanceId));
+
+        return mapMissingToDefaultValues(instanceToEntityMap, List.of(attributeId)).values()
+                                                                                   .stream()
+                                                                                   .findFirst();
     }
 
     public void updateAttributeValue(long attributeId, long entityInstanceId, String value) {
@@ -161,7 +159,62 @@ public class EntityAttributeManager {
                         .orElseThrow(() -> new IllegalArgumentException("Entity with this id does not exist"));
     }
 
-    public Map<Long, AttributeValue> getAttributeValuesByIdsAndEntityInstanceIds(Collection<Long> attributeIds, List<Long> entityInstanceIds) {
-        return attributeValueDao.getAttributesByIdsAndEntityInstanceIds(attributeIds, entityInstanceIds);
+    public List<AttributeValue> getAttributeValuesByIdsAndEntityInstanceIds(Collection<Long> attributeIds, List<Long> entityInstanceIds) {
+        if (entityInstanceIds == null || entityInstanceIds.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Long> instanceToEntityMap = entityDao.getInstanceToEntityMap(entityInstanceIds);
+
+        return mapMissingToDefaultValues(instanceToEntityMap, attributeIds).values()
+                                                                           .stream()
+                                                                           .toList();
+    }
+
+    public void updateAttributeValues(Collection<AttributeValue> attributeValues) {
+        attributeValueDao.updateAttributeValues(attributeValues);
+    }
+
+    private Map<AttributeKey, AttributeValue> mapMissingToDefaultValues(Map<Long, Long> instanceToEntityIds, Collection<Long> requestedAttributeIds) {
+        if (instanceToEntityIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Attribute> allAttributes = attributeDao.getAttributesByEntityIds(instanceToEntityIds.values());
+        Map<AttributeKey, AttributeValue> valueLookup = attributeValueDao.getAttributesByIdsAndEntityInstanceIds(requestedAttributeIds, instanceToEntityIds.keySet())
+                                                                         .stream()
+                                                                         .collect(Collectors.toMap(av -> new AttributeKey(av.entityInstanceId(), av.attributeId()),
+                                                                                                   val -> val)
+                                                                         );
+
+        return instanceToEntityIds.entrySet()
+                                  .stream()
+                                  .flatMap(entry -> allAttributes.stream()
+                                                                 .filter(a -> isAttributeOwnedByEntity(entry, a))
+                                                                 .filter(a -> isAttributeRequested(requestedAttributeIds, a))
+                                                                 .map(attr -> valueLookup.getOrDefault(
+                                                                         new AttributeKey(entry.getKey(), attr.id()),
+                                                                         createDefaultAttributeValueEntry(entry.getKey(), attr))
+                                                                 ))
+                                  .collect(Collectors.toMap(av -> new AttributeKey(av.entityInstanceId(), av.attributeId()), av -> av));
+    }
+
+    private static boolean isAttributeOwnedByEntity(Map.Entry<Long, Long> entry, Attribute a) {
+        return Objects.equals(a.entityId(), entry.getValue());
+    }
+
+    private static boolean isAttributeRequested(Collection<Long> requestedAttributeIds, Attribute a) {
+        return requestedAttributeIds == null || requestedAttributeIds.isEmpty() || requestedAttributeIds.contains(a.id());
+    }
+
+    private AttributeValue createDefaultAttributeValueEntry(long entityInstanceId, Attribute attribute) {
+        return new AttributeValue(
+                entityInstanceId,
+                attribute.id(),
+                attribute.name(),
+                attribute.valueType(),
+                attribute.getDefaultValue(),
+                attribute.isList()
+        );
     }
 }

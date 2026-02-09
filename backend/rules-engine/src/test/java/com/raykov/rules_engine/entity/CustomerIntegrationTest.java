@@ -2,9 +2,9 @@ package com.raykov.rules_engine.entity;
 
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
 import com.raykov.rules_engine.domain.customer.CustomerController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
-        customerController.updateCustomerAttributes(customerId, Map.of(id, value));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, value));
 
         AttributeValue result = customerController.getAttributeValue(id, customerId);
         assertThat(result.values()).containsExactly(value);
@@ -58,7 +58,7 @@ public class CustomerIntegrationTest extends SpringBaseTest {
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
-        customerController.updateCustomerAttributes(customerId, Map.of(id, value));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, value));
 
         AttributeValue beforeDelete = customerController.getAttributeValue(id, customerId);
         assertThat(beforeDelete.values()).containsExactly(value);
@@ -77,9 +77,9 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
 
-        customerController.updateCustomerAttributes(customerId, Map.of(id, "value1"));
-        customerController.updateCustomerAttributes(customerId, Map.of(id, "value2"));
-        customerController.updateCustomerAttributes(customerId, Map.of(id, "value3"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, "value1"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, "value2"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, "value3"));
 
         AttributeValue result = customerController.getAttributeValue(id, customerId);
         assertThat(result.values()).containsExactly("value1", "value2", "value3");
@@ -92,9 +92,9 @@ public class CustomerIntegrationTest extends SpringBaseTest {
 
         long customerId = login();
         long id = customerController.getAttributes().getFirst().id();
-        customerController.updateCustomerAttributes(customerId, Map.of(id, "value1"));
-        customerController.updateCustomerAttributes(customerId, Map.of(id, "value2"));
-        customerController.updateCustomerAttributes(customerId, Map.of(id, "value3"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, "value1"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, "value2"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(id, "value3"));
 
         // Delete one values
         customerController.deleteAttributeValue(id, customerId, "value2");
@@ -108,13 +108,13 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         // Single-values attribute
         long customerId = login();
         long attributeId1 = customerController.createAttribute(new CreateAttributeRequest("name1", "STRING", false));
-        customerController.updateCustomerAttributes(customerId, Map.of(attributeId1, "value"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(attributeId1, "value"));
 
         // List attribute
         long attributeId2 = customerController.createAttribute(new CreateAttributeRequest("name2", "STRING", true));
-        customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value1"));
-        customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value2"));
-        customerController.updateCustomerAttributes(customerId, Map.of(attributeId2, "value3"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(attributeId2, "value1"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(attributeId2, "value2"));
+        customerController.updateCustomerAttributes(customerId, false, Map.of(attributeId2, "value3"));
 
         List<AttributeValue> allValues = customerController.getAllAttributeValues(customerId);
 
@@ -132,14 +132,13 @@ public class CustomerIntegrationTest extends SpringBaseTest {
         assertThat(attr2.values()).containsExactly("value1", "value2", "value3");
     }
 
-    // TODO: Attributes should have default values
     @Test
-    public void getAttributeValue_whenValueIsNotSet_throws() {
+    public void getAttributeValue_whenValueIsNotSet_hasDefaultValue() {
         String name = "name";
         customerController.createAttribute(new CreateAttributeRequest(name, "STRING", false));
         long id = customerController.getAttributes().getFirst().id();
 
         long customerId = login();
-        assertThat(customerController.getAttributeValue(id, customerId)).isNull();
+        assertThat(customerController.getAttributeValue(id, customerId).values()).containsExactly("");
     }
 }

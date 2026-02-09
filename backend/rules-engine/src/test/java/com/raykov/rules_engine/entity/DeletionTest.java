@@ -25,7 +25,7 @@ public class DeletionTest extends SpringBaseTest {
         entityAttributeManager.deleteAttribute(attributeId);
 
         assertThat(entityAttributeManager.getAllAttributeIdsByEntityId(entityId)).isEmpty();
-        assertThat(entityAttributeManager.getAttributeValue(attributeId, entityInstanceId, EntityType.ACTION)).isNull();
+        assertThat(entityAttributeManager.getAttributeValue(attributeId, entityInstanceId)).isEmpty();
     }
 
     @Test
@@ -39,7 +39,7 @@ public class DeletionTest extends SpringBaseTest {
         entityAttributeManager.deleteEntity(entityId);
 
         assertThat(entityAttributeManager.getAllAttributeIdsByEntityId(entityId)).hasSize(1);
-        assertThat(entityAttributeManager.getAttributeValue(attributeId, entityInstanceId, EntityType.ACTION)).isNull();
+        assertThat(entityAttributeManager.getAttributeValue(attributeId, entityInstanceId)).isEmpty();
         assertThat(entityAttributeManager.getAllEntityInstancesByType(EntityType.ACTION)).isEmpty();
     }
 }

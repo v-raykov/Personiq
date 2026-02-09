@@ -1,7 +1,7 @@
 package com.raykov.rules_engine.domain.customer;
 
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,8 +45,10 @@ public class CustomerController {
     }
 
     @PostMapping("/attribute/value")
-    public void updateCustomerAttributes(@RequestParam long customerId, @RequestBody Map<Long, String> attributes) {
-        customerService.updateCustomerAttributes(customerId, attributes);
+    public void updateCustomerAttributes(@RequestParam long customerId,
+                                         @RequestParam(required = false) boolean overwriteList,
+                                         @RequestBody Map<Long, String> attributes) {
+        customerService.updateCustomerAttributes(customerId, attributes, overwriteList);
     }
 
     @DeleteMapping("/attribute/value/{attributeId}")

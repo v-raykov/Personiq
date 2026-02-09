@@ -2,7 +2,7 @@ package com.raykov.rules_engine.domain.rule.service;
 
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.attribute.operation.ConditionalRuleOperation;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

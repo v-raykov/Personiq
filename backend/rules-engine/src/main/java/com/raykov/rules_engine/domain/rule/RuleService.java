@@ -3,9 +3,8 @@ package com.raykov.rules_engine.domain.rule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
-import com.raykov.rules_engine.domain.core.attribute.AttributeService;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.operation.LogicalRuleOperation;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValue;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.domain.rule.model.Rule;
@@ -38,17 +37,14 @@ public class RuleService {
 
     private final RuleComparisonService ruleComparisonService;
 
-    private final AttributeService attributeService;
-
     private final EntityAttributeManager entityAttributeManager;
 
-    public RuleService(RuleParserService parser, RuleFormatterService formatter, ObjectMapper objectMapper, RuleDao ruleDao, RuleComparisonService ruleComparisonService, AttributeService attributeService, EntityAttributeManager entityAttributeManager) {
+    public RuleService(RuleParserService parser, RuleFormatterService formatter, ObjectMapper objectMapper, RuleDao ruleDao, RuleComparisonService ruleComparisonService, EntityAttributeManager entityAttributeManager) {
         this.parser = parser;
         this.formatter = formatter;
         this.objectMapper = objectMapper;
         this.ruleDao = ruleDao;
         this.ruleComparisonService = ruleComparisonService;
-        this.attributeService = attributeService;
         this.entityAttributeManager = entityAttributeManager;
     }
 
@@ -89,7 +85,9 @@ public class RuleService {
 
     public boolean isRuleApplicable(Rule rule, long executedActionId, long customerId) {
         Map<Long, AttributeValue> attributeValues =
-                attributeService.getAttributeValuesByIdsAndEntityInstanceIds(collectIds(rule.ruleRoot()), List.of(executedActionId, customerId));
+                entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(collectIds(rule.ruleRoot()), List.of(executedActionId, customerId))
+                                      .stream()
+                                      .collect(Collectors.toMap(AttributeValue::attributeId, av -> av));
 
         return evaluate(rule.ruleRoot(), attributeValues);
     }

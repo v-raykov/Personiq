@@ -7,7 +7,7 @@ import com.raykov.rules_engine.domain.core.EntityAttributes;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.attribute.value.AttributeValueResponse;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

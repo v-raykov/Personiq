@@ -1,4 +1,4 @@
-package com.raykov.rules_engine.domain.core.attribute;
+package com.raykov.rules_engine.domain.core.attribute.dao;
 
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,7 +76,7 @@ public class AttributeDao {
         return jdbcTemplate.query(sql, params, AttributeDao::createAttributeFromResultSet);
     }
 
-    public List<Attribute> getAttributesByEntityIds(List<Long> entityIds) {
+    public List<Attribute> getAttributesByEntityIds(Collection<Long> entityIds) {
         if (entityIds == null || entityIds.isEmpty()) {
             return List.of();
         }

@@ -5,8 +5,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class EntityDao {
@@ -115,5 +118,26 @@ public class EntityDao {
         return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(id, rs.getString("name")))
                            .stream()
                            .findFirst();
+    }
+
+    public Map<Long, Long> getInstanceToEntityMap(Collection<Long> entityInstanceIds) {
+        String sql = """
+                     SELECT ei.id, ei.entity_id
+                     FROM entity_instance ei
+                     JOIN entity e ON e.id = ei.entity_id
+                     WHERE ei.id IN (:ids)
+                         AND e.removed = false
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("ids", entityInstanceIds);
+
+        return jdbcTemplate.query(sql, params, (rs, _) -> new InstanceEntityIdPair(rs.getLong("id"), rs.getLong("entity_id")))
+                           .stream()
+                           .collect(Collectors.toMap(InstanceEntityIdPair::instanceId,
+                                                     InstanceEntityIdPair::entityId));
+    }
+
+    private record InstanceEntityIdPair(long instanceId, long entityId) {
+
     }
 }
