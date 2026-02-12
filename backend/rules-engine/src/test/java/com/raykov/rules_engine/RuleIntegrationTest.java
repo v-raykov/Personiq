@@ -1,6 +1,7 @@
 package com.raykov.rules_engine;
 
 import com.raykov.rules_engine.domain.action.ActionService;
+import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.domain.rule.model.RuleResponse;
@@ -10,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class RuleTest extends SpringBaseTest {
+public class RuleIntegrationTest extends SpringBaseTest {
 
     @Autowired
     private RuleController ruleController;
@@ -100,20 +101,26 @@ public class RuleTest extends SpringBaseTest {
     void executeActionWithApplicableRules() {
         // Given
         long customerId = login();
-        long attrId1 = createCustomerAttribute("NUMBER");
-        long attrId2 = createCustomerAttribute("NUMBER");
-        long attrId3 = createCustomerAttribute("NUMBER");
+        long attrId1 = createCustomerAttributeAndSetValue("NUMBER", customerId, "1");
+        long attrId2 = createCustomerAttributeAndSetValue("NUMBER", customerId, "10");
+        long attrId3 = createCustomerAttributeAndSetValue("NUMBER", customerId, "9");
         long actionId = createAction();
 
         // When
-        ruleController.createRule(new CreateRuleRequest(actionId, "%d = 1 & (%d > attr_%d | %d > 5)".formatted(attrId1, attrId2, attrId3, attrId2)));
-        ruleController.createRule(new CreateRuleRequest(actionId, "%d = 1 & (%d > attr_%d & %d < 5)".formatted(attrId1, attrId2, attrId3, attrId2)));
-        ruleController.createRule(new CreateRuleRequest(actionId, "%d = 3 & (%d > attr_%d | %d > 8)".formatted(attrId1, attrId2, attrId3, attrId2)));
-        setAttributeValue(attrId1, customerId, "1");
-        setAttributeValue(attrId2, customerId, "10");
-        setAttributeValue(attrId3, customerId, "9");
+        long ruleId1 = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 1 & (%d > attr_%d | %d > 5)".formatted(attrId1, attrId2, attrId3, attrId2)));
+        long ruleId2 = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 1 & (%d > attr_%d & %d < 5)".formatted(attrId1, attrId2, attrId3, attrId2)));
+        long ruleId3 = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 3 | (%d > attr_%d | %d > 8)".formatted(attrId1, attrId2, attrId3, attrId2)));
+
+        createReaction(new CreateReactionRequest(ruleId1, attrId1, "ADDITION", "5", false));
+        createReaction(new CreateReactionRequest(ruleId2, attrId2, "ADDITION", "10", false));
+        createReaction(new CreateReactionRequest(ruleId3, attrId2, "SUBTRACTION", String.valueOf(ruleId3), true));
+
+        actionService.executeAction(actionId, customerId, Map.of());
 
         // Then
-        actionService.executeAction(actionId, customerId, Map.of());
+        assertThat(getAttributeValue(attrId1, customerId).values().getFirst()).isEqualTo("6");
+        assertThat(getAttributeValue(attrId2, customerId).values().getFirst()).isEqualTo("1");
+        assertThat(getAttributeValue(attrId3, customerId).values().getFirst()).isEqualTo("9");
+
     }
 }

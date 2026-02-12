@@ -2,6 +2,8 @@ package com.raykov.rules_engine.domain.core.attribute.operation;
 
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 
+import java.util.Set;
+
 public enum UpdateOperation implements AttributeOperation {
     ADDITION,
     SUBTRACTION,
@@ -14,7 +16,11 @@ public enum UpdateOperation implements AttributeOperation {
     SET_TRUE,
     FLIP,
     SET,
-    SET_NOW;
+    SET_NOW,
+    APPEND,
+    PREPEND,
+    REMOVE,
+    CLEAR;
 
     @Override
     public boolean isSupportedFor(AttributeValueType type) {
@@ -25,6 +31,11 @@ public enum UpdateOperation implements AttributeOperation {
             case SET_FALSE, SET_TRUE, FLIP -> type == AttributeValueType.BOOLEAN;
             case SET_NOW -> type == AttributeValueType.DATE;
             case SET -> true;
+            case APPEND, PREPEND, REMOVE, CLEAR -> false;
         };
+    }
+
+    public static Set<AttributeOperation> getListOperations() {
+        return Set.of(APPEND, PREPEND, REMOVE, CLEAR);
     }
 }

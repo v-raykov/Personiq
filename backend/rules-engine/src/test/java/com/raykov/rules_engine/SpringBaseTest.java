@@ -2,8 +2,11 @@ package com.raykov.rules_engine;
 
 import com.raykov.rules_engine.domain.action.ActionController;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.customer.CustomerController;
+import com.raykov.rules_engine.domain.reaction.ReactionController;
+import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.tenant.TenantController;
@@ -43,6 +46,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private RuleController ruleController;
+
+    @Autowired
+    private ReactionController reactionController;
 
     @Autowired
     private EntityAttributeManager entityAttributeManager;
@@ -97,6 +103,12 @@ public abstract class SpringBaseTest {
         return customerController.createAttribute(request);
     }
 
+    protected long createCustomerAttributeAndSetValue(String type, long customerId, String value) {
+        long attrId = createCustomerAttribute(type);
+        setAttributeValue(attrId, customerId, value);
+        return attrId;
+    }
+
     protected long createAction() {
         String actionName = "action" + ThreadLocalRandom.current().nextLong();
         return actionController.createAction(actionName, null);
@@ -120,7 +132,15 @@ public abstract class SpringBaseTest {
         return ruleController.createRule(new CreateRuleRequest(createAction(), expression));
     }
 
-    protected void setAttributeValue(long attributeId, long customerId, String value) {
-        entityAttributeManager.updateAttributeValue(attributeId, customerId, value);
+    protected long createReaction(CreateReactionRequest request) {
+        return reactionController.createReaction(request);
+    }
+
+    protected void setAttributeValue(long attributeId, long entityInstanceId, String value) {
+        entityAttributeManager.updateAttributeValue(attributeId, entityInstanceId, value);
+    }
+
+    protected AttributeValue getAttributeValue(long attributeId, long entityInstanceId) {
+        return entityAttributeManager.getAttributeValue(attributeId, entityInstanceId).orElseThrow();
     }
 }

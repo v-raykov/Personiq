@@ -57,36 +57,18 @@ public class ReactionService {
         if (attributeIds.isEmpty()) {
             return;
         }
-//        Map<Long, AttributeValue> attributes = entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, List.of(customerId, executedActionId));
-//
-//        reactions.forEach(r -> {
-//            if (r.isValueAttributeId()) {
-//                attributeService.updateAttributeValueWithScalar(attributes.get(r.attributeId()), r.value(), r.operation());
-//            } else {
-//                attributeService.updateAttributeValueWithAttribute(attributes.get(r.attributeId()), attributes.get(Long.parseLong(r.value())), r.operation());
-//            }
-//        });
 
-        List<AttributeValue> targetContext = entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, List.of(customerId));
-        List<AttributeValue> sourceContext = entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, List.of(executedActionId));
+        Map<Long, AttributeValue> attributeValues =
+                entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, List.of(executedActionId, customerId))
+                                      .stream()
+                                      .collect(Collectors.toMap(AttributeValue::attributeId, av -> av));
 
-        Map<Long, List<Reaction>> reactionsByTarget = reactions.stream()
-                                                               .collect(Collectors.groupingBy(Reaction::attributeId));
+        List<AttributeValue> updates = reactions.stream()
+                                                .map(r -> r.isValueAttributeId()
+                                                          ? attributeService.updateAttributeValueWithAttribute(attributeValues.get(r.attributeId()), attributeValues.get(Long.parseLong(r.value())), r.operation())
+                                                          : attributeService.updateAttributeValueWithScalar(attributeValues.get(r.attributeId()), r.value(), r.operation()))
+                                                .toList();
 
-        Map<Long, AttributeValue> sourceLookup = sourceContext.stream()
-                                                              .collect(Collectors.toMap(AttributeValue::attributeId, v -> v));
-
-        List<AttributeValue> updates = targetContext.stream()
-                                                    .filter(target -> reactionsByTarget.containsKey(target.attributeId()))
-                                                    .flatMap(target -> reactionsByTarget
-                                                            .get(target.attributeId())
-                                                            .stream()
-                                                            .map(r -> r.isValueAttributeId()
-                                                                      ? attributeService.updateAttributeValueWithScalar(target, r.value(), r.operation())
-                                                                      : attributeService.updateAttributeValueWithAttribute(target, sourceLookup.get(Long.parseLong(r.value())), r.operation())))
-                                                    .toList();
-        // TODO: fix
-
-        // entityAttributeManager.updateAttributeValues(updates);
+        entityAttributeManager.updateAttributeValues(updates);
     }
 }

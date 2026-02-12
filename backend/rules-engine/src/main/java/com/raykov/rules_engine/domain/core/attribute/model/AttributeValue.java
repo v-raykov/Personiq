@@ -17,6 +17,10 @@ public record AttributeValue(long entityInstanceId, long attributeId, String nam
         return new AttributeValue(entityInstanceId, attributeId, name, valueType, newValues, isList);
     }
 
+    public AttributeValue withUpdatedValue(List<String> newValues) {
+        return new AttributeValue(entityInstanceId, attributeId, name, valueType, newValues, isList);
+    }
+
     public AttributeValue withAppendedValue(String newValue) {
         if (newValue == null) return this;
 

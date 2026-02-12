@@ -21,7 +21,7 @@ class AttributeTypeCompatibilityService {
     void validate(long attributeId, AttributeOperation operation, String value, boolean isValueAttributeId) {
         Attribute attribute = entityAttributeManager.getAttributeById(attributeId);
 
-        if (!operation.isSupportedFor(attribute.valueType())) {
+        if (!attribute.isOperationSupported(operation)) {
             throw new IllegalArgumentException(String.format(
                     "Invalid operation: '%s' for type: %s", operation.name(), attribute.valueType()));
         }
