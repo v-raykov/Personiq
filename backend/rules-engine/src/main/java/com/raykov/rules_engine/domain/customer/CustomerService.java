@@ -47,15 +47,7 @@ public class CustomerService {
     }
 
     public void updateCustomerAttributes(long customerId, Map<Long, String> attributes, boolean overwriteList) {
-        Collection<AttributeValue> attributeValues =
-                entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributes.keySet(), List.of(customerId))
-                                      .stream()
-                                      .map(av -> !av.isList() || overwriteList
-                                                 ? av.withUpdatedValue(attributes.get(av.attributeId()))
-                                                 : av.withAppendedValue(attributes.get(av.attributeId())))
-                                      .toList();
-
-        entityAttributeManager.updateAttributeValues(attributeValues);
+        entityAttributeManager.updateAttributeValues(List.of(customerId), attributes, overwriteList);
     }
 
     public void deleteAttributeValue(long attributeId, long customerId, String attributeValue) {

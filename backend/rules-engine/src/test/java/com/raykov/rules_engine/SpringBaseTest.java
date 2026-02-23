@@ -21,6 +21,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.raykov.rules_engine.config.tenant.TenantContext.clearTenantId;
@@ -103,7 +104,17 @@ public abstract class SpringBaseTest {
         return customerController.createAttribute(request);
     }
 
+    protected long createCustomerAttributeList(String type) {
+        String attributeName = "attribute" + ThreadLocalRandom.current().nextLong();
+        CreateAttributeRequest request = new CreateAttributeRequest(attributeName, type, true);
+        return customerController.createAttribute(request);
+    }
+
     protected long createCustomerAttributeAndSetValue(String type, long customerId, String value) {
+        return createCustomerAttributeAndSetValue(type, customerId, List.of(value));
+    }
+
+    protected long createCustomerAttributeAndSetValue(String type, long customerId, List<String> value) {
         long attrId = createCustomerAttribute(type);
         setAttributeValue(attrId, customerId, value);
         return attrId;
@@ -136,7 +147,7 @@ public abstract class SpringBaseTest {
         return reactionController.createReaction(request);
     }
 
-    protected void setAttributeValue(long attributeId, long entityInstanceId, String value) {
+    protected void setAttributeValue(long attributeId, long entityInstanceId, List<String> value) {
         entityAttributeManager.updateAttributeValue(attributeId, entityInstanceId, value);
     }
 

@@ -8,6 +8,7 @@ import com.raykov.rules_engine.domain.rule.model.RuleResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -121,6 +122,24 @@ public class RuleIntegrationTest extends SpringBaseTest {
         assertThat(getAttributeValue(attrId1, customerId).values().getFirst()).isEqualTo("6");
         assertThat(getAttributeValue(attrId2, customerId).values().getFirst()).isEqualTo("1");
         assertThat(getAttributeValue(attrId3, customerId).values().getFirst()).isEqualTo("9");
+    }
 
+    @Test
+    void executeActionWithApplicableRules_listAttribute() {
+        // Given
+        long customerId = login();
+        long attrId1 = createCustomerAttributeList("NUMBER");
+        setAttributeValue(attrId1, customerId, List.of("1", "2", "3"));
+        long actionId = createAction();
+
+        // When
+        long ruleId1 = ruleController.createRule(new CreateRuleRequest(actionId, "%d ~ 1".formatted(attrId1)));
+
+        createReaction(new CreateReactionRequest(ruleId1, attrId1, "PREPEND", "5", false));
+
+        actionService.executeAction(actionId, customerId, Map.of());
+
+        // Then
+        assertThat(getAttributeValue(attrId1, customerId).values()).isEqualTo(List.of("5", "1", "2", "3"));
     }
 }

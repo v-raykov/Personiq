@@ -5,7 +5,8 @@ CREATE TYPE update_operation AS ENUM (
     'CONCATENATION',
     'SET_FALSE', 'SET_TRUE', 'FLIP',
     'SET',
-    'SET_NOW');
+    'SET_NOW',
+    'APPEND', 'PREPEND', 'REMOVE', 'CLEAR');
 
 CREATE TABLE entity
 (

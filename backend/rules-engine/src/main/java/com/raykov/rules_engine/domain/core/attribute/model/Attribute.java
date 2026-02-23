@@ -1,7 +1,6 @@
 package com.raykov.rules_engine.domain.core.attribute.model;
 
 import com.raykov.rules_engine.domain.core.attribute.operation.AttributeOperation;
-import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public record Attribute(Long id, Long entityId, String name, AttributeValueType 
 
     public boolean isOperationSupported(AttributeOperation operation) {
         return isList
-               ? UpdateOperation.getListOperations().contains(operation)
+               ? operation.getListOperations().contains(operation)
                : operation.isSupportedFor(valueType);
     }
 }

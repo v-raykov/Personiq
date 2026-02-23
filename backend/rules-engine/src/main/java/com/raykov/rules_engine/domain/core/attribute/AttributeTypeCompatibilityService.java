@@ -27,7 +27,7 @@ class AttributeTypeCompatibilityService {
         }
 
         boolean hasValue = value != null && !value.isBlank();
-        boolean valueForbidden = operation == UpdateOperation.SET_NOW || operation == UpdateOperation.FLIP;
+        boolean valueForbidden = UpdateOperation.getNullValueOperations().contains(operation);
 
         if (hasValue && valueForbidden) {
             throw new IllegalArgumentException("Operation %s must not have a value.".formatted(operation.name()));

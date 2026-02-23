@@ -88,6 +88,7 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
         reactionController.createReaction(request);
 
+        // Then
         assertThat(reactionController.getAllReactions())
                 .containsExactly(new Reaction(1L, ruleId, attributeId, UpdateOperation.CONCATENATION, String.valueOf(actionAttributeId), true));
     }

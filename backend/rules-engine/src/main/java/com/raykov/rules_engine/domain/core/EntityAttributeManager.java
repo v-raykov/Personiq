@@ -53,9 +53,21 @@ public class EntityAttributeManager {
 
         long entityInstanceId = createEntityInstance(entityId, customerId);
 
-        attributes.forEach((attributeId, value) -> updateAttributeValue(attributeId, entityInstanceId, value));
+        updateAttributeValues(List.of(entityInstanceId), attributes, false);
 
         return entityInstanceId;
+    }
+
+    public void updateAttributeValues(List<Long> entityInstanceIds, Map<Long, String> attributes, boolean overwriteList) {
+        Collection<AttributeValue> attributeValues =
+                getAttributeValuesByIdsAndEntityInstanceIds(attributes.keySet(), entityInstanceIds)
+                        .stream()
+                        .map(av -> !av.isList() || overwriteList
+                                   ? av.withUpdatedValue(attributes.get(av.attributeId()))
+                                   : av.withAppendedValue(attributes.get(av.attributeId())))
+                        .toList();
+
+        updateAttributeValues(attributeValues);
     }
 
     public long createAttribute(long entityId, String name, String type, boolean isList) {
@@ -86,7 +98,7 @@ public class EntityAttributeManager {
                                                                                    .findFirst();
     }
 
-    public void updateAttributeValue(long attributeId, long entityInstanceId, String value) {
+    public void updateAttributeValue(long attributeId, long entityInstanceId, List<String> value) {
         attributeValueDao.updateAttributeValue(attributeId, entityInstanceId, value);
     }
 

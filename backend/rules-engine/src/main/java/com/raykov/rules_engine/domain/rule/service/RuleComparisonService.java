@@ -1,8 +1,8 @@
 package com.raykov.rules_engine.domain.rule.service;
 
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.attribute.operation.ConditionalRuleOperation;
-import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,19 +21,20 @@ public class RuleComparisonService {
     }
 
     private boolean performComparison(AttributeValue actual, ConditionalRuleOperation op, List<String> expectedValues) {
-        if (actual.isList()) {
-            return actual.values().stream()
-                         .anyMatch(val -> match(val, actual.valueType(), op, expectedValues));
-        }
-        return match(actual.values().getFirst(), actual.valueType(), op, expectedValues);
+        return actual.isList()
+               ? compareList(actual.values(), op, expectedValues)
+               : match(actual.values().getFirst(), actual.valueType(), op, expectedValues);
     }
 
     private boolean match(String actual, AttributeValueType type, ConditionalRuleOperation op, List<String> expected) {
         return switch (type) {
-            case NUMBER -> expected.stream().anyMatch(e -> compareNumeric(new BigDecimal(actual), op, new BigDecimal(e)));
+            case NUMBER ->
+                    expected.stream().anyMatch(e -> compareNumeric(new BigDecimal(actual), op, new BigDecimal(e)));
             case STRING -> expected.stream().anyMatch(e -> compareString(actual, op, e));
-            case DATE -> expected.stream().anyMatch(e -> compareDate(ZonedDateTime.parse(actual), op, ZonedDateTime.parse(e)));
-            case BOOLEAN -> expected.stream().anyMatch(e -> compareBoolean(Boolean.valueOf(actual), op, Boolean.valueOf(e)));
+            case DATE ->
+                    expected.stream().anyMatch(e -> compareDate(ZonedDateTime.parse(actual), op, ZonedDateTime.parse(e)));
+            case BOOLEAN ->
+                    expected.stream().anyMatch(e -> compareBoolean(Boolean.valueOf(actual), op, Boolean.valueOf(e)));
         };
     }
 
@@ -65,5 +66,13 @@ public class RuleComparisonService {
 
     private boolean compareBoolean(Boolean a, ConditionalRuleOperation op, Boolean e) {
         return op == ConditionalRuleOperation.EQUAL_TO && a.equals(e);
+    }
+
+    private boolean compareList(List<String> a, ConditionalRuleOperation op, List<String> e) {
+        return switch (op) {
+            case CONTAINS -> a.stream().anyMatch(e::contains);
+            case NOT_CONTAINS -> a.stream().noneMatch(e::contains);
+            default -> false;
+        };
     }
 }

@@ -54,7 +54,7 @@ public class AttributeValueDao {
         return jdbcTemplate.query(sql, params, AttributeValueDao::createAttributeValueRow);
     }
 
-    public void updateAttributeValue(long attributeId, long entityInstanceId, String value) {
+    public void updateAttributeValue(long attributeId, long entityInstanceId, List<String> values) {
         String sql = """
                          INSERT INTO attribute_value (entity_instance_id, attribute_id, value)
                          SELECT
@@ -69,15 +69,15 @@ public class AttributeValueDao {
                                          AND entity_instance_id = :entityInstanceId
                                      ORDER BY id DESC
                                      LIMIT 1
-                                 ), '{}'::text[]) || ARRAY[:value]
-                                 ELSE ARRAY[:value]
+                                 ), '{}'::text[]) || :value
+                                 ELSE :value
                              END;
                      """;
 
         jdbcTemplate.update(sql, new MapSqlParameterSource()
                 .addValue("entityInstanceId", entityInstanceId)
                 .addValue("attributeId", attributeId)
-                .addValue("value", value)
+                .addValue("value", values.toArray(new String[0]))
         );
     }
 

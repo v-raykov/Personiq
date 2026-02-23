@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -37,7 +38,7 @@ public class AttributeService {
             case SET_TRUE -> List.of("true");
             case SET_FALSE -> List.of("false");
             case FLIP -> List.of(String.valueOf(!Boolean.parseBoolean(current.getFirst())));
-            case SET_NOW -> List.of(String.valueOf(System.currentTimeMillis()));
+            case SET_NOW -> List.of(ZonedDateTime.now().toString());
             case SET -> List.of(scalar);
             case APPEND -> Stream.concat(current.stream(), Stream.of(scalar)).toList();
             case PREPEND -> Stream.concat(Stream.of(scalar), current.stream()).toList();

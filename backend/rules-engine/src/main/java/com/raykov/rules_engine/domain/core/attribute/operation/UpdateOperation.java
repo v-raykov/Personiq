@@ -22,6 +22,10 @@ public enum UpdateOperation implements AttributeOperation {
     REMOVE,
     CLEAR;
 
+    public static Set<AttributeOperation> getNullValueOperations() {
+        return Set.of(SET_NOW, SET_FALSE, SET_TRUE, CLEAR, INCREMENT, DECREMENT, FLIP);
+    }
+
     @Override
     public boolean isSupportedFor(AttributeValueType type) {
         return switch (this) {
@@ -35,7 +39,8 @@ public enum UpdateOperation implements AttributeOperation {
         };
     }
 
-    public static Set<AttributeOperation> getListOperations() {
+    @Override
+    public Set<AttributeOperation> getListOperations() {
         return Set.of(APPEND, PREPEND, REMOVE, CLEAR);
     }
 }
