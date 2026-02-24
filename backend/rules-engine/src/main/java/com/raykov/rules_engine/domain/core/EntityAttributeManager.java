@@ -2,7 +2,10 @@ package com.raykov.rules_engine.domain.core;
 
 import com.raykov.rules_engine.domain.core.attribute.dao.AttributeDao;
 import com.raykov.rules_engine.domain.core.attribute.dao.AttributeValueDao;
-import com.raykov.rules_engine.domain.core.attribute.model.*;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeKey;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.core.entity.Entity;
 import com.raykov.rules_engine.domain.core.entity.EntityDao;
 import com.raykov.rules_engine.domain.core.entity.EntityInstance;
@@ -140,22 +143,33 @@ public class EntityAttributeManager {
     }
 
     public List<EntityInstanceAttributes> getAllEntityInstancesByType(EntityType entityType) {
-        List<EntityInstance> entityInstances = entityDao.getAllInstancesByType(entityType);
+        Set<Long> entityInstanceIds = entityDao.getAllInstancesByType(entityType)
+                                               .stream()
+                                               .map(EntityInstance::id)
+                                               .collect(Collectors.toSet());
 
-        List<Long> entityInstanceIds = entityInstances.stream()
-                                                      .map(EntityInstance::id)
-                                                      .toList();
+        return getAllEntityInstancesByIds(entityInstanceIds, entityType);
+    }
 
-        Map<Long, List<AttributeValueResponse>> values = attributeValueDao.getAllByEntityInstanceIds(entityInstanceIds, entityType)
-                                                                          .stream()
-                                                                          .collect(Collectors.groupingBy(
-                                                                                  AttributeValue::entityInstanceId,
-                                                                                  Collectors.mapping(AttributeValueResponse::fromAttributeValueRow, Collectors.toList()))
-                                                                          );
+    public List<EntityInstanceAttributes> getAllEntityInstancesByIds(Set<Long> entityInstanceIds, EntityType entityType) {
+        List<EntityInstance> entityInstances = entityDao.getAllInstancesByType(entityType)
+                                                        .stream()
+                                                        .filter(ei -> entityInstanceIds.contains(ei.id()))
+                                                        .toList();
+
+        Map<Long, List<AttributeValue>> values = attributeValueDao.getAllByEntityInstanceIds(entityInstanceIds, entityType)
+                                                                  .stream()
+                                                                  .collect(Collectors.groupingBy(AttributeValue::entityInstanceId));
 
         return entityInstances.stream()
                               .map(row -> new EntityInstanceAttributes(row.id(), row.entityId(), row.targetInstanceId(), values.get(row.id())))
                               .toList();
+    }
+
+    public List<EntityInstance> getAllEntityInstancesByTargetInstanceId(long targetInstanceId, EntityType entityType) {
+        return entityDao.getAllInstancesByType(entityType).stream()
+                        .filter(row -> row.targetInstanceId() == targetInstanceId)
+                        .toList();
     }
 
     public Set<Long> getAllAttributeIdsByEntityId(long entityId) {

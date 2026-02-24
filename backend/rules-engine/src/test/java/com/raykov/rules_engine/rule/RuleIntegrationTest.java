@@ -2,7 +2,10 @@ package com.raykov.rules_engine.rule;
 
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionService;
+import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
+import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.CreateItemReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.domain.rule.model.RuleResponse;
@@ -160,5 +163,29 @@ public class RuleIntegrationTest extends SpringBaseTest {
 
         // Then
         assertThat(getAttributeValue(attrId1, customerId).values()).isEqualTo(List.of("5", "1", "2", "3"));
+    }
+
+    @Test
+    void executeActionWithApplicableRules_grantItem() {
+        // Given
+        long customerId = login();
+        long customerAttrId = createCustomerAttributeAndSetValue("NUMBER", customerId, "10");
+        long actionId = createAction();
+
+        long itemId = createItem();
+        long itemAttrId1 = createItemAttribute(itemId, "NUMBER");
+        long itemAttrId2 = createItemAttribute(itemId, "STRING");
+
+        long ruleId = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 10".formatted(customerAttrId)));
+        createReaction(new CreateItemReactionRequest(ruleId, itemId, Map.of(itemAttrId1, "5", itemAttrId2, "VALUE")));
+
+        // When
+        actionService.executeAction(actionId, customerId, Map.of());
+
+        // Then
+        long grantedItemId = getItemsByCustomerId(customerId).getFirst().id();
+        assertThat(getAttributeValue(itemAttrId1, grantedItemId).values().getFirst()).isEqualTo("5");
+        assertThat(getAttributeValue(itemAttrId2, grantedItemId).values().getFirst()).isEqualTo("VALUE");
+
     }
 }

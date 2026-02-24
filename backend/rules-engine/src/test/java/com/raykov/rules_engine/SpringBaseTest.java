@@ -2,11 +2,14 @@ package com.raykov.rules_engine;
 
 import com.raykov.rules_engine.domain.action.ActionController;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.customer.CustomerController;
+import com.raykov.rules_engine.domain.item.ItemController;
 import com.raykov.rules_engine.domain.reaction.ReactionController;
 import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.CreateItemReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.tenant.TenantController;
@@ -27,6 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.raykov.rules_engine.config.tenant.TenantContext.clearTenantId;
 import static com.raykov.rules_engine.config.tenant.TenantContext.setTenantId;
 import static java.lang.Math.abs;
+import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
 
@@ -53,6 +57,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private EntityAttributeManager entityAttributeManager;
+
+    @Autowired
+    private ItemController itemController;
 
     private long tenantId;
 
@@ -147,11 +154,29 @@ public abstract class SpringBaseTest {
         return reactionController.createAttributeReaction(request);
     }
 
+    protected long createReaction(CreateItemReactionRequest request) {
+        return reactionController.createItemReaction(request);
+    }
+
+    protected long createItem() {
+        String itemName = "item" + ThreadLocalRandom.current().nextLong();
+        return itemController.createItem(itemName, null);
+    }
+
+    protected long createItemAttribute(long itemId, String type) {
+        String attributeName = "attribute" + ThreadLocalRandom.current().nextLong();
+        return itemController.createItemAttribute(itemId, new CreateAttributeRequest(attributeName, type, false));
+    }
+
     protected void setAttributeValue(long attributeId, long entityInstanceId, List<String> value) {
         entityAttributeManager.updateAttributeValue(attributeId, entityInstanceId, value);
     }
 
     protected AttributeValue getAttributeValue(long attributeId, long entityInstanceId) {
         return entityAttributeManager.getAttributeValue(attributeId, entityInstanceId).orElseThrow();
+    }
+
+    protected List<EntityInstanceAttributes> getItemsByCustomerId(long customerId) {
+        return itemController.getItemsByCustomerId(customerId);
     }
 }

@@ -1,19 +1,20 @@
 package com.raykov.rules_engine.domain.reaction;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
 import com.raykov.rules_engine.domain.core.attribute.AttributeService;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
-import com.raykov.rules_engine.domain.reaction.model.AttributeReaction;
-import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
-import com.raykov.rules_engine.domain.reaction.model.CreateItemReactionRequest;
-import com.raykov.rules_engine.domain.reaction.model.Reaction;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
+import com.raykov.rules_engine.domain.item.ItemService;
+import com.raykov.rules_engine.domain.reaction.model.*;
 import com.raykov.rules_engine.domain.rule.RuleService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,11 +29,14 @@ public class ReactionService {
 
     private final EntityAttributeManager entityAttributeManager;
 
-    public ReactionService(ReactionDao reactionDao, AttributeService attributeService, RuleService ruleService, EntityAttributeManager entityAttributeManager) {
+    private final ItemService itemService;
+
+    public ReactionService(ReactionDao reactionDao, AttributeService attributeService, RuleService ruleService, EntityAttributeManager entityAttributeManager, ItemService itemService) {
         this.reactionDao = reactionDao;
         this.attributeService = attributeService;
         this.ruleService = ruleService;
         this.entityAttributeManager = entityAttributeManager;
+        this.itemService = itemService;
     }
 
     public long createAttributeReaction(CreateAttributeReactionRequest request) {
@@ -59,10 +63,31 @@ public class ReactionService {
     }
 
     public void executeReaction(long executedActionId, long customerId, List<Long> ruleIds) {
-        List<Reaction> reactions = reactionDao.getReactionsByRuleIds(ruleIds);
+        List<AttributeReaction> attributeReactions = reactionDao.getAttributeReactionsByRuleIds(ruleIds);
+        executeAttributeReactions(executedActionId, customerId, attributeReactions);
+
+        List<ItemReaction> itemReactions = reactionDao.getItemReactionsByRuleIds(ruleIds);
+        executeItemReaction(customerId, itemReactions);
+    }
+
+    private void executeItemReaction(long customerId, List<ItemReaction> itemReactions) {
+        Set<Long> itemTemplatesIds = itemReactions.stream()
+                                                  .map(ItemReaction::templateItemId)
+                                                  .collect(Collectors.toSet());
+
+        Map<Long, Map<Long, String>> itemTemplates = entityAttributeManager.getAllEntityInstancesByIds(itemTemplatesIds, EntityType.ITEM)
+                                                                           .stream()
+                                                                           .collect(Collectors.toMap(
+                                                                                   EntityInstanceAttributes::entityId,
+                                                                                   ei -> ei.attributes().stream()
+                                                                                           .collect(Collectors.toMap(AttributeValue::attributeId, AttributeValue::valueAsString))
+                                                                           ));
+
+       itemTemplates.forEach((k, v) -> itemService.grantItem(k, customerId, v));
+    }
+
+    private void executeAttributeReactions(long executedActionId, long customerId, List<AttributeReaction> reactions) {
         List<Long> attributeIds = reactions.stream()
-                                           .filter(reaction -> reaction instanceof AttributeReaction)
-                                           .map(AttributeReaction.class::cast)
                                            .flatMap(r -> r.isValueAttributeId()
                                                          ? Stream.of(r.attributeId(), Long.parseLong(r.value()))
                                                          : Stream.of(r.attributeId()))
@@ -77,8 +102,6 @@ public class ReactionService {
                                       .collect(Collectors.toMap(AttributeValue::attributeId, av -> av));
 
         List<AttributeValue> updates = reactions.stream()
-                                                .filter(reaction -> reaction instanceof AttributeReaction)
-                                                .map(AttributeReaction.class::cast)
                                                 .map(r -> r.isValueAttributeId()
                                                           ? attributeService.updateAttributeValueWithAttribute(attributeValues.get(r.attributeId()), attributeValues.get(Long.parseLong(r.value())), r.operation())
                                                           : attributeService.updateAttributeValueWithScalar(attributeValues.get(r.attributeId()), r.value(), r.operation()))

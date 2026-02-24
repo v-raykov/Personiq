@@ -2,12 +2,16 @@ package com.raykov.rules_engine.domain.item;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
+import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.entity.EntityInstance;
 import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
@@ -46,5 +50,14 @@ public class ItemService {
 
     public long grantItem(long itemId, long customerId, Map<Long, String> attributes) {
         return entityAttributeManager.createEntityInstanceAndSetAttributeValue(itemId, customerId, attributes);
+    }
+
+    public List<EntityInstanceAttributes> getItemsByCustomerId(long customerId) {
+        Set<Long> grantedItemsIds = entityAttributeManager.getAllEntityInstancesByTargetInstanceId(customerId, EntityType.ITEM)
+                                                          .stream()
+                                                          .map(EntityInstance::id)
+                                                          .collect(Collectors.toSet());
+
+        return entityAttributeManager.getAllEntityInstancesByIds(grantedItemsIds, EntityType.ITEM);
     }
 }

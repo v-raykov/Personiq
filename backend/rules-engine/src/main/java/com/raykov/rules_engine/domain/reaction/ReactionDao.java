@@ -80,30 +80,53 @@ public class ReactionDao {
         return jdbcTemplate.query(sql, Map.of(), ReactionDao::mapReaction);
     }
 
-    public List<Reaction> getReactionsByRuleIds(List<Long> ruleIds) {
+    public List<AttributeReaction> getAttributeReactionsByRuleIds(List<Long> ruleIds) {
         if (ruleIds.isEmpty()) return List.of();
 
         String sql = """
                      SELECT r.id, r.rule_id, r.reaction_type,
-                            ra.target_attribute_id, ra.operation, ra.value, ra.is_value_attribute_id,
-                            ri.template_instance_id
+                            ra.target_attribute_id, ra.operation, ra.value, ra.is_value_attribute_id
                      FROM reaction r
-                     LEFT JOIN reaction_attribute ra ON r.id = ra.reaction_id
-                     LEFT JOIN reaction_item ri ON r.id = ri.reaction_id
+                     JOIN reaction_attribute ra ON r.id = ra.reaction_id
                      WHERE r.rule_id IN (:ruleIds)
                          AND r.removed = FALSE
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource("ruleIds", ruleIds);
 
-        return jdbcTemplate.query(sql, params, ReactionDao::mapReaction);
+        return jdbcTemplate.query(sql, params, ReactionDao::mapAttributeReaction);
+    }
+
+    public List<ItemReaction> getItemReactionsByRuleIds(List<Long> ruleIds) {
+        if (ruleIds.isEmpty()) return List.of();
+
+        String sql = """
+                     SELECT r.id, r.rule_id, r.reaction_type,
+                            ri.template_instance_id
+                     FROM reaction r
+                     JOIN reaction_item ri ON r.id = ri.reaction_id
+                     WHERE r.rule_id IN (:ruleIds)
+                         AND r.removed = FALSE
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("ruleIds", ruleIds);
+
+        return jdbcTemplate.query(sql, params, ReactionDao::mapItemReaction);
     }
 
     private static Reaction mapReaction(ResultSet rs, int ignored) throws SQLException {
         return switch (rs.getString("reaction_type")) {
-            case "ATTRIBUTE" -> new AttributeReaction(rs.getLong("id"), rs.getLong("rule_id"), rs.getLong("target_attribute_id"), UpdateOperation.valueOf(rs.getString("operation")), rs.getString("value"), rs.getBoolean("is_value_attribute_id"));
-            case "ITEM" -> new ItemReaction(rs.getLong("id"), rs.getLong("rule_id"), rs.getLong("template_instance_id"));
+            case "ATTRIBUTE" -> mapAttributeReaction(rs, ignored);
+            case "ITEM" -> mapItemReaction(rs, ignored);
             default -> throw new IllegalStateException("Unknown reaction type: " + rs.getString("reaction_type"));
         };
+    }
+
+    private static AttributeReaction mapAttributeReaction(ResultSet rs, int ignored) throws SQLException {
+        return new AttributeReaction(rs.getLong("id"), rs.getLong("rule_id"), rs.getLong("target_attribute_id"), UpdateOperation.valueOf(rs.getString("operation")), rs.getString("value"), rs.getBoolean("is_value_attribute_id"));
+    }
+
+    private static ItemReaction mapItemReaction(ResultSet rs, int ignored) throws SQLException {
+        return new ItemReaction(rs.getLong("id"), rs.getLong("rule_id"), rs.getLong("template_instance_id"));
     }
 }

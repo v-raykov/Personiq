@@ -1,6 +1,5 @@
 package com.raykov.rules_engine.domain.core.attribute.model;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,4 +34,10 @@ public record AttributeValue(long entityInstanceId, long attributeId, String nam
         return new AttributeValue(entityInstanceId, attributeId, name, valueType, List.copyOf(newValues), isList);
     }
 
+    public String valueAsString() {
+        return isList
+               ? values.toString()
+               : values.getFirst();
+
+    }
 }

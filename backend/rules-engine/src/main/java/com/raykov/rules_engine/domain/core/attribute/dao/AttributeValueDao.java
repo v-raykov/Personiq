@@ -22,7 +22,7 @@ public class AttributeValueDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<AttributeValue> getAllByEntityInstanceIds(List<Long> entityInstanceIds, EntityType entityType) {
+    public List<AttributeValue> getAllByEntityInstanceIds(Collection<Long> entityInstanceIds, EntityType entityType) {
         if (entityInstanceIds.isEmpty()) {
             return List.of();
         }
