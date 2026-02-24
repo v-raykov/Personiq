@@ -39,10 +39,14 @@ public class RuleComparisonService {
     }
 
     private boolean compareNumeric(BigDecimal a, ConditionalRuleOperation op, BigDecimal e) {
+        int cmp = a.compareTo(e);
         return switch (op) {
-            case EQUAL_TO -> a.compareTo(e) == 0;
-            case GREATER_THAN -> a.compareTo(e) > 0;
-            case LESS_THAN -> a.compareTo(e) < 0;
+            case EQUAL_TO -> cmp == 0;
+            case NOT_EQUAL_TO -> cmp != 0;
+            case GREATER_THAN -> cmp > 0;
+            case LESS_THAN -> cmp < 0;
+            case GREATER_THAN_OR_EQUAL_TO -> cmp >= 0;
+            case LESS_THAN_OR_EQUAL_TO -> cmp <= 0;
             default -> false;
         };
     }
@@ -50,7 +54,9 @@ public class RuleComparisonService {
     private boolean compareString(String a, ConditionalRuleOperation op, String e) {
         return switch (op) {
             case EQUAL_TO -> a.equals(e);
+            case NOT_EQUAL_TO -> !a.equals(e);
             case CONTAINS -> a.contains(e);
+            case NOT_CONTAINS -> !a.contains(e);
             default -> false;
         };
     }
@@ -58,14 +64,21 @@ public class RuleComparisonService {
     private boolean compareDate(ZonedDateTime a, ConditionalRuleOperation op, ZonedDateTime e) {
         return switch (op) {
             case EQUAL_TO -> a.isEqual(e);
+            case NOT_EQUAL_TO -> !a.isEqual(e);
             case GREATER_THAN -> a.isAfter(e);
             case LESS_THAN -> a.isBefore(e);
+            case GREATER_THAN_OR_EQUAL_TO -> a.isAfter(e) || a.isEqual(e);
+            case LESS_THAN_OR_EQUAL_TO -> a.isBefore(e) || a.isEqual(e);
             default -> false;
         };
     }
 
     private boolean compareBoolean(Boolean a, ConditionalRuleOperation op, Boolean e) {
-        return op == ConditionalRuleOperation.EQUAL_TO && a.equals(e);
+        return switch (op) {
+            case EQUAL_TO -> a.equals(e);
+            case NOT_EQUAL_TO -> !a.equals(e);
+            default -> false;
+        };
     }
 
     private boolean compareList(List<String> a, ConditionalRuleOperation op, List<String> e) {

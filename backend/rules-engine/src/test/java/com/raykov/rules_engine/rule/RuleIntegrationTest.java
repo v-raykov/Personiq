@@ -1,5 +1,6 @@
-package com.raykov.rules_engine;
+package com.raykov.rules_engine.rule;
 
+import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionService;
 import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;

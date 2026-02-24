@@ -99,6 +99,10 @@ public class EntityAttributeManager {
     }
 
     public void updateAttributeValue(long attributeId, long entityInstanceId, List<String> value) {
+        Attribute attribute = getAttributeById(attributeId);
+        if (!attribute.isList() && value.size() > 1) {
+            throw new IllegalArgumentException("Only one value should be provided for non-list attribute");
+        }
         attributeValueDao.updateAttributeValue(attributeId, entityInstanceId, value);
     }
 

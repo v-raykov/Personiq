@@ -57,7 +57,7 @@ public class RuleParserService {
     }
 
     private RuleNode parseConditional(String raw) {
-        Pattern p = Pattern.compile("(\\d+)(!=|>=|<=|=|>|<|~)(.+)");
+        Pattern p = Pattern.compile("(\\d+)(>=|<=|!=|!~|=|>|<|~)(.+)");
         Matcher m = p.matcher(raw.replaceAll("\\s+", ""));
 
         if (!m.matches()) throw new IllegalArgumentException("Malformed condition: " + raw);

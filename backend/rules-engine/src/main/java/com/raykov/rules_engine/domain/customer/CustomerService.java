@@ -2,11 +2,10 @@ package com.raykov.rules_engine.domain.customer;
 
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
-import com.raykov.rules_engine.domain.core.entity.EntityType;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
