@@ -46,7 +46,12 @@ public class EntityAttributeManager {
     }
 
     @Transactional
-    public long createEntityInstanceAndSetAttributeValue(long entityId, long customerId, Map<Long, String> attributes) {
+    public long createEntityInstanceAndSetAttributeValue(long entityId, Map<Long, String> attributes) {
+        return createEntityInstanceAndSetAttributeValue(entityId, null, attributes);
+    }
+
+    @Transactional
+    public long createEntityInstanceAndSetAttributeValue(long entityId, Long customerId, Map<Long, String> attributes) {
         if (!getAllAttributeIdsByEntityId(entityId).equals(attributes.keySet())) {
             throw new IllegalArgumentException("Not all attributes are provided for entity with id: " + entityId);
         }

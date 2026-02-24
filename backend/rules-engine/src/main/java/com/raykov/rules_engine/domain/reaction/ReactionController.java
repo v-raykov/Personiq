@@ -1,6 +1,7 @@
 package com.raykov.rules_engine.domain.reaction;
 
-import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.CreateItemReactionRequest;
 import com.raykov.rules_engine.domain.reaction.model.Reaction;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +17,14 @@ public class ReactionController {
         this.reactionService = reactionService;
     }
 
-    @PostMapping
-    public long createReaction(@RequestBody CreateReactionRequest request) {
-        return reactionService.createReaction(request);
+    @PostMapping("/attribute")
+    public long createAttributeReaction(@RequestBody CreateAttributeReactionRequest request) {
+        return reactionService.createAttributeReaction(request);
+    }
+
+    @PostMapping("/item")
+    public long createItemReaction(@RequestBody CreateItemReactionRequest request) {
+        return reactionService.createItemReaction(request);
     }
 
     @GetMapping

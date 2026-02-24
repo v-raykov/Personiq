@@ -3,7 +3,7 @@ package com.raykov.rules_engine.reaction;
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.reaction.ReactionService;
-import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -39,7 +39,7 @@ public class ReactionExecutionTest extends SpringBaseTest {
         long ruleId = createRule("%d = 1".formatted(attrId));
 
         String actualInput = "null".equals(input) ? null : input;
-        reactionService.createReaction(new CreateReactionRequest(ruleId, attrId, operation, actualInput, false));
+        reactionService.createAttributeReaction(new CreateAttributeReactionRequest(ruleId, attrId, operation, actualInput, false));
 
         // When
         long executedActionId = entityAttributeManager.createEntityInstance(createAction());
@@ -60,7 +60,7 @@ public class ReactionExecutionTest extends SpringBaseTest {
         long attrId = createCustomerAttributeAndSetValue("STRING", customerId, "value");
         long ruleId = createRule("%d = value".formatted(attrId));
 
-        reactionService.createReaction(new CreateReactionRequest(ruleId, attrId, operation, input, false));
+        reactionService.createAttributeReaction(new CreateAttributeReactionRequest(ruleId, attrId, operation, input, false));
 
         // When
         long executedActionId = entityAttributeManager.createEntityInstance(createAction());
@@ -84,7 +84,7 @@ public class ReactionExecutionTest extends SpringBaseTest {
         long ruleId = createRule("%d = true".formatted(attrId));
 
         String actualInput = "null".equals(input) ? null : input;
-        reactionService.createReaction(new CreateReactionRequest(ruleId, attrId, operation, actualInput, false));
+        reactionService.createAttributeReaction(new CreateAttributeReactionRequest(ruleId, attrId, operation, actualInput, false));
 
         // When
         long executedActionId = entityAttributeManager.createEntityInstance(createAction());
@@ -102,7 +102,7 @@ public class ReactionExecutionTest extends SpringBaseTest {
         long attrId = createCustomerAttributeAndSetValue("DATE", customerId, now.toString());
         long ruleId = createRule("%d = %s".formatted(attrId, now));
 
-        reactionService.createReaction(new CreateReactionRequest(ruleId, attrId, "SET_NOW", null, false));
+        reactionService.createAttributeReaction(new CreateAttributeReactionRequest(ruleId, attrId, "SET_NOW", null, false));
 
         // When
         long executedActionId = entityAttributeManager.createEntityInstance(createAction());
@@ -129,7 +129,7 @@ public class ReactionExecutionTest extends SpringBaseTest {
         setAttributeValue(attrId, customerId, List.of("1", "2", "3"));
 
         String actualInput = "null".equals(input) ? null : input;
-        reactionService.createReaction(new CreateReactionRequest(ruleId, attrId, operation, actualInput, false));
+        reactionService.createAttributeReaction(new CreateAttributeReactionRequest(ruleId, attrId, operation, actualInput, false));
 
         // When
         long executedActionId = entityAttributeManager.createEntityInstance(createAction());

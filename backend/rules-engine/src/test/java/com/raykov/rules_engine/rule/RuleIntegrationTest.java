@@ -2,7 +2,7 @@ package com.raykov.rules_engine.rule;
 
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionService;
-import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;
 import com.raykov.rules_engine.domain.rule.model.CreateRuleRequest;
 import com.raykov.rules_engine.domain.rule.model.RuleResponse;
@@ -113,9 +113,9 @@ public class RuleIntegrationTest extends SpringBaseTest {
         long ruleId2 = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 1 & (%d > attr_%d & %d < 5)".formatted(attrId1, attrId2, attrId3, attrId2)));
         long ruleId3 = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 3 | (%d > attr_%d | %d > 8)".formatted(attrId1, attrId2, attrId3, attrId2)));
 
-        createReaction(new CreateReactionRequest(ruleId1, attrId1, "ADDITION", "5", false));
-        createReaction(new CreateReactionRequest(ruleId2, attrId2, "ADDITION", "10", false));
-        createReaction(new CreateReactionRequest(ruleId3, attrId2, "SUBTRACTION", String.valueOf(attrId3), true));
+        createReaction(new CreateAttributeReactionRequest(ruleId1, attrId1, "ADDITION", "5", false));
+        createReaction(new CreateAttributeReactionRequest(ruleId2, attrId2, "ADDITION", "10", false));
+        createReaction(new CreateAttributeReactionRequest(ruleId3, attrId2, "SUBTRACTION", String.valueOf(attrId3), true));
 
         actionService.executeAction(actionId, customerId, Map.of());
 
@@ -134,7 +134,7 @@ public class RuleIntegrationTest extends SpringBaseTest {
         long actionAttrId = createActionAttribute(actionId, "NUMBER");
 
         long ruleId = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 10".formatted(customerAttrId)));
-        createReaction(new CreateReactionRequest(ruleId, customerAttrId, "ADDITION", String.valueOf(actionAttrId), true));
+        createReaction(new CreateAttributeReactionRequest(ruleId, customerAttrId, "ADDITION", String.valueOf(actionAttrId), true));
 
         // When
         actionService.executeAction(actionId, customerId, Map.of(actionAttrId, "5"));
@@ -154,7 +154,7 @@ public class RuleIntegrationTest extends SpringBaseTest {
         // When
         long ruleId1 = ruleController.createRule(new CreateRuleRequest(actionId, "%d ~ 1".formatted(attrId1)));
 
-        createReaction(new CreateReactionRequest(ruleId1, attrId1, "PREPEND", "5", false));
+        createReaction(new CreateAttributeReactionRequest(ruleId1, attrId1, "PREPEND", "5", false));
 
         actionService.executeAction(actionId, customerId, Map.of());
 

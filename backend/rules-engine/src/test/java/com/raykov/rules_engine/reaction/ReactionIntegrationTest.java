@@ -3,8 +3,8 @@ package com.raykov.rules_engine.reaction;
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import com.raykov.rules_engine.domain.reaction.ReactionController;
-import com.raykov.rules_engine.domain.reaction.model.CreateReactionRequest;
-import com.raykov.rules_engine.domain.reaction.model.Reaction;
+import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
+import com.raykov.rules_engine.domain.reaction.model.AttributeReaction;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,12 +24,12 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         long ruleId = createRule("%d = 5".formatted(attributeId));
 
         // When
-        CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", "String", false);
-        reactionController.createReaction(request);
+        CreateAttributeReactionRequest request = new CreateAttributeReactionRequest(ruleId, attributeId, "CONCATENATION", "String", false);
+        reactionController.createAttributeReaction(request);
 
         // Then
         assertThat(reactionController.getAllReactions())
-                .containsExactly(new Reaction(1L, ruleId, attributeId, UpdateOperation.CONCATENATION, "String", false));
+                .containsExactly(new AttributeReaction(1L, ruleId, attributeId, UpdateOperation.CONCATENATION, "String", false));
     }
 
     @Test
@@ -39,12 +39,12 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         long ruleId = createRule("%d = 5".formatted(attributeId));
 
         // When
-        CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "ADDITION", "10", false);
-        reactionController.createReaction(request);
+        CreateAttributeReactionRequest request = new CreateAttributeReactionRequest(ruleId, attributeId, "ADDITION", "10", false);
+        reactionController.createAttributeReaction(request);
 
         // Then
         assertThat(reactionController.getAllReactions())
-                .containsExactly(new Reaction(1L, ruleId, attributeId, UpdateOperation.ADDITION, "10", false));
+                .containsExactly(new AttributeReaction(1L, ruleId, attributeId, UpdateOperation.ADDITION, "10", false));
     }
 
     @Test
@@ -54,12 +54,12 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         long ruleId = createRule("%d = true".formatted(attributeId));
 
         // When
-        CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "FLIP", null, false);
-        reactionController.createReaction(request);
+        CreateAttributeReactionRequest request = new CreateAttributeReactionRequest(ruleId, attributeId, "FLIP", null, false);
+        reactionController.createAttributeReaction(request);
 
         // Then
         assertThat(reactionController.getAllReactions())
-                .containsExactly(new Reaction(1L, ruleId, attributeId, UpdateOperation.FLIP, null, false));
+                .containsExactly(new AttributeReaction(1L, ruleId, attributeId, UpdateOperation.FLIP, null, false));
     }
 
     @Test
@@ -69,12 +69,12 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         long ruleId = createRule("%d = %s".formatted(attributeId, ZonedDateTime.now()));
 
         // When
-        CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "SET_NOW", null, false);
-        reactionController.createReaction(request);
+        CreateAttributeReactionRequest request = new CreateAttributeReactionRequest(ruleId, attributeId, "SET_NOW", null, false);
+        reactionController.createAttributeReaction(request);
 
         // Then
         assertThat(reactionController.getAllReactions())
-                .containsExactly(new Reaction(1L, ruleId, attributeId, UpdateOperation.SET_NOW, null, false));
+                .containsExactly(new AttributeReaction(1L, ruleId, attributeId, UpdateOperation.SET_NOW, null, false));
     }
 
     @Test
@@ -86,11 +86,11 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         long actionAttributeId = createActionAttribute(actionId);
 
         // When
-        CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
-        reactionController.createReaction(request);
+        CreateAttributeReactionRequest request = new CreateAttributeReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
+        reactionController.createAttributeReaction(request);
 
         // Then
         assertThat(reactionController.getAllReactions())
-                .containsExactly(new Reaction(1L, ruleId, attributeId, UpdateOperation.CONCATENATION, String.valueOf(actionAttributeId), true));
+                .containsExactly(new AttributeReaction(1L, ruleId, attributeId, UpdateOperation.CONCATENATION, String.valueOf(actionAttributeId), true));
     }
 }
