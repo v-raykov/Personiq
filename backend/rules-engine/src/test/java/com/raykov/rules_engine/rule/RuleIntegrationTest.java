@@ -115,7 +115,7 @@ public class RuleIntegrationTest extends SpringBaseTest {
 
         createReaction(new CreateReactionRequest(ruleId1, attrId1, "ADDITION", "5", false));
         createReaction(new CreateReactionRequest(ruleId2, attrId2, "ADDITION", "10", false));
-        createReaction(new CreateReactionRequest(ruleId3, attrId2, "SUBTRACTION", String.valueOf(ruleId3), true));
+        createReaction(new CreateReactionRequest(ruleId3, attrId2, "SUBTRACTION", String.valueOf(attrId3), true));
 
         actionService.executeAction(actionId, customerId, Map.of());
 
@@ -123,6 +123,24 @@ public class RuleIntegrationTest extends SpringBaseTest {
         assertThat(getAttributeValue(attrId1, customerId).values().getFirst()).isEqualTo("6");
         assertThat(getAttributeValue(attrId2, customerId).values().getFirst()).isEqualTo("1");
         assertThat(getAttributeValue(attrId3, customerId).values().getFirst()).isEqualTo("9");
+    }
+
+    @Test
+    void executeActionWithApplicableRules_attributeParameterFromAction() {
+        // Given
+        long customerId = login();
+        long customerAttrId = createCustomerAttributeAndSetValue("NUMBER", customerId, "10");
+        long actionId = createAction();
+        long actionAttrId = createActionAttribute(actionId, "NUMBER");
+
+        long ruleId = ruleController.createRule(new CreateRuleRequest(actionId, "%d = 10".formatted(customerAttrId)));
+        createReaction(new CreateReactionRequest(ruleId, customerAttrId, "ADDITION", String.valueOf(actionAttrId), true));
+
+        // When
+        actionService.executeAction(actionId, customerId, Map.of(actionAttrId, "5"));
+
+        // Then
+        assertThat(getAttributeValue(customerAttrId, customerId).values().getFirst()).isEqualTo("15");
     }
 
     @Test

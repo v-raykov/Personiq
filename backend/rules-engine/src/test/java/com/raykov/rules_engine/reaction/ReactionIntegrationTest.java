@@ -82,7 +82,8 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         // Given
         long attributeId = createCustomerAttribute();
         long ruleId = createRule("%d = 5".formatted(attributeId));
-        long actionAttributeId = createActionAttribute(ruleId);
+        long actionId = createAction();
+        long actionAttributeId = createActionAttribute(actionId);
 
         // When
         CreateReactionRequest request = new CreateReactionRequest(ruleId, attributeId, "CONCATENATION", String.valueOf(actionAttributeId), true);
