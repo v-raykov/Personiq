@@ -7,6 +7,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/gateway
     username: gateway
     password: gateway
+    hikari:
+      connection-init-sql: SET search_path TO gateway
 
   flyway:
     enabled: true
@@ -20,4 +22,12 @@ server:
   port: 8080
 
 rules-engine:
-  uri: "http://localhost:8081"
+  uri: ${RULES_ENGINE_URI:http://localhost:8081}
+
+logging:
+  level:
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: DEBUG
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: DEBUG
+
+secret:
+  key: "ZDY0NTI1YmMwZjA3MTQ5NzgyNzBmNjI0ZDYwNjc3MjA5NjNkZWIwN2FhYjQ1"

@@ -1,0 +1,65 @@
+services:
+  postgres-gateway:
+    image: postgres:17
+    container_name: postgres_gateway
+    environment:
+      POSTGRES_DB: gateway
+      POSTGRES_USER: gateway
+      POSTGRES_PASSWORD: gateway
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_gateway:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U gateway" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-rules:
+    image: postgres:17
+    container_name: postgres_rules
+    environment:
+      POSTGRES_DB: rules_engine
+      POSTGRES_USER: rules_engine
+      POSTGRES_PASSWORD: rules_engine
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_rules:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U rules_engine" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gateway-service:
+    build: gateway
+    container_name: gateway_service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-gateway:5432/gateway
+      SPRING_DATASOURCE_USERNAME: gateway
+      SPRING_DATASOURCE_PASSWORD: gateway
+      RULES_ENGINE_URI: http://rules-engine:8081
+    depends_on:
+      postgres-gateway:
+        condition: service_healthy
+
+  rules-engine:
+    build: rules-engine
+    container_name: rules_engine
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-rules:5432/rules_engine?currentSchema=master
+      SPRING_DATASOURCE_USERNAME: rules_engine
+      SPRING_DATASOURCE_PASSWORD: rules_engine
+    depends_on:
+      postgres-rules:
+        condition: service_healthy
+
+volumes:
+  pgdata_gateway:
+  pgdata_rules:

@@ -2,8 +2,6 @@ package com.raykov.rules_engine.rule;
 
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionService;
-import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
-import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
 import com.raykov.rules_engine.domain.reaction.model.CreateItemReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;

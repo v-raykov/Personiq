@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,11 +18,14 @@ import static com.raykov.rules_engine.config.tenant.TenantContext.setTenantId;
 @Component
 public class TenantContextFilter extends OncePerRequestFilter {
 
+    private final Logger logger = LoggerFactory.getLogger(TenantContextFilter.class);
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String tenantId = request.getHeader("X-Tenant-Id");
+        logger.info("Request Path: {}, X-Tenant-Id header: {}", request.getRequestURI(), tenantId);
         try {
             if (tenantId != null && !tenantId.isBlank()) {
                 setTenantId(tenantId);

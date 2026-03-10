@@ -6,6 +6,7 @@ import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
 import com.raykov.rules_engine.domain.customer.CustomerController;
+import com.raykov.rules_engine.domain.customer.RegisterCustomerController;
 import com.raykov.rules_engine.domain.item.ItemController;
 import com.raykov.rules_engine.domain.reaction.ReactionController;
 import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
@@ -30,7 +31,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.raykov.rules_engine.config.tenant.TenantContext.clearTenantId;
 import static com.raykov.rules_engine.config.tenant.TenantContext.setTenantId;
 import static java.lang.Math.abs;
-import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
 
@@ -60,6 +60,9 @@ public abstract class SpringBaseTest {
 
     @Autowired
     private ItemController itemController;
+
+    @Autowired
+    private RegisterCustomerController registerCustomerController;
 
     private long tenantId;
 
@@ -98,7 +101,7 @@ public abstract class SpringBaseTest {
     }
 
     protected long login() {
-        return customerController.registerCustomer();
+        return registerCustomerController.registerCustomer();
     }
 
     protected long createCustomerAttribute() {

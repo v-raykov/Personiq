@@ -17,8 +17,8 @@ public class TenantController {
     }
 
     @PostMapping("/tenant")
-    public void createTenant(@RequestParam String tenantUriName) {
-        tenantService.createTenant(tenantUriName);
+    public long createTenant(@RequestParam String tenantUriName) {
+        return tenantService.createTenant(tenantUriName);
     }
 
     @GetMapping("/tenant")

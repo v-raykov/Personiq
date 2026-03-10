@@ -1,17 +1,17 @@
 package com.raykov.gateway.config.filter;
 
 import com.raykov.gateway.tenant.TenantService;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 @Component
-public class TenantValidationFilter implements GatewayFilter, Ordered {
+public class TenantValidationFilter implements WebFilter, Ordered {
 
     private final TenantService tenantService;
 
@@ -20,34 +20,35 @@ public class TenantValidationFilter implements GatewayFilter, Ordered {
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String tenantUri = exchange.getRequest().getPath().elements().get(1).value();
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String path = exchange.getRequest().getPath().value();
 
-        return Mono.defer(() -> tenantService.getTenantIdByUri(tenantUri)
-                                             .map(id -> forwardWithHeader(exchange, chain, id))
-                                             .orElseGet(() -> notFound(exchange)));
-    }
+        if (path.startsWith("/tenant")) return chain.filter(exchange);
 
-    private Mono<Void> forwardWithHeader(ServerWebExchange exchange, GatewayFilterChain chain, Long id) {
-        ServerHttpRequest mutated = exchange.getRequest()
-                                            .mutate()
-                                            .header("X-Tenant-Id", String.valueOf(id))
-                                            .build();
+        String[] parts = path.split("/", 3);
+        if (parts.length < 2) return chain.filter(exchange);
 
-        ServerWebExchange mutatedExchange = exchange.mutate()
-                                                    .request(mutated)
-                                                    .build();
+        String tenantUri = parts[1];
+        String newPath = parts.length > 2 ? "/" + parts[2] : "/";
 
-        return chain.filter(mutatedExchange);
-    }
+        return Mono.fromSupplier(() -> tenantService.getTenantIdByUri(tenantUri))
+                   .flatMap(idOptional -> {
+                       if (idOptional.isEmpty()) {
+                           exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+                           return exchange.getResponse().setComplete();
+                       }
 
-    private Mono<Void> notFound(ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
-        return exchange.getResponse().setComplete();
+                       ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                                                                  .header("X-Tenant-Id", String.valueOf(idOptional.get()))
+                                                                  .path(newPath)
+                                                                  .build();
+
+                       return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                   });
     }
 
     @Override
     public int getOrder() {
-        return -1;
+        return -100;
     }
 }

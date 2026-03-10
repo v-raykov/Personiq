@@ -1,14 +1,14 @@
 package com.raykov.gateway.tenant;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.raykov.gateway.user.authentication.AuthenticationService;
+import com.raykov.gateway.user.authentication.model.RegisterCustomerRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 @Service
 public class TenantService {
@@ -19,21 +19,28 @@ public class TenantService {
 
     private final String rulesEngineUri;
 
-    public TenantService(@Value("${rules-engine.uri}") String rulesEngineUri, TenantDao tenantDao, RestTemplate restTemplate) {
+    public TenantService(String rulesEngineUri, TenantDao tenantDao, RestTemplate restTemplate) {
         this.tenantDao = tenantDao;
         this.restTemplate = restTemplate;
         this.rulesEngineUri = rulesEngineUri;
     }
 
+    /**
+     * This method cannot guarantee full transactionality due to depending on a Distributed transaction.
+     * Same thing goes for {@link AuthenticationService#registerCustomer(RegisterCustomerRequest, Long)}
+     * or any other methods that use restTemplate inside this project
+     */
     @Transactional
-    public void createTenant(String tenantUriName) {
+    public long createTenant(String tenantUriName) {
         long id = tenantDao.createTenant(tenantUriName);
 
-        String url = fromUriString(rulesEngineUri).path("/private/tenant/{id}")
-                                                  .buildAndExpand(id)
-                                                  .toUriString();
+        String url = UriComponentsBuilder.fromUriString(rulesEngineUri)
+                                         .path("/private/tenant/{id}")
+                                         .buildAndExpand(id)
+                                         .toUriString();
 
         restTemplate.postForEntity(url, null, Void.class);
+        return id;
     }
 
     public List<String> getTenants() {

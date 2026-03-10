@@ -1,0 +1,22 @@
+services:
+  rules-engine-db:
+    image: postgres:17
+    container_name: rules-engine-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: rules_engine
+      POSTGRES_USER: rules_engine
+      POSTGRES_PASSWORD: rules_engine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rules-network
+    restart: always
+
+networks:
+  rules-network:
+    driver: bridge
+
+volumes:
+  pgdata:

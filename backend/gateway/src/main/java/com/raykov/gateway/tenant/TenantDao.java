@@ -19,7 +19,7 @@ public class TenantDao {
     }
 
     public Long createTenant(String tenantUriName) {
-        String sql = "INSERT INTO tenants (uri_name) VALUES (:tenantUriName) RETURNING id";
+        String sql = "INSERT INTO tenant (uri_name) VALUES (:tenantUriName) RETURNING id";
 
         SqlParameterSource params = new MapSqlParameterSource("tenantUriName", tenantUriName);
 
@@ -27,13 +27,13 @@ public class TenantDao {
     }
 
     public List<String> getTenantUriNames() {
-        String sql = "SELECT uri_name FROM tenants";
+        String sql = "SELECT uri_name FROM tenant";
 
         return jdbcTemplate.queryForList(sql, Map.of(), String.class);
     }
 
     public Optional<Long> getTenantIdByUri(String tenantUri) {
-        String sql = "SELECT id FROM tenants WHERE uri_name = :tenantUri";
+        String sql = "SELECT id FROM tenant WHERE uri_name = :tenantUri";
 
         SqlParameterSource params = new MapSqlParameterSource("tenantUri", tenantUri);
 

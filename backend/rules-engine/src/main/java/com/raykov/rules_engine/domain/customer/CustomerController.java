@@ -18,11 +18,6 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    @PostMapping
-    public long registerCustomer() {
-        return customerService.registerCustomer();
-    }
-
     @PostMapping("/attribute")
     public long createAttribute(@RequestBody CreateAttributeRequest request) {
         return customerService.createAttribute(request.name(), request.type(), request.isList());
