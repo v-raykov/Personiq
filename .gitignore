@@ -5,6 +5,7 @@ HELP.md
 **/src/test/**/target/
 **/mvnw
 **/mvnw.cmd
+backend/integration-tests/.venv
 
 ### STS ###
 .apt_generated
