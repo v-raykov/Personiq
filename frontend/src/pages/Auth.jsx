@@ -43,7 +43,7 @@ function Auth({ mode }) {
                 await loginUser(tenantUri, { username: formData.username, password: formData.password });
                 setNotify({ open: true, message: 'Welcome back!', severity: 'success' });
             }
-        } catch (err) {
+        } catch {
             setNotify({ open: true, message: 'Authentication failed. Please check your credentials.', severity: 'error' });
         }
     };

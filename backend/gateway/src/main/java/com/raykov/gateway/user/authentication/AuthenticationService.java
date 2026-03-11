@@ -10,7 +10,7 @@ import com.raykov.gateway.user.UserDao;
 import com.raykov.gateway.user.authentication.model.JwtTokenResponse;
 import com.raykov.gateway.user.authentication.model.LoginRequest;
 import com.raykov.gateway.user.authentication.model.RegisterAdminRequest;
-import com.raykov.gateway.user.authentication.model.RegisterCustomerRequest;
+import com.raykov.gateway.user.authentication.model.RegisterRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -54,7 +54,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public Long registerCustomer(RegisterCustomerRequest details, Long tenantId) {
+    public Long registerCustomer(RegisterRequest details, Long tenantId) {
         long userId = userDao.createUser(new User(details.username(), details.password(), details.email(), Authority.ROLE_CUSTOMER, tenantId));
 
         String url = UriComponentsBuilder.fromUriString(rulesEngineUri)
@@ -77,7 +77,7 @@ public class AuthenticationService {
     public Long register(RegisterAdminRequest details, Long tenantId) {
         Authority authority = Authority.valueOf(details.authority());
         if (authority == Authority.ROLE_CUSTOMER) {
-            return registerCustomer(new RegisterCustomerRequest(details.username(), details.password(), details.email()), tenantId);
+            return registerCustomer(new RegisterRequest(details.username(), details.password(), details.email()), tenantId);
         }
 
         return userDao.createUser(new User(details.username(), details.password(), details.email(), authority, tenantId));

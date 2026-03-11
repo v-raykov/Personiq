@@ -4,6 +4,7 @@ import com.raykov.gateway.config.exception.model.ConflictException;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import reactor.core.publisher.Mono;
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public Mono<ResponseEntity<ErrorResponse>> handleConflictException(ConflictException ex) {
         HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse errorResponse = new ErrorResponse(status, ex.getMessage());
+        return Mono.just(ResponseEntity.status(status).body(errorResponse));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleBadCredentialsException(BadCredentialsException ex) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         ErrorResponse errorResponse = new ErrorResponse(status, ex.getMessage());
         return Mono.just(ResponseEntity.status(status).body(errorResponse));
     }

@@ -1,7 +1,9 @@
 package com.raykov.gateway.tenant;
 
+import com.raykov.gateway.config.security.role.Authority;
 import com.raykov.gateway.user.authentication.AuthenticationService;
-import com.raykov.gateway.user.authentication.model.RegisterCustomerRequest;
+import com.raykov.gateway.user.authentication.model.RegisterAdminRequest;
+import com.raykov.gateway.user.authentication.model.RegisterRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -19,20 +21,25 @@ public class TenantService {
 
     private final String rulesEngineUri;
 
-    public TenantService(String rulesEngineUri, TenantDao tenantDao, RestTemplate restTemplate) {
+    private final AuthenticationService authenticationService;
+
+    public TenantService(String rulesEngineUri, TenantDao tenantDao, RestTemplate restTemplate, AuthenticationService authenticationService) {
         this.tenantDao = tenantDao;
         this.restTemplate = restTemplate;
         this.rulesEngineUri = rulesEngineUri;
+        this.authenticationService = authenticationService;
     }
 
     /**
      * This method cannot guarantee full transactionality due to depending on a Distributed transaction.
-     * Same thing goes for {@link AuthenticationService#registerCustomer(RegisterCustomerRequest, Long)}
+     * Same thing goes for {@link AuthenticationService#registerCustomer(RegisterRequest, Long)}
      * or any other methods that use restTemplate inside this project
      */
     @Transactional
-    public long createTenant(String tenantUriName) {
+    public long createTenant(String tenantUriName, RegisterRequest details) {
         long id = tenantDao.createTenant(tenantUriName);
+
+        authenticationService.register(new RegisterAdminRequest(details.username(), details.password(), details.email(), Authority.ROLE_ADMIN.toString()), id);
 
         String url = UriComponentsBuilder.fromUriString(rulesEngineUri)
                                          .path("/private/tenant/{id}")

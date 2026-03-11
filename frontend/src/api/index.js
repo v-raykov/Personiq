@@ -5,7 +5,8 @@ const api = axios.create({
 });
 
 export const getTenants = () => api.get('/tenant');
-export const createTenant = (uriName) => api.post(`/tenant?tenantUriName=${encodeURIComponent(uriName)}`);
+export const createTenant = (uriName, data) =>
+    api.post(`/tenant?tenantUriName=${encodeURIComponent(uriName)}`, data);
 export const registerUser = (tenantUri, data) => api.post(`/${tenantUri}/register`, data);
 export const loginUser = (tenantUri, data) => api.post(`/${tenantUri}/login`, data);
 
