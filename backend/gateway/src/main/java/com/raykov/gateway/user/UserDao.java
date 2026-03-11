@@ -1,8 +1,10 @@
 package com.raykov.gateway.user;
 
+import com.raykov.gateway.config.exception.model.UsernameAlreadyExistsException;
 import com.raykov.gateway.config.security.role.Authority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -24,19 +26,23 @@ public class UserDao {
     }
 
     public Long createUser(User user) {
-        String sql = """
-                     INSERT INTO account (username, password, email, authority, tenant_id)
-                     VALUES (:username, :password, :email, CAST(:authority as authority_role), :tenantId)
-                     RETURNING id
-                     """;
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("username", user.username())
-                .addValue("password", user.password())
-                .addValue("email", user.email())
-                .addValue("authority", user.authority().getAuthority())
-                .addValue("tenantId", user.tenantId());
+        try {
+            String sql = """
+                         INSERT INTO account (username, password, email, authority, tenant_id)
+                         VALUES (:username, :password, :email, CAST(:authority as authority_role), :tenantId)
+                         RETURNING id
+                         """;
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("username", user.username())
+                    .addValue("password", user.password())
+                    .addValue("email", user.email())
+                    .addValue("authority", user.authority().getAuthority())
+                    .addValue("tenantId", user.tenantId());
 
-        return jdbcTemplate.queryForObject(sql, params, Long.class);
+            return jdbcTemplate.queryForObject(sql, params, Long.class);
+        } catch (DuplicateKeyException e) {
+            throw new UsernameAlreadyExistsException(user.username());
+        }
     }
 
     public Mono<User> findUserByUsernameAndTenantId(String username, long tenantId) {

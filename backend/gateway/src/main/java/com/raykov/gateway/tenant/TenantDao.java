@@ -1,5 +1,7 @@
 package com.raykov.gateway.tenant;
 
+import com.raykov.gateway.config.exception.model.TenantNameAlreadyExistsException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -19,11 +21,15 @@ public class TenantDao {
     }
 
     public Long createTenant(String tenantUriName) {
-        String sql = "INSERT INTO tenant (uri_name) VALUES (:tenantUriName) RETURNING id";
+        try {
+            String sql = "INSERT INTO tenant (uri_name) VALUES (:tenantUriName) RETURNING id";
 
-        SqlParameterSource params = new MapSqlParameterSource("tenantUriName", tenantUriName);
+            SqlParameterSource params = new MapSqlParameterSource("tenantUriName", tenantUriName);
 
-        return jdbcTemplate.queryForObject(sql, params, Long.class);
+            return jdbcTemplate.queryForObject(sql, params, Long.class);
+        } catch (DuplicateKeyException e) {
+            throw new TenantNameAlreadyExistsException(tenantUriName);
+        }
     }
 
     public List<String> getTenantUriNames() {
