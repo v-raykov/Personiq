@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Container, Paper, TextField, Button, Typography, Box, Fade, Snackbar, Alert, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { createTenant } from '../api';
+import PageWrapper from "../components/PageWrapper.jsx";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(4),
@@ -52,6 +53,7 @@ function CreateTenant() {
     };
 
     return (
+        <PageWrapper withImage={true}>
         <Container maxWidth="xs">
             <Fade in timeout={800}>
                 <Box sx={{ mt: 8, pb: 4 }}>
@@ -142,6 +144,7 @@ function CreateTenant() {
                 </Alert>
             </Snackbar>
         </Container>
+        </PageWrapper>
     );
 }
 

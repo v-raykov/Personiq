@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Container, Typography, Button, Stack, Box, CircularProgress, Fade } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { getTenants } from '../api';
+import {useEffect, useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {Box, Button, CircularProgress, Container, Fade, Stack, Typography} from '@mui/material';
+import {styled} from '@mui/material/styles';
+import {getTenants} from '../api';
+import PageWrapper from "../components/PageWrapper.jsx";
 
-const TenantCard = styled(Button)(({ theme }) => ({
+const TenantCard = styled(Button)(({theme}) => ({
     width: '100%',
     padding: theme.spacing(3),
     display: 'flex',
@@ -22,7 +23,7 @@ const TenantCard = styled(Button)(({ theme }) => ({
     },
 }));
 
-const BrandText = styled(Typography)(({ theme }) => ({
+const BrandText = styled(Typography)(({theme}) => ({
     fontSize: '5rem',
     fontWeight: 900,
     fontStyle: 'italic',
@@ -49,76 +50,78 @@ function SelectTenant() {
     }, []);
 
     return (
-        <Fade in timeout={1200}>
-            <Container maxWidth="sm" sx={{ pt: 15, pb: 8, textAlign: 'center' }}>
-                <Box sx={{ mb: 8 }}>
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            color: 'rgba(255,255,255,0.5)',
-                            fontWeight: 300,
-                            letterSpacing: '4px',
-                            textTransform: 'uppercase',
-                            fontSize: '1rem'
-                        }}
-                    >
-                        Welcome
-                    </Typography>
-                    <BrandText variant="h1">
-                        Personiq
-                    </BrandText>
-                </Box>
+        <PageWrapper withImage={true}>
+            <Fade in timeout={1200}>
+                <Container maxWidth="sm" sx={{pt: 15, pb: 8, textAlign: 'center'}}>
+                    <Box sx={{mb: 8}}>
+                        <Typography
+                            variant="h5"
+                            sx={{
+                                color: 'rgba(255,255,255,0.5)',
+                                fontWeight: 300,
+                                letterSpacing: '4px',
+                                textTransform: 'uppercase',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            Welcome
+                        </Typography>
+                        <BrandText variant="h1">
+                            Personiq
+                        </BrandText>
+                    </Box>
 
-                {loading ? (
-                    <CircularProgress thickness={2} size={40} sx={{ color: 'rgba(255,255,255,0.2)' }} />
-                ) : (
-                    <Stack spacing={2.5} sx={{ width: '100%', maxWidth: '440px', mx: 'auto' }}>
-                        {tenants.map((name) => (
-                            <TenantCard key={name} onClick={() => navigate(`/${name}/login`)}>
-                                <Typography
-                                    variant="h6"
-                                    sx={{
-                                        color: '#fff',
-                                        textTransform: 'capitalize',
-                                        fontWeight: 500,
-                                        letterSpacing: '0.5px'
-                                    }}
-                                >
-                                    {name}
-                                </Typography>
-                                <Typography
-                                    variant="button"
-                                    sx={{
-                                        color: '#6366f1',
-                                        fontWeight: 700,
-                                        fontSize: '0.75rem'
-                                    }}
-                                >
-                                    Connect →
-                                </Typography>
-                            </TenantCard>
-                        ))}
-                    </Stack>
-                )}
+                    {loading ? (
+                        <CircularProgress thickness={2} size={40} sx={{color: 'rgba(255,255,255,0.2)'}}/>
+                    ) : (
+                        <Stack spacing={2.5} sx={{width: '100%', maxWidth: '440px', mx: 'auto'}}>
+                            {tenants.map((name) => (
+                                <TenantCard key={name} onClick={() => navigate(`/${name}/login`)}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            color: '#fff',
+                                            textTransform: 'capitalize',
+                                            fontWeight: 500,
+                                            letterSpacing: '0.5px'
+                                        }}
+                                    >
+                                        {name}
+                                    </Typography>
+                                    <Typography
+                                        variant="button"
+                                        sx={{
+                                            color: '#6366f1',
+                                            fontWeight: 700,
+                                            fontSize: '0.75rem'
+                                        }}
+                                    >
+                                        Connect →
+                                    </Typography>
+                                </TenantCard>
+                            ))}
+                        </Stack>
+                    )}
 
-                <Box sx={{ mt: 10 }}>
-                    <Link
-                        to="/tenant"
-                        style={{
-                            color: 'rgba(255,255,255,0.2)',
-                            textDecoration: 'none',
-                            fontSize: '0.75rem',
-                            letterSpacing: '1px',
-                            transition: 'color 0.3s'
-                        }}
-                        onMouseOver={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}
-                        onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.2)'}
-                    >
-                        ADMINISTRATOR PORTAL
-                    </Link>
-                </Box>
-            </Container>
-        </Fade>
+                    <Box sx={{mt: 10}}>
+                        <Link
+                            to="/tenant"
+                            style={{
+                                color: 'rgba(255,255,255,0.2)',
+                                textDecoration: 'none',
+                                fontSize: '0.75rem',
+                                letterSpacing: '1px',
+                                transition: 'color 0.3s'
+                            }}
+                            onMouseOver={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}
+                            onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.2)'}
+                        >
+                            ADMINISTRATOR PORTAL
+                        </Link>
+                    </Box>
+                </Container>
+            </Fade>
+        </PageWrapper>
     );
 }
 
