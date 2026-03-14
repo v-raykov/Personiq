@@ -1,41 +1,45 @@
-import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
-import {ThemeProvider} from '@mui/material';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
-import {AuthProvider} from './context/AuthProvider.jsx';
+import { AuthProvider } from './context/AuthProvider.jsx';
 import SelectTenant from './pages/SelectTenant';
 import CreateTenant from './pages/CreateTenant';
 import Auth from './pages/Auth';
-import {useAuth} from "./hooks/useAuth.js";
 import Layout from './components/Layout';
 import Account from './pages/Account';
-
-const ProtectedRoute = ({children}) => {
-    const {user, loading} = useAuth();
-    if (loading) return null;
-    if (!user) return <Navigate replace to="/"/>;
-    return children;
-};
+import Manage from './pages/Manage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
     return (
         <ThemeProvider theme={theme}>
+            <CssBaseline />
             <AuthProvider>
                 <BrowserRouter>
                     <Routes>
-                        <Route path="/" element={<SelectTenant/>}/>
-                        <Route path="/tenant" element={<CreateTenant/>}/>
-                        <Route path="/:tenantUri/login" element={<Auth/>}/>
+                        {/* Public Routes */}
+                        <Route path="/" element={<SelectTenant />} />
+                        <Route path="/tenant" element={<CreateTenant />} />
+                        <Route path="/:tenantUri/login" element={<Auth />} />
 
+                        {/* Protected Dashboard Routes */}
                         <Route
-                            path="/:tenantUri/account"
+                            path="/:tenantUri"
                             element={
                                 <ProtectedRoute>
-                                    <Layout>
-                                        <Account/>
-                                    </Layout>
+                                    <Layout />
                                 </ProtectedRoute>
                             }
-                        />
+                        >
+                            {/* Redirect /tenant-name to /tenant-name/account */}
+                            <Route index element={<Navigate to="account" replace />} />
+
+                            <Route path="account" element={<Account />} />
+                            <Route path="manage" element={<Manage />} />
+                        </Route>
+
+                        {/* Fallback */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </BrowserRouter>
             </AuthProvider>

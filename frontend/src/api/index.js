@@ -18,5 +18,7 @@ export const createTenant = (uriName, data) =>
 export const registerUser = (tenantUri, data) => api.post(`/${tenantUri}/register`, data);
 export const loginUser = (tenantUri, data) => api.post(`/${tenantUri}/login`, data);
 export const getMe = (tenantUri) => api.get(`/${tenantUri}/me`);
+export const getUsersAdmin = (tenantUri) => api.get(`/${tenantUri}/admin/user`);
+export const registerUserAdmin = (tenantUri, data) => api.post(`/${tenantUri}/admin/register`, data);
 
 export default api;

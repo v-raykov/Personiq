@@ -1,19 +1,29 @@
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar } from '@mui/material';
-import { Person } from '@mui/icons-material';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Person, SupervisorAccount } from '@mui/icons-material';
+import { useNavigate, useParams, useLocation, Outlet } from 'react-router-dom'; // Added Outlet
 import { useAuth } from '../hooks/useAuth';
 
 const drawerWidth = 260;
 
-export default function Layout({ children }) {
+export default function Layout() {
     const { tenantUri } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
-    const role = user?.role;
 
     const menuItems = [
-        { text: 'Account', icon: <Person />, path: `/${tenantUri}/account`, visible: true },
+        {
+            text: 'Account',
+            icon: <Person />,
+            path: `/${tenantUri}/account`,
+            visible: true
+        },
+        {
+            text: 'Management',
+            icon: <SupervisorAccount />,
+            path: `/${tenantUri}/manage`,
+            visible: user?.role === 'ADMIN'
+        },
     ];
 
     return (
@@ -41,12 +51,12 @@ export default function Layout({ children }) {
                             fontWeight: 700,
                             textTransform: 'uppercase',
                             letterSpacing: 1.5,
-                            fontSize: '0.8rem',
+                            fontSize: '0.65rem',
                             mt: 0.5,
                             display: 'block'
                         }}
                     >
-                        {tenantUri.replace('-', ' ')}
+                        {tenantUri?.replace('-', ' ')}
                     </Typography>
                 </Box>
 
@@ -91,14 +101,14 @@ export default function Layout({ children }) {
                         border: '1px solid rgba(255,255,255,0.05)'
                     }}>
                         <Avatar sx={{ bgcolor: '#818cf8', width: 32, height: 32, fontSize: '0.8rem', fontWeight: 900, mr: 1.5 }}>
-                            {user?.username?.[0].toUpperCase()}
+                            {user?.username?.[0]?.toUpperCase()}
                         </Avatar>
                         <Box sx={{ overflow: 'hidden' }}>
                             <Typography variant="body2" fontWeight={700} noWrap sx={{ color: '#fff' }}>
                                 {user?.username}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#818cf8', fontWeight: 700 }}>
-                                {role}
+                                {user?.role}
                             </Typography>
                         </Box>
                     </Box>
@@ -118,7 +128,7 @@ export default function Layout({ children }) {
             </Drawer>
 
             <Box component="main" sx={{ flexGrow: 1, p: 6 }}>
-                {children}
+                <Outlet />
             </Box>
         </Box>
     );
