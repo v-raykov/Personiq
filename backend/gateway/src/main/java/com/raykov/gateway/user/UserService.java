@@ -1,7 +1,10 @@
 package com.raykov.gateway.user;
 
+import com.raykov.gateway.user.model.User;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -16,4 +19,7 @@ public class UserService {
         return userDao.findUserByUsernameAndTenantId(username, tenantId);
     }
 
+    public List<User> getAllUsers(Long tenantId) {
+        return userDao.getAllUsers(tenantId);
+    }
 }

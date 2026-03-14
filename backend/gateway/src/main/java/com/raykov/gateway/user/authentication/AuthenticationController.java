@@ -1,6 +1,6 @@
 package com.raykov.gateway.user.authentication;
 
-import com.raykov.gateway.user.User;
+import com.raykov.gateway.user.model.User;
 import com.raykov.gateway.user.authentication.model.AuthenticationContext;
 import com.raykov.gateway.user.authentication.model.JwtTokenResponse;
 import com.raykov.gateway.user.authentication.model.LoginRequest;

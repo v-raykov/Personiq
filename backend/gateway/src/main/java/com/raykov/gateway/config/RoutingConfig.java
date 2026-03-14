@@ -14,7 +14,7 @@ public class RoutingConfig {
                       .route("local_auth", r -> r.path("/login", "/register")
                                                  .uri("forward:///"))
                       .route("rules_engine", r -> r.path("/**")
-                                                   .uri("lb://rules-engine"))
+                                                   .uri("http://localhost:8081"))
                       .build();
     }
 }

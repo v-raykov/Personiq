@@ -2,6 +2,7 @@ package com.raykov.gateway.user;
 
 import com.raykov.gateway.config.exception.model.UsernameAlreadyExistsException;
 import com.raykov.gateway.config.security.role.Authority;
+import com.raykov.gateway.user.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -58,17 +62,33 @@ public class UserDao {
                                "tenantId", tenantId
                        );
 
-                       return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> new User(
-                               rs.getLong("id"),
-                               rs.getString("username"),
-                               rs.getString("password"),
-                               rs.getString("email"),
-                               Authority.valueOf(rs.getString("authority")),
-                               rs.getLong("tenant_id")
-                       ));
+                       return jdbcTemplate.queryForObject(sql, params, UserDao::mapUser);
                    })
                    .subscribeOn(Schedulers.boundedElastic())
                    .doOnError(e -> logger.error(e.getMessage()))
                    .onErrorResume(e -> Mono.empty());
+    }
+
+    public List<User> getAllUsers(Long tenantId) {
+        String sql = """
+                     SELECT *
+                     FROM account
+                     WHERE tenant_id = :tenantId
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("tenantId", tenantId);
+
+        return jdbcTemplate.query(sql, params, UserDao::mapUser);
+    }
+
+    private static User mapUser(ResultSet rs, int ignored) throws SQLException {
+        return new User(
+                rs.getLong("id"),
+                rs.getString("username"),
+                rs.getString("password"),
+                rs.getString("email"),
+                Authority.valueOf(rs.getString("authority")),
+                rs.getLong("tenant_id")
+        );
     }
 }

@@ -1,4 +1,4 @@
-package com.raykov.gateway.user;
+package com.raykov.gateway.user.model;
 
 import com.raykov.gateway.config.security.role.Authority;
 import org.springframework.security.core.GrantedAuthority;

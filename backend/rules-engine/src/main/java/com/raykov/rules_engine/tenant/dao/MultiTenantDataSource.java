@@ -36,6 +36,8 @@ public class MultiTenantDataSource extends AbstractDataSource {
     private void applySchema(Connection conn) throws SQLException {
         if (getTenantId() != null) {
             conn.setSchema(schemaPrefix + getTenantId());
+        } else {
+            conn.setSchema("master");
         }
     }
 }

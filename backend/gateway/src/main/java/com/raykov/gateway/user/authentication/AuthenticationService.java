@@ -5,7 +5,7 @@ import com.raykov.gateway.config.security.auth.TenantAwareAuthenticationManager;
 import com.raykov.gateway.config.security.auth.jwt.JwtUtils;
 import com.raykov.gateway.config.security.role.Authority;
 import com.raykov.gateway.user.CustomerDao;
-import com.raykov.gateway.user.User;
+import com.raykov.gateway.user.model.User;
 import com.raykov.gateway.user.UserDao;
 import com.raykov.gateway.user.authentication.model.JwtTokenResponse;
 import com.raykov.gateway.user.authentication.model.LoginRequest;

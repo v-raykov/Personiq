@@ -5,7 +5,6 @@ import com.raykov.gateway.user.authentication.AuthenticationService;
 import com.raykov.gateway.user.authentication.model.RegisterAdminRequest;
 import com.raykov.gateway.user.authentication.model.RegisterRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,7 +34,6 @@ public class TenantService {
      * Same thing goes for {@link AuthenticationService#registerCustomer(RegisterRequest, Long)}
      * or any other methods that use restTemplate inside this project
      */
-    @Transactional
     public long createTenant(String tenantUriName, RegisterRequest details) {
         long id = tenantDao.createTenant(tenantUriName);
 
