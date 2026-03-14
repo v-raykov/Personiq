@@ -8,6 +8,7 @@ import Auth from './pages/Auth';
 import Layout from './components/Layout';
 import Account from './pages/Account';
 import Manage from './pages/Manage';
+import Customer from './pages/Customer.jsx'
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
 
                             <Route path="account" element={<Account />} />
                             <Route path="manage" element={<Manage />} />
+                            <Route path="customer" element={<Customer/>} />
                         </Route>
 
                         {/* Fallback */}

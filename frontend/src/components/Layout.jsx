@@ -1,7 +1,8 @@
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar } from '@mui/material';
 import { Person, SupervisorAccount } from '@mui/icons-material';
-import { useNavigate, useParams, useLocation, Outlet } from 'react-router-dom'; // Added Outlet
+import { useNavigate, useParams, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { Tune } from '@mui/icons-material';
 
 const drawerWidth = 260;
 
@@ -24,6 +25,12 @@ export default function Layout() {
             path: `/${tenantUri}/manage`,
             visible: user?.role === 'ADMIN'
         },
+        {
+            text: 'Customer',
+            icon: <Tune />,
+            path: `/${tenantUri}/customer`,
+            visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
+        }
     ];
 
     return (

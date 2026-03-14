@@ -12,13 +12,60 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-export const getTenants = () => api.get('/tenant');
+export const getTenants = () =>
+    api.get('/tenant');
+
 export const createTenant = (uriName, data) =>
     api.post(`/tenant?tenantUriName=${encodeURIComponent(uriName)}`, data);
-export const registerUser = (tenantUri, data) => api.post(`/${tenantUri}/register`, data);
-export const loginUser = (tenantUri, data) => api.post(`/${tenantUri}/login`, data);
-export const getMe = (tenantUri) => api.get(`/${tenantUri}/me`);
-export const getUsersAdmin = (tenantUri) => api.get(`/${tenantUri}/admin/user`);
-export const registerUserAdmin = (tenantUri, data) => api.post(`/${tenantUri}/admin/register`, data);
 
+export const registerUser = (tenantUri, data) =>
+    api.post(`/${tenantUri}/register`, data);
+
+export const loginUser = (tenantUri, data) =>
+    api.post(`/${tenantUri}/login`, data);
+
+export const getMe = (tenantUri) =>
+    api.get(`/${tenantUri}/me`);
+
+export const getUsersAdmin = (tenantUri) =>
+    api.get(`/${tenantUri}/admin/user`);
+
+export const registerUserAdmin = (tenantUri, data) =>
+    api.post(`/${tenantUri}/admin/register`, data);
+
+export const createCustomerAttribute = (tenantUri, data) =>
+    api.post(`/${tenantUri}/admin/customer/attribute`, data);
+
+export const getCustomerAttributes = (tenantUri) =>
+    api.get(`/${tenantUri}/admin/customer/attribute`);
+
+export const deleteCustomerAttribute = (tenantUri, attributeId) =>
+    api.delete(`/${tenantUri}/admin/customer/attribute`, {
+        params: {attributeId}
+    });
+export const getAttributeValue = (tenantUri, attributeId, customerId) =>
+    api.get(`/${tenantUri}/admin/customer/attribute/value/${attributeId}`, {
+        params: {customerId}
+    });
+
+export const getAllAttributeValues = (tenantUri, customerId) =>
+    api.get(`/${tenantUri}/admin/customer/attribute/value`, {
+        params: {customerId}
+    });
+
+export const updateCustomerAttributes = (tenantUri, customerId, attributes, overwriteList = false) =>
+    api.post(`/${tenantUri}/admin/customer/attribute/value`, attributes, {
+        params: {
+            customerId,
+            overwriteList
+        }
+    });
+
+export const deleteAttributeValue = (tenantUri, attributeId, customerId, value = null) =>
+    api.delete(`/${tenantUri}/admin/customer/attribute/value/${attributeId}`, {
+        params: {
+            customerId,
+            value
+        }
+    });
 export default api;
