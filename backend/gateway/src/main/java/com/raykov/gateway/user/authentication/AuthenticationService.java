@@ -5,12 +5,9 @@ import com.raykov.gateway.config.security.auth.TenantAwareAuthenticationManager;
 import com.raykov.gateway.config.security.auth.jwt.JwtUtils;
 import com.raykov.gateway.config.security.role.Authority;
 import com.raykov.gateway.user.CustomerDao;
+import com.raykov.gateway.user.authentication.model.*;
 import com.raykov.gateway.user.model.User;
 import com.raykov.gateway.user.UserDao;
-import com.raykov.gateway.user.authentication.model.JwtTokenResponse;
-import com.raykov.gateway.user.authentication.model.LoginRequest;
-import com.raykov.gateway.user.authentication.model.RegisterAdminRequest;
-import com.raykov.gateway.user.authentication.model.RegisterRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -54,7 +51,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public Long registerCustomer(RegisterRequest details, Long tenantId) {
+    public CustomerAccount registerCustomer(RegisterRequest details, Long tenantId) {
         long userId = userDao.createUser(new User(details.username(), details.password(), details.email(), Authority.ROLE_CUSTOMER, tenantId));
 
         String url = UriComponentsBuilder.fromUriString(rulesEngineUri)
@@ -70,14 +67,14 @@ public class AuthenticationService {
         Long customerId = restTemplate.postForEntity(url, entity, Long.class).getBody();
 
         customerDao.createCustomer(userId, customerId);
-        return userId;
+        return new CustomerAccount(userId, customerId);
     }
 
     @Transactional
     public Long register(RegisterAdminRequest details, Long tenantId) {
         Authority authority = Authority.valueOf(details.authority());
         if (authority == Authority.ROLE_CUSTOMER) {
-            return registerCustomer(new RegisterRequest(details.username(), details.password(), details.email()), tenantId);
+            return registerCustomer(new RegisterRequest(details.username(), details.password(), details.email()), tenantId).accountId();
         }
 
         return userDao.createUser(new User(details.username(), details.password(), details.email(), authority, tenantId));

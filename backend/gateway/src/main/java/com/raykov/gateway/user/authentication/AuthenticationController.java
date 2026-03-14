@@ -1,10 +1,7 @@
 package com.raykov.gateway.user.authentication;
 
+import com.raykov.gateway.user.authentication.model.*;
 import com.raykov.gateway.user.model.User;
-import com.raykov.gateway.user.authentication.model.AuthenticationContext;
-import com.raykov.gateway.user.authentication.model.JwtTokenResponse;
-import com.raykov.gateway.user.authentication.model.LoginRequest;
-import com.raykov.gateway.user.authentication.model.RegisterRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +27,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public Mono<Long> register(@RequestBody RegisterRequest details,
-                               @RequestHeader("X-Tenant-Id") String tenantId) {
+    public Mono<CustomerAccount> register(@RequestBody RegisterRequest details,
+                                          @RequestHeader("X-Tenant-Id") String tenantId) {
         return Mono.fromCallable(() -> {
             RegisterRequest withHashedPassword = details.withPassword(passwordEncoder.encode(details.password()));
             return authenticationService.registerCustomer(withHashedPassword, Long.parseLong(tenantId));

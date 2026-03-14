@@ -7,7 +7,7 @@ GATEWAY_URL = "http://localhost:8080"
 class TenantIntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.tenant_uri = "test" + str(random.randint(1, 1000))
+        cls.tenant_uri = f"test{random.randint(1000, 9999)}"
 
         create_tenant_response = requests.post(
             f"{GATEWAY_URL}/tenant?tenantUriName={cls.tenant_uri}",

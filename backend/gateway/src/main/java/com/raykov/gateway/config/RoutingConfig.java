@@ -9,12 +9,10 @@ import org.springframework.context.annotation.Configuration;
 public class RoutingConfig {
 
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder, String rulesEngineUri) {
         return builder.routes()
-                      .route("local_auth", r -> r.path("/login", "/register")
-                                                 .uri("forward:///"))
                       .route("rules_engine", r -> r.path("/**")
-                                                   .uri("http://localhost:8081"))
+                                                   .uri(rulesEngineUri))
                       .build();
     }
 }
