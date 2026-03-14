@@ -33,25 +33,13 @@ export default function Customer() {
     }, [tenantUri]);
 
     useEffect(() => {
-        let isMounted = true;
-        const fetchData = async () => {
-            if (isMounted) {
-                await loadAttributes();
-            }
-        };
-        void fetchData();
-        return () => { isMounted = false; };
+        loadAttributes();
     }, [loadAttributes]);
 
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            const payload = {
-                name: newAttr.name,
-                type: newAttr.type,
-                isList: newAttr.isList
-            };
-            await createCustomerAttribute(tenantUri, payload);
+            await createCustomerAttribute(tenantUri, newAttr);
             setIsDrawerOpen(false);
             setNewAttr({ name: '', type: 'STRING', isList: false });
             await loadAttributes();
@@ -76,29 +64,23 @@ export default function Customer() {
         const normalizedType = type?.toString().toUpperCase().trim();
 
         switch (normalizedType) {
-            case 'NUMBER':
-                return <Numbers sx={{ ...iconStyle, color: '#fbbf24' }} />;
-            case 'BOOLEAN':
-                return <ToggleOn sx={{ ...iconStyle, color: '#10b981' }} />;
-            case 'DATE':
-                return <CalendarToday sx={{ ...iconStyle, color: '#f472b6' }} />;
-            case 'STRING':
-                return <Abc sx={{ ...iconStyle, color: '#818cf8' }} />;
-            default:
-                return <Abc sx={{ ...iconStyle, color: '#475569' }} />;
+            case 'NUMBER': return <Numbers sx={{ ...iconStyle, color: '#fbbf24' }} />;
+            case 'BOOLEAN': return <ToggleOn sx={{ ...iconStyle, color: '#10b981' }} />;
+            case 'DATE': return <CalendarToday sx={{ ...iconStyle, color: '#f472b6' }} />;
+            default: return <Abc sx={{ ...iconStyle, color: '#818cf8' }} />;
         }
     };
 
     return (
         <Fade in timeout={800}>
-            <Box sx={{ maxWidth: 1300, mx: 'auto', p: 2 }}>
+            <Box sx={{ maxWidth: 1300, mx: 'auto', p: 4 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 6 }}>
                     <Box>
-                        <Typography variant="h4" fontWeight={900} sx={{ color: '#fff', letterSpacing: -1 }}>
+                        <Typography variant="h3" fontWeight={900} sx={{ color: '#fff', letterSpacing: -1.5 }}>
                             Customer Properties
                         </Typography>
-                        <Typography variant="body1" sx={{ color: '#94a3b8', mt: 0.5 }}>
-                            Configure global properties for your customers.
+                        <Typography variant="h6" sx={{ color: '#94a3b8', mt: 1, fontWeight: 400 }}>
+                            Configure global properties for your customers
                         </Typography>
                     </Box>
                     <Button
@@ -106,9 +88,9 @@ export default function Customer() {
                         startIcon={<Add />}
                         onClick={() => setIsDrawerOpen(true)}
                         sx={{
-                            borderRadius: '16px', px: 4, py: 1.5, fontWeight: 800, fontSize: '1rem',
+                            borderRadius: '16px', px: 4, py: 2, fontWeight: 800, fontSize: '1rem',
                             background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)',
-                            boxShadow: '0 8px 20px rgba(99, 102, 241, 0.4)'
+                            boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)'
                         }}
                     >
                         Add Property
@@ -136,7 +118,6 @@ export default function Customer() {
                                         bgcolor: 'rgba(255, 255, 255, 0.08)',
                                         transform: 'translateY(-8px)',
                                         borderColor: '#818cf8',
-                                        boxShadow: '0 15px 30px rgba(0,0,0,0.3)',
                                         '& .delete-btn': { opacity: 1 }
                                     }
                                 }}>
@@ -198,7 +179,7 @@ export default function Customer() {
                     open={isDrawerOpen}
                     onClose={() => setIsDrawerOpen(false)}
                     PaperProps={{
-                        sx: { width: { xs: '100%', sm: 450 }, bgcolor: '#0f172a', p: 6, backgroundImage: 'none' }
+                        sx: { width: { xs: '100%', sm: 480 }, bgcolor: '#0f172a', p: 6, backgroundImage: 'none', borderLeft: '1px solid rgba(255,255,255,0.08)' }
                     }}
                 >
                     <Typography variant="h4" fontWeight={900} sx={{ color: '#fff', mb: 1 }}>Define Property</Typography>
@@ -212,7 +193,6 @@ export default function Customer() {
                                 onChange={(e) => setNewAttr({ ...newAttr, name: e.target.value })}
                                 required
                             />
-
                             <TextField
                                 select fullWidth label="Data Type"
                                 value={newAttr.type}
@@ -223,7 +203,6 @@ export default function Customer() {
                                 <MenuItem value="BOOLEAN">Boolean</MenuItem>
                                 <MenuItem value="DATE">Date</MenuItem>
                             </TextField>
-
                             <Box sx={{
                                 p: 3, borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)',
                                 bgcolor: newAttr.isList ? 'rgba(99, 102, 241, 0.05)' : 'transparent'
@@ -242,10 +221,9 @@ export default function Customer() {
                                     </Button>
                                 </Stack>
                             </Box>
-
                             <Button
                                 fullWidth variant="contained" type="submit" size="large"
-                                sx={{ py: 2, borderRadius: '16px', fontWeight: 800, mt: 4, fontSize: '1.1rem' }}
+                                sx={{ py: 2.5, borderRadius: '16px', fontWeight: 800, mt: 4, fontSize: '1.1rem' }}
                             >
                                 Create Property
                             </Button>

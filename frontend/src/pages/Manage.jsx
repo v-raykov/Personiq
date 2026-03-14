@@ -32,35 +32,18 @@ export default function Manage() {
     }, [tenantUri]);
 
     useEffect(() => {
-        let isMounted = true;
-        if (user?.role === 'ADMIN') {
-            fetchUsers();
-        }
-        return () => { isMounted = false; };
+        if (user?.role === 'ADMIN') fetchUsers();
     }, [user?.role, fetchUsers]);
 
-    // Redirect if not Admin
     if (!user || user.role !== 'ADMIN') {
         return <Navigate to={`/${tenantUri}/account`} replace />;
     }
 
     const handleCreate = async (e) => {
         e.preventDefault();
-        const roleMap = {
-            'USER': 'ROLE_CUSTOMER',
-            'MANAGER': 'ROLE_MANAGER',
-            'ADMIN': 'ROLE_ADMIN'
-        };
-
-        const payload = {
-            username: formData.username,
-            password: formData.password,
-            email: formData.email,
-            authority: roleMap[formData.role] || 'ROLE_CUSTOMER'
-        };
-
+        const roleMap = { 'USER': 'ROLE_CUSTOMER', 'MANAGER': 'ROLE_MANAGER', 'ADMIN': 'ROLE_ADMIN' };
         try {
-            await registerUserAdmin(tenantUri, payload);
+            await registerUserAdmin(tenantUri, { ...formData, authority: roleMap[formData.role] });
             setOpen(false);
             setFormData({ username: '', email: '', password: '', role: 'USER' });
             await fetchUsers();
@@ -72,7 +55,6 @@ export default function Manage() {
     return (
         <Fade in timeout={800}>
             <Box sx={{ maxWidth: 1300, mx: 'auto', p: 4 }}>
-                {/* Header Section */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 6 }}>
                     <Box>
                         <Typography variant="h3" fontWeight={900} sx={{ color: '#fff', letterSpacing: -1.5 }}>
@@ -87,11 +69,7 @@ export default function Manage() {
                         startIcon={<Add />}
                         onClick={() => setOpen(true)}
                         sx={{
-                            borderRadius: '16px',
-                            fontWeight: 800,
-                            px: 4,
-                            py: 2,
-                            fontSize: '1rem',
+                            borderRadius: '16px', fontWeight: 800, px: 4, py: 2, fontSize: '1rem',
                             background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)',
                             boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)'
                         }}
@@ -100,7 +78,6 @@ export default function Manage() {
                     </Button>
                 </Box>
 
-                {/* Table Section - Match the Grid Style */}
                 <TableContainer
                     component={Paper}
                     sx={{
@@ -108,7 +85,7 @@ export default function Manage() {
                         bgcolor: 'rgba(255, 255, 255, 0.03)',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
                         boxShadow: 'none',
-                        overflow: 'hidden' // Keeps the "oval" shape clean
+                        overflow: 'hidden'
                     }}
                 >
                     <Table sx={{ minWidth: 800 }}>
@@ -122,46 +99,18 @@ export default function Manage() {
                         </TableHead>
                         <TableBody>
                             {users.map((u) => (
-                                <TableRow
-                                    key={u.id || u.username}
-                                    sx={{
-                                        transition: '0.2s',
-                                        '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
-                                        '&:last-child td': { border: 0 }
-                                    }}
-                                >
+                                <TableRow key={u.id || u.username} sx={{ transition: '0.2s', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' }, '&:last-child td': { border: 0 } }}>
                                     <TableCell sx={{ py: 3, pl: 5, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                            <Avatar sx={{
-                                                bgcolor: 'rgba(99, 102, 241, 0.12)',
-                                                color: '#818cf8',
-                                                fontWeight: 900,
-                                                width: 48,
-                                                height: 48,
-                                                borderRadius: '16px',
-                                                border: '1px solid rgba(129, 140, 248, 0.2)'
-                                            }}>
+                                            <Avatar sx={{ bgcolor: 'rgba(99, 102, 241, 0.12)', color: '#818cf8', fontWeight: 900, width: 48, height: 48, borderRadius: '16px', border: '1px solid rgba(129, 140, 248, 0.2)' }}>
                                                 {u.username?.[0]?.toUpperCase()}
                                             </Avatar>
-                                            <Typography variant="h6" fontWeight={800} sx={{ color: '#fff' }}>
-                                                {u.username}
-                                            </Typography>
+                                            <Typography variant="h6" fontWeight={800} sx={{ color: '#fff' }}>{u.username}</Typography>
                                         </Box>
                                     </TableCell>
-                                    <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)', fontSize: '1rem' }}>
-                                        {u.email}
-                                    </TableCell>
+                                    <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)', fontSize: '1rem' }}>{u.email}</TableCell>
                                     <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                        <Chip
-                                            label={u.authority?.replace('ROLE_', '') || 'CUSTOMER'}
-                                            sx={{
-                                                bgcolor: 'rgba(129, 140, 248, 0.15)',
-                                                color: '#818cf8',
-                                                fontWeight: 900,
-                                                borderRadius: '12px',
-                                                px: 1
-                                            }}
-                                        />
+                                        <Chip label={u.authority?.replace('ROLE_', '') || 'CUSTOMER'} sx={{ bgcolor: 'rgba(129, 140, 248, 0.15)', color: '#818cf8', fontWeight: 900, borderRadius: '12px' }} />
                                     </TableCell>
                                     <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)', pr: 5 }}>
                                         <Typography variant="body2" sx={{ color: '#10b981', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -175,67 +124,20 @@ export default function Manage() {
                     </Table>
                 </TableContainer>
 
-                {/* Dialog / Modal Section */}
-                <Dialog
-                    open={open}
-                    onClose={() => setOpen(false)}
-                    PaperProps={{
-                        sx: {
-                            width: '100%',
-                            maxWidth: 500,
-                            borderRadius: '32px',
-                            p: 5,
-                            bgcolor: '#0f172a',
-                            backgroundImage: 'none',
-                            border: '1px solid rgba(255,255,255,0.08)'
-                        }
-                    }}
-                >
+                <Dialog open={open} onClose={() => setOpen(false)} PaperProps={{ sx: { width: '100%', maxWidth: 500, borderRadius: '32px', p: 5, bgcolor: '#0f172a', backgroundImage: 'none', border: '1px solid rgba(255,255,255,0.08)' } }}>
                     <Box component="form" onSubmit={handleCreate}>
                         <Typography variant="h4" fontWeight={900} sx={{ mb: 1, color: '#fff' }}>New Member</Typography>
-                        <Typography variant="body1" sx={{ color: '#94a3b8', mb: 5 }}>Provision a new administrative or customer account.</Typography>
-
+                        <Typography variant="body1" sx={{ color: '#94a3b8', mb: 5 }}>Provision a new administrative account.</Typography>
                         <Stack spacing={4}>
-                            <TextField
-                                fullWidth label="Username" required
-                                value={formData.username}
-                                onChange={(e) => setFormData({...formData, username: e.target.value})}
-                            />
-                            <TextField
-                                fullWidth label="Email Address" type="email" required
-                                value={formData.email}
-                                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            />
-                            <TextField
-                                fullWidth label="Password" type="password" required
-                                value={formData.password}
-                                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                            />
-                            <TextField
-                                fullWidth select label="Role"
-                                value={formData.role}
-                                onChange={(e) => setFormData({...formData, role: e.target.value})}
-                            >
-                                <MenuItem value="USER">User (Customer)</MenuItem>
+                            <TextField fullWidth label="Username" required value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} />
+                            <TextField fullWidth label="Email Address" type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                            <TextField fullWidth label="Password" type="password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
+                            <TextField fullWidth select label="Role" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                                <MenuItem value="USER">User</MenuItem>
                                 <MenuItem value="MANAGER">Manager</MenuItem>
                                 <MenuItem value="ADMIN">Administrator</MenuItem>
                             </TextField>
-
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                type="submit"
-                                size="large"
-                                sx={{
-                                    mt: 2,
-                                    py: 2.5,
-                                    fontWeight: 800,
-                                    borderRadius: '16px',
-                                    fontSize: '1.1rem'
-                                }}
-                            >
-                                Create Account
-                            </Button>
+                            <Button fullWidth variant="contained" type="submit" size="large" sx={{ py: 2.5, fontWeight: 800, borderRadius: '16px', fontSize: '1.1rem' }}>Create Account</Button>
                         </Stack>
                     </Box>
                 </Dialog>
