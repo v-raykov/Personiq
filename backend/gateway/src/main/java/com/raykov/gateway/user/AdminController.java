@@ -2,6 +2,7 @@ package com.raykov.gateway.user;
 
 import com.raykov.gateway.user.authentication.AuthenticationService;
 import com.raykov.gateway.user.authentication.model.RegisterAdminRequest;
+import com.raykov.gateway.user.model.CustomerDto;
 import com.raykov.gateway.user.model.UserDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,13 @@ public class AdminController {
 
     private final UserService userService;
 
-    public AdminController(PasswordEncoder passwordEncoder, AuthenticationService authenticationService, UserService userService) {
+    private final CustomerService customerService;
+
+    public AdminController(PasswordEncoder passwordEncoder, AuthenticationService authenticationService, UserService userService, CustomerService customerService) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationService = authenticationService;
         this.userService = userService;
+        this.customerService = customerService;
     }
 
     @PostMapping("/register")
@@ -37,5 +41,10 @@ public class AdminController {
                           .stream()
                           .map(UserDto::fromUser)
                           .toList();
+    }
+
+    @GetMapping("/customer")
+    public List<CustomerDto> getCustomers(@RequestHeader("X-Tenant-Id") Long tenantId) {
+        return customerService.getAllCustomers(tenantId);
     }
 }
