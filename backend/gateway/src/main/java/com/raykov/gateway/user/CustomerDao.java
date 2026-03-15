@@ -33,16 +33,20 @@ public class CustomerDao {
     }
 
     public Map<Long, Long> getCustomerIdsByUserIds(Collection<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Map.of();
+        }
+
         String sql = """
                      SELECT *
                      FROM customer
-                     WHERE account_id IN :userIds
+                     WHERE account_id IN (:userIds)
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource("userIds", userIds);
 
         return jdbcTemplate.query(sql, params, (rs, ignored) -> new CustomerAccount(rs.getLong("account_id"), rs.getLong("customer_id")))
-                .stream()
-                .collect(Collectors.toMap(CustomerAccount::accountId, CustomerAccount::customerId));
+                           .stream()
+                           .collect(Collectors.toMap(CustomerAccount::accountId, CustomerAccount::customerId));
     }
 }

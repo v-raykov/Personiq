@@ -27,6 +27,7 @@ public class CustomerService {
                                   .collect(Collectors.toList());
         Map<Long, Long> customerIdsByUserIds = customerDao.getCustomerIdsByUserIds(userIds);
         return users.stream()
+                    .filter(u -> customerIdsByUserIds.get(u.id()) != null)
                     .map(u -> new CustomerDto(u.id(), customerIdsByUserIds.get(u.id()), u.username()))
                     .toList();
     }

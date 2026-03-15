@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -42,7 +44,7 @@ public class CustomerService {
 
     public AttributeValue getAttributeValue(long attributeId, long customerId) {
         return entityAttributeManager.getAttributeValue(attributeId, customerId)
-                .orElseThrow();
+                                     .orElseThrow();
     }
 
     public void updateCustomerAttributes(long customerId, Map<Long, String> attributes, boolean overwriteList) {
@@ -51,5 +53,12 @@ public class CustomerService {
 
     public void deleteAttributeValue(long attributeId, long customerId, String attributeValue) {
         entityAttributeManager.deleteAttributeValue(attributeId, customerId, attributeValue);
+    }
+
+    public Map<Long, List<AttributeValue>> getAllAttributeValuesByCustomerIds(List<Long> customerIds) {
+        Set<Long> attributeIds = entityAttributeManager.getAllAttributeIdsByEntityId(customerEntityId);
+        return entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, customerIds)
+                                     .stream()
+                                     .collect(Collectors.groupingBy(AttributeValue::entityInstanceId));
     }
 }
