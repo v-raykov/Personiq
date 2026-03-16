@@ -30,7 +30,7 @@ export default function Layout() {
             icon: <Tune />,
             path: `/${tenantUri}/customer`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
-        }
+        },
     ];
 
     return (

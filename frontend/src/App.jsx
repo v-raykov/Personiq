@@ -8,8 +8,10 @@ import Auth from './pages/Auth';
 import Layout from './components/Layout';
 import Account from './pages/Account';
 import Manage from './pages/Manage';
-import Customer from './pages/Customer.jsx'
+import CustomerAttributes from './pages/CustomerAttributes.jsx'
 import ProtectedRoute from './components/ProtectedRoute';
+import CustomerAttributesValues from "./pages/CustomerAttributesValues.jsx";
+import AttributeManagement from "./components/AttributeManagement.jsx";
 
 function App() {
     return (
@@ -37,7 +39,10 @@ function App() {
 
                             <Route path="account" element={<Account />} />
                             <Route path="manage" element={<Manage />} />
-                            <Route path="customer" element={<Customer/>} />
+                            <Route path="customer-attribues-values" element={<CustomerAttributes/>} />
+                            <Route path="customer-attributes" element={<CustomerAttributesValues/>} />
+                            <Route path="/:tenantUri/customer" element={<AttributeManagement />} />
+
                         </Route>
 
                         {/* Fallback */}

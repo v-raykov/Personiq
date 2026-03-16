@@ -43,6 +43,7 @@ export const deleteCustomerAttribute = (tenantUri, attributeId) =>
     api.delete(`/${tenantUri}/admin/customer/attribute`, {
         params: {attributeId}
     });
+
 export const getAttributeValue = (tenantUri, attributeId, customerId) =>
     api.get(`/${tenantUri}/admin/customer/attribute/value/${attributeId}`, {
         params: {customerId}
@@ -68,4 +69,10 @@ export const deleteAttributeValue = (tenantUri, attributeId, customerId, value =
             value
         }
     });
+
+export const getCustomers = (tenantUri) => api.get(`${tenantUri}/admin/customer`);
+
+export const getBulkAttributes = (tenantUri, customerIds) =>
+    api.post(`${tenantUri}/admin/customer/attribute/value/bulk`, customerIds);
+
 export default api;
