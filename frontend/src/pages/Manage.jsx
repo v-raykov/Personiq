@@ -18,7 +18,7 @@ export default function Manage() {
         username: '',
         email: '',
         password: '',
-        role: 'USER'
+        role: 'CUSTOMER'
     });
 
     const fetchUsers = useCallback(async () => {
@@ -41,11 +41,11 @@ export default function Manage() {
 
     const handleCreate = async (e) => {
         e.preventDefault();
-        const roleMap = { 'USER': 'ROLE_CUSTOMER', 'MANAGER': 'ROLE_MANAGER', 'ADMIN': 'ROLE_ADMIN' };
+        const roleMap = { 'CUSTOMER': 'ROLE_CUSTOMER', 'MANAGER': 'ROLE_MANAGER', 'ADMIN': 'ROLE_ADMIN' };
         try {
             await registerUserAdmin(tenantUri, { ...formData, authority: roleMap[formData.role] });
             setOpen(false);
-            setFormData({ username: '', email: '', password: '', role: 'USER' });
+            setFormData({ username: '', email: '', password: '', role: 'CUSTOMER' });
             await fetchUsers();
         } catch (err) {
             console.error("Registration Error:", err);
@@ -91,7 +91,7 @@ export default function Manage() {
                     <Table sx={{ minWidth: 800 }}>
                         <TableHead>
                             <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
-                                <TableCell sx={{ color: '#94a3b8', fontWeight: 800, py: 3, pl: 5, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>USER</TableCell>
+                                <TableCell sx={{ color: '#94a3b8', fontWeight: 800, py: 3, pl: 5, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>CUSTOMER</TableCell>
                                 <TableCell sx={{ color: '#94a3b8', fontWeight: 800, py: 3, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>EMAIL</TableCell>
                                 <TableCell sx={{ color: '#94a3b8', fontWeight: 800, py: 3, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>AUTHORITY</TableCell>
                                 <TableCell sx={{ color: '#94a3b8', fontWeight: 800, py: 3, pr: 5, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>STATUS</TableCell>
@@ -133,7 +133,7 @@ export default function Manage() {
                             <TextField fullWidth label="Email Address" type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
                             <TextField fullWidth label="Password" type="password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
                             <TextField fullWidth select label="Role" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
-                                <MenuItem value="USER">User</MenuItem>
+                                <MenuItem value="CUSTOMER">Customer</MenuItem>
                                 <MenuItem value="MANAGER">Manager</MenuItem>
                                 <MenuItem value="ADMIN">Administrator</MenuItem>
                             </TextField>

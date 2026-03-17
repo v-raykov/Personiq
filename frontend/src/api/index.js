@@ -74,5 +74,3 @@ export const getCustomers = (tenantUri) => api.get(`${tenantUri}/admin/customer`
 
 export const getBulkAttributes = (tenantUri, customerIds) =>
     api.post(`${tenantUri}/admin/customer/attribute/value/bulk`, customerIds);
-
-export default api;
