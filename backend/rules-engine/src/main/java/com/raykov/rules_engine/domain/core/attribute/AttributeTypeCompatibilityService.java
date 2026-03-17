@@ -1,62 +1,21 @@
 package com.raykov.rules_engine.domain.core.attribute;
 
-import com.raykov.rules_engine.domain.core.EntityAttributeManager;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
-import com.raykov.rules_engine.domain.core.attribute.operation.AttributeOperation;
-import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
-class AttributeTypeCompatibilityService {
+public class AttributeTypeCompatibilityService {
 
-    private final EntityAttributeManager entityAttributeManager;
-
-    public AttributeTypeCompatibilityService(EntityAttributeManager entityAttributeManager) {
-        this.entityAttributeManager = entityAttributeManager;
-    }
-
-    void validate(long attributeId, AttributeOperation operation, String value, boolean isValueAttributeId) {
-        Attribute attribute = entityAttributeManager.getAttributeById(attributeId);
-
-        if (!attribute.isOperationSupported(operation)) {
-            throw new IllegalArgumentException(String.format(
-                    "Invalid operation: '%s' for type: %s", operation.name(), attribute.valueType()));
-        }
-
-        boolean hasValue = value != null && !value.isBlank();
-        boolean valueForbidden = UpdateOperation.getNullValueOperations().contains(operation);
-
-        if (hasValue && valueForbidden) {
-            throw new IllegalArgumentException("Operation %s must not have a value.".formatted(operation.name()));
-        } else if (!hasValue && !valueForbidden) {
-            throw new IllegalArgumentException("Operation %s must have a value.".formatted(operation.name()));
-        } else if (!hasValue) {
-            return;
-        }
-
-        if (isValueAttributeId) {
-            long valueAttributeId = Long.parseLong(value);
-            if (attributeId == valueAttributeId) {
-                throw new IllegalArgumentException("Attribute cannot reference itself.");
-            }
-            validateAttributeCompatibility(attributeId, valueAttributeId);
-        } else {
-            validateScalarType(attribute.valueType(), value);
-        }
-    }
-
-    private void validateAttributeCompatibility(long targetId, long sourceId) {
-        Attribute target = entityAttributeManager.getAttributeById(targetId);
-        Attribute source = entityAttributeManager.getAttributeById(sourceId);
+    public void validateAttributeCompatibility(Attribute target, Attribute source) {
         if (target.valueType() != source.valueType()) {
             throw new IllegalArgumentException("Target and Parameter attribute types must match.");
         }
     }
 
-    private void validateScalarType(AttributeValueType type, String value) {
+    public void validateScalarType(AttributeValueType type, String value) {
         try {
             switch (type) {
                 case NUMBER -> new BigDecimal(value);

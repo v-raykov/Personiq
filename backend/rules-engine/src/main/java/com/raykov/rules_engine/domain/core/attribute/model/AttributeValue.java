@@ -13,11 +13,13 @@ public record AttributeValue(long entityInstanceId, long attributeId, String nam
                                                          .replace("]", "")
                                                          .split(", "))
                                  : List.of(newValue);
-
         return new AttributeValue(entityInstanceId, attributeId, name, valueType, newValues, isList);
     }
 
     public AttributeValue withUpdatedValue(List<String> newValues) {
+        if (!isList && newValues.size() > 1) {
+            throw new IllegalArgumentException("Only one value should be provided for non-list attribute");
+        }
         return new AttributeValue(entityInstanceId, attributeId, name, valueType, newValues, isList);
     }
 

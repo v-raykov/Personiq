@@ -1,5 +1,7 @@
 package com.raykov.rules_engine.domain.core.attribute;
 
+import com.raykov.rules_engine.domain.core.EntityAttributeManager;
+import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
 import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
 import com.raykov.rules_engine.domain.core.attribute.operation.AttributeOperation;
 import com.raykov.rules_engine.domain.core.attribute.operation.UpdateOperation;
@@ -16,12 +18,40 @@ public class AttributeService {
 
     private final AttributeTypeCompatibilityService typeCompatibilityService;
 
-    AttributeService(AttributeTypeCompatibilityService typeCompatibilityService) {
+    private final EntityAttributeManager entityAttributeManager;
+
+    AttributeService(AttributeTypeCompatibilityService typeCompatibilityService, EntityAttributeManager entityAttributeManager) {
         this.typeCompatibilityService = typeCompatibilityService;
+        this.entityAttributeManager = entityAttributeManager;
     }
 
-    public void validateTypeCompatibility(Long id, AttributeOperation operation, String value, boolean valueAttributeId) {
-        typeCompatibilityService.validate(id, operation, value, valueAttributeId);
+    public void validateTypeCompatibility(Long id, AttributeOperation operation, String value, boolean isValueAttributeId) {
+        Attribute attribute = entityAttributeManager.getAttributeById(id);
+        if (!attribute.isOperationSupported(operation)) {
+            throw new IllegalArgumentException(String.format(
+                    "Invalid operation: '%s' for type: %s", operation.name(), attribute.valueType()));
+        }
+
+        boolean hasValue = value != null && !value.isBlank();
+        boolean valueForbidden = UpdateOperation.getNullValueOperations().contains(operation);
+
+        if (hasValue && valueForbidden) {
+            throw new IllegalArgumentException("Operation %s must not have a value.".formatted(operation.name()));
+        } else if (!hasValue && !valueForbidden) {
+            throw new IllegalArgumentException("Operation %s must have a value.".formatted(operation.name()));
+        } else if (!hasValue) {
+            return;
+        }
+        if (isValueAttributeId) {
+            long valueAttributeId = Long.parseLong(value);
+            if (id == valueAttributeId) {
+                throw new IllegalArgumentException("Attribute cannot reference itself.");
+            }
+            Attribute parameterAttribute = entityAttributeManager.getAttributeById(valueAttributeId);
+            typeCompatibilityService.validateAttributeCompatibility(attribute, parameterAttribute);
+        } else {
+            typeCompatibilityService.validateScalarType(attribute.valueType(), value);
+        }
     }
 
     public AttributeValue updateAttributeValueWithScalar(AttributeValue target, String scalar, UpdateOperation operation) {

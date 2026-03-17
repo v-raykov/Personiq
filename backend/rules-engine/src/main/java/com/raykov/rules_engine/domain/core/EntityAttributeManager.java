@@ -1,5 +1,6 @@
 package com.raykov.rules_engine.domain.core;
 
+import com.raykov.rules_engine.domain.core.attribute.AttributeTypeCompatibilityService;
 import com.raykov.rules_engine.domain.core.attribute.dao.AttributeDao;
 import com.raykov.rules_engine.domain.core.attribute.dao.AttributeValueDao;
 import com.raykov.rules_engine.domain.core.attribute.model.Attribute;
@@ -25,10 +26,13 @@ public class EntityAttributeManager {
 
     private final AttributeValueDao attributeValueDao;
 
-    public EntityAttributeManager(AttributeDao attributeDao, EntityDao entityDao, AttributeValueDao attributeValueDao) {
+    private final AttributeTypeCompatibilityService attributeTypeCompatibilityService;
+
+    public EntityAttributeManager(AttributeDao attributeDao, EntityDao entityDao, AttributeValueDao attributeValueDao, AttributeTypeCompatibilityService attributeTypeCompatibilityService) {
         this.attributeDao = attributeDao;
         this.entityDao = entityDao;
         this.attributeValueDao = attributeValueDao;
+        this.attributeTypeCompatibilityService = attributeTypeCompatibilityService;
     }
 
     public long createEntityInstance(long entityId) {
@@ -70,12 +74,13 @@ public class EntityAttributeManager {
         Collection<AttributeValue> attributeValues =
                 getAttributeValuesByIdsAndEntityInstanceIds(attributes.keySet(), entityInstanceIds)
                         .stream()
+                        .peek(av -> attributeTypeCompatibilityService.validateScalarType(av.valueType(), attributes.get(av.attributeId())))
                         .map(av -> !av.isList() || overwriteList
                                    ? av.withUpdatedValue(attributes.get(av.attributeId()))
                                    : av.withAppendedValue(attributes.get(av.attributeId())))
                         .toList();
 
-        updateAttributeValues(attributeValues);
+        attributeValueDao.updateAttributeValues(attributeValues);
     }
 
     public long createAttribute(long entityId, String name, String type, boolean isList) {
@@ -104,14 +109,6 @@ public class EntityAttributeManager {
         return mapMissingToDefaultValues(instanceToEntityMap, List.of(attributeId)).values()
                                                                                    .stream()
                                                                                    .findFirst();
-    }
-
-    public void updateAttributeValue(long attributeId, long entityInstanceId, List<String> value) {
-        Attribute attribute = getAttributeById(attributeId);
-        if (!attribute.isList() && value.size() > 1) {
-            throw new IllegalArgumentException("Only one value should be provided for non-list attribute");
-        }
-        attributeValueDao.updateAttributeValue(attributeId, entityInstanceId, value);
     }
 
     public void deleteAttributeValue(long attributeId, long entityInstanceId, String attributeValue) {
@@ -166,6 +163,54 @@ public class EntityAttributeManager {
                               .toList();
     }
 
+    public List<AttributeValue> getAttributeValuesByIdsAndEntityInstanceIds(Collection<Long> attributeIds, List<Long> entityInstanceIds) {
+        if (entityInstanceIds == null || entityInstanceIds.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Long> instanceToEntityMap = entityDao.getInstanceToEntityMap(entityInstanceIds);
+
+        return mapMissingToDefaultValues(instanceToEntityMap, attributeIds).values()
+                                                                           .stream()
+                                                                           .toList();
+    }
+
+    public void updateAttributeValues(Collection<AttributeValue> attributeValues) {
+        for (AttributeValue av : attributeValues) {
+            if (av.isList()) {
+                av.values().forEach(value -> attributeTypeCompatibilityService.validateScalarType(av.valueType(), value));
+            } else {
+                attributeTypeCompatibilityService.validateScalarType(av.valueType(), av.valueAsString());
+            }
+        }
+
+        attributeValueDao.updateAttributeValues(attributeValues);
+    }
+
+    private Map<AttributeKey, AttributeValue> mapMissingToDefaultValues(Map<Long, Long> instanceToEntityIds, Collection<Long> requestedAttributeIds) {
+        if (instanceToEntityIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Attribute> allAttributes = attributeDao.getAttributesByEntityIds(instanceToEntityIds.values());
+        Map<AttributeKey, AttributeValue> valueLookup = attributeValueDao.getAttributesByIdsAndEntityInstanceIds(requestedAttributeIds, instanceToEntityIds.keySet())
+                                                                         .stream()
+                                                                         .collect(Collectors.toMap(av -> new AttributeKey(av.entityInstanceId(), av.attributeId()),
+                                                                                                   val -> val)
+                                                                         );
+
+        return instanceToEntityIds.entrySet()
+                                  .stream()
+                                  .flatMap(entry -> allAttributes.stream()
+                                                                 .filter(a -> isAttributeOwnedByEntity(entry, a))
+                                                                 .filter(a -> isAttributeRequested(requestedAttributeIds, a))
+                                                                 .map(attr -> valueLookup.getOrDefault(
+                                                                         new AttributeKey(entry.getKey(), attr.id()),
+                                                                         createDefaultAttributeValueEntry(entry.getKey(), attr))
+                                                                 ))
+                                  .collect(Collectors.toMap(av -> new AttributeKey(av.entityInstanceId(), av.attributeId()), av -> av));
+    }
+
     public List<EntityInstance> getAllEntityInstancesByTargetInstanceId(long targetInstanceId, EntityType entityType) {
         return entityDao.getAllInstancesByType(entityType).stream()
                         .filter(row -> row.targetInstanceId() == targetInstanceId)
@@ -192,46 +237,6 @@ public class EntityAttributeManager {
     public Entity getEntityById(long id) {
         return entityDao.getEntitiesById(id)
                         .orElseThrow(() -> new IllegalArgumentException("Entity with this id does not exist"));
-    }
-
-    public List<AttributeValue> getAttributeValuesByIdsAndEntityInstanceIds(Collection<Long> attributeIds, List<Long> entityInstanceIds) {
-        if (entityInstanceIds == null || entityInstanceIds.isEmpty()) {
-            return List.of();
-        }
-
-        Map<Long, Long> instanceToEntityMap = entityDao.getInstanceToEntityMap(entityInstanceIds);
-
-        return mapMissingToDefaultValues(instanceToEntityMap, attributeIds).values()
-                                                                           .stream()
-                                                                           .toList();
-    }
-
-    public void updateAttributeValues(Collection<AttributeValue> attributeValues) {
-        attributeValueDao.updateAttributeValues(attributeValues);
-    }
-
-    private Map<AttributeKey, AttributeValue> mapMissingToDefaultValues(Map<Long, Long> instanceToEntityIds, Collection<Long> requestedAttributeIds) {
-        if (instanceToEntityIds.isEmpty()) {
-            return Map.of();
-        }
-
-        List<Attribute> allAttributes = attributeDao.getAttributesByEntityIds(instanceToEntityIds.values());
-        Map<AttributeKey, AttributeValue> valueLookup = attributeValueDao.getAttributesByIdsAndEntityInstanceIds(requestedAttributeIds, instanceToEntityIds.keySet())
-                                                                         .stream()
-                                                                         .collect(Collectors.toMap(av -> new AttributeKey(av.entityInstanceId(), av.attributeId()),
-                                                                                                   val -> val)
-                                                                         );
-
-        return instanceToEntityIds.entrySet()
-                                  .stream()
-                                  .flatMap(entry -> allAttributes.stream()
-                                                                 .filter(a -> isAttributeOwnedByEntity(entry, a))
-                                                                 .filter(a -> isAttributeRequested(requestedAttributeIds, a))
-                                                                 .map(attr -> valueLookup.getOrDefault(
-                                                                         new AttributeKey(entry.getKey(), attr.id()),
-                                                                         createDefaultAttributeValueEntry(entry.getKey(), attr))
-                                                                 ))
-                                  .collect(Collectors.toMap(av -> new AttributeKey(av.entityInstanceId(), av.attributeId()), av -> av));
     }
 
     private static boolean isAttributeOwnedByEntity(Map.Entry<Long, Long> entry, Attribute a) {

@@ -172,7 +172,8 @@ public abstract class SpringBaseTest {
     }
 
     protected void setAttributeValue(long attributeId, long entityInstanceId, List<String> value) {
-        entityAttributeManager.updateAttributeValue(attributeId, entityInstanceId, value);
+        AttributeValue attributeValue = entityAttributeManager.getAttributeValue(attributeId, entityInstanceId).orElseThrow();
+        entityAttributeManager.updateAttributeValues(List.of(attributeValue.withUpdatedValue(value)));
     }
 
     protected AttributeValue getAttributeValue(long attributeId, long entityInstanceId) {
