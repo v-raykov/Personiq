@@ -74,3 +74,18 @@ export const getCustomers = (tenantUri) => api.get(`${tenantUri}/admin/customer`
 
 export const getBulkAttributes = (tenantUri, customerIds) =>
     api.post(`${tenantUri}/admin/customer/attribute/value/bulk`, customerIds);
+
+export const getActions = (tenantUri) =>
+    api.get(`${tenantUri}/admin/action`);
+
+export const createAction = (tenantUri, name, attributes) =>
+    api.post(`${tenantUri}/admin/action`, attributes, { params: { name } });
+
+export const deleteAction = (tenantUri, actionId) =>
+    api.delete(`${tenantUri}/admin/action/${actionId}`);
+
+export const createActionAttribute = (tenantUri, actionId, request) =>
+    api.put(`${tenantUri}/admin/action/${actionId}`, request);
+
+export const deleteActionAttribute = (tenantUri, attributeId) =>
+    api.delete(`${tenantUri}/admin/action`, { params: { attributeId } });

@@ -12,6 +12,7 @@ import CustomerAttributes from './pages/CustomerAttributes.jsx'
 import ProtectedRoute from './components/ProtectedRoute';
 import CustomerAttributesValues from "./pages/CustomerAttributesValues.jsx";
 import AttributeManagement from "./components/AttributeManagement.jsx";
+import Actions from './pages/Actions';
 
 function App() {
     return (
@@ -41,7 +42,8 @@ function App() {
                             <Route path="manage" element={<Manage />} />
                             <Route path="customer-attribues-values" element={<CustomerAttributes/>} />
                             <Route path="customer-attributes" element={<CustomerAttributesValues/>} />
-                            <Route path="/:tenantUri/customer" element={<AttributeManagement />} />
+                            <Route path="customers" element={<AttributeManagement />} />
+                            <Route path="actions" element={<Actions />} />
 
                         </Route>
 

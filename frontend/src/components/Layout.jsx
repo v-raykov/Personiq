@@ -26,9 +26,15 @@ export default function Layout() {
             visible: user?.role === 'ADMIN'
         },
         {
-            text: 'Customer',
+            text: 'Customers',
             icon: <Tune />,
-            path: `/${tenantUri}/customer`,
+            path: `/${tenantUri}/customers`,
+            visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
+        },
+        {
+            text: 'Actions',
+            icon: <Tune />,
+            path: `/${tenantUri}/actions`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
         },
     ];
