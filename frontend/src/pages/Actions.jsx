@@ -9,7 +9,7 @@ import {
     SettingsInputComponent, HorizontalRule
 } from '@mui/icons-material';
 import { getActions, createAction, deleteAction, deleteActionAttribute } from '../api';
-import ActionAttributeDrawer from '../components/ActionAttributeDrawer';
+import ActionAttributeDrawer from '../components/actions/ActionDrawer';
 
 export default function Actions() {
     const { tenantUri } = useParams();

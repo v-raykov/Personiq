@@ -2,8 +2,8 @@ import {useEffect, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import {Box, Button, CircularProgress, Container, Fade, Stack, Typography} from '@mui/material';
 import {styled} from '@mui/material/styles';
-import {getTenants} from '../api';
-import PageWrapper from "../components/PageWrapper.jsx";
+import {getTenants} from '../../api';
+import PageWrapper from "../../components/PageWrapper.jsx";
 
 const TenantCard = styled(Button)(({theme}) => ({
     width: '100%',

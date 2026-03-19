@@ -2,16 +2,16 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
 import { AuthProvider } from './context/AuthProvider.jsx';
-import SelectTenant from './pages/SelectTenant';
-import CreateTenant from './pages/CreateTenant';
-import Auth from './pages/Auth';
+import SelectTenant from './pages/auth/SelectTenant';
+import CreateTenant from './pages/auth/CreateTenant';
+import Auth from './pages/auth/Auth';
 import Layout from './components/Layout';
 import Account from './pages/Account';
 import Manage from './pages/Manage';
 import CustomerAttributes from './pages/CustomerAttributes.jsx'
 import ProtectedRoute from './components/ProtectedRoute';
 import CustomerAttributesValues from "./pages/CustomerAttributesValues.jsx";
-import AttributeManagement from "./components/AttributeManagement.jsx";
+import AttributeManagement from "./components/customers/CustomerWrapper.jsx";
 import Actions from './pages/Actions';
 
 function App() {

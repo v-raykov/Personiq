@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Drawer, Box, Typography, IconButton, Stack,
-    Divider, Tooltip, Switch, FormControlLabel, TextField
+    Divider, Tooltip, Switch, TextField, CircularProgress
 } from '@mui/material';
 import { Close, RestartAlt, Save, Edit } from '@mui/icons-material';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
@@ -10,25 +10,28 @@ import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en-gb';
 
-import { updateCustomerAttributes, deleteAttributeValue, getCustomerAttributes } from '../api';
+import { updateCustomerAttributes, deleteAttributeValue, getCustomerAttributes } from '../../api';
 
-const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRefresh }) => {
+const CustomerEditDrawer = ({ open, customer, tenantUri, attributes, onClose, onRefresh }) => {
     const [editingId, setEditingId] = useState(null);
     const [editValue, setEditValue] = useState(null);
     const [schema, setSchema] = useState([]);
+    const [loading, setLoading] = useState(false);
 
+    // 1. Fetch Schema on Open
     useEffect(() => {
         const fetchSchema = async () => {
             try {
                 const { data } = await getCustomerAttributes(tenantUri);
                 setSchema(data || []);
             } catch (err) {
-                console.error(err);
+                console.error("Schema fetch failed:", err);
             }
         };
         if (open) fetchSchema();
     }, [open, tenantUri]);
 
+    // 2. Clear state on close
     useEffect(() => {
         if (!open) {
             setEditingId(null);
@@ -36,7 +39,8 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
         }
     }, [open]);
 
-    const customerAttrs = React.useMemo(() => {
+    // 3. Prepare Attributes for display
+    const customerAttrs = useMemo(() => {
         if (!customer) return [];
         const attrs = attributes[customer.customerId] || [];
         return [...attrs].sort((a, b) => a.name.localeCompare(b.name));
@@ -45,36 +49,38 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
     const formatReadableDate = (isoString) => {
         if (!isoString) return '—';
         const d = dayjs(isoString);
-        return d.isValid() ? d.format('HH:mm DD.MM.YYYY') : isoString;
+        return d.isValid() ? d.format('HH:mm DD/MM/YYYY') : isoString;
     };
 
+    // 4. Update Logic
     const handleUpdate = async (attrId) => {
-        let valueToSend;
-        const attr = customerAttrs.find(a => a.attributeId === attrId);
-        const type = schema.find(s => s.name === attr?.name)?.valueType || 'STRING';
-
-        if (type === 'DATE') {
-            valueToSend = editValue && dayjs(editValue).isValid() ? editValue.toISOString() : null;
-        } else {
-            valueToSend = String(editValue);
-        }
-
+        setLoading(true);
         try {
+            let valueToSend = editValue;
+
+            // If it's a dayjs object (from the picker), convert to ISO
+            if (dayjs.isDayjs(editValue)) {
+                valueToSend = editValue.isValid() ? editValue.toISOString() : null;
+            }
+
             await updateCustomerAttributes(tenantUri, customer.customerId, { [attrId]: valueToSend });
             setEditingId(null);
             onRefresh();
         } catch (err) {
             console.error("Update failed:", err);
+        } finally {
+            setLoading(false);
         }
     };
 
+    // 5. Reset Logic
     const handleReset = async (attrId) => {
-        if (!window.confirm("Reset this attribute?")) return;
+        if (!window.confirm("Reset this attribute to default?")) return;
         try {
             await deleteAttributeValue(tenantUri, attrId, customer.customerId);
             onRefresh();
         } catch (err) {
-            console.error(err);
+            console.error("Reset failed:", err);
         }
     };
 
@@ -96,12 +102,13 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
                 }}
             >
                 <Box sx={{ opacity: open ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+                    {/* HEADER */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                         <Box>
                             <Typography variant="h4" fontWeight={900} color="#fff">
                                 {customer?.username || 'Loading...'}
                             </Typography>
-                            <Typography variant="caption" color="#94a3b8" sx={{ fontSize: '0.9rem' }}>
+                            <Typography variant="caption" color="#94a3b8" sx={{ fontSize: '0.9rem', fontWeight: 700 }}>
                                 ID: {customer?.customerId}
                             </Typography>
                         </Box>
@@ -112,11 +119,11 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
 
                     <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', mb: 4 }} />
 
-                    <Typography variant="h6" sx={{ color: '#818cf8', fontWeight: 800, mb: 3, fontSize: '1.1rem' }}>
+                    <Typography variant="h6" sx={{ color: '#818cf8', fontWeight: 800, mb: 3, fontSize: '1.1rem', letterSpacing: 1 }}>
                         CUSTOMER ATTRIBUTES
                     </Typography>
 
-                    <Stack spacing={2}>
+                    <Stack spacing={2.5}>
                         {customerAttrs.map((attr) => {
                             const type = schema.find(s => s.name === attr.name)?.valueType || 'STRING';
                             const isEditing = editingId === attr.attributeId;
@@ -126,20 +133,25 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
                                     key={attr.attributeId}
                                     sx={{
                                         p: 2.5,
-                                        borderRadius: '20px',
-                                        bgcolor: 'rgba(255,255,255,0.02)',
-                                        border: '1px solid rgba(255,255,255,0.05)',
-                                        '&:hover': { bgcolor: 'rgba(255,255,255,0.04)' }
+                                        borderRadius: '24px',
+                                        bgcolor: isEditing ? 'rgba(99, 102, 241, 0.04)' : 'rgba(255,255,255,0.02)',
+                                        border: isEditing ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid rgba(255,255,255,0.05)',
+                                        transition: 'all 0.2s ease'
                                     }}
                                 >
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                                        <Typography sx={{ color: '#94a3b8', fontWeight: 800, fontSize: '0.8rem' }}>
+                                        <Typography sx={{ color: '#64748b', fontWeight: 900, fontSize: '0.75rem', letterSpacing: 1.2 }}>
                                             {attr.name.toUpperCase()}
                                         </Typography>
                                         <Stack direction="row" spacing={0.5}>
                                             {isEditing ? (
-                                                <IconButton size="small" onClick={() => handleUpdate(attr.attributeId)} sx={{ color: '#10b981' }}>
-                                                    <Save fontSize="small" />
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleUpdate(attr.attributeId)}
+                                                    sx={{ color: '#10b981' }}
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? <CircularProgress size={16} color="inherit" /> : <Save fontSize="small" />}
                                                 </IconButton>
                                             ) : (
                                                 <IconButton
@@ -147,15 +159,16 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
                                                     onClick={() => {
                                                         setEditingId(attr.attributeId);
                                                         const val = attr.values[0];
-                                                        setEditValue(type === 'DATE' ? dayjs(val || new Date()) : (val || ''));
+                                                        // DEFAULT TO NOW() IF EMPTY
+                                                        setEditValue(type === 'DATE' ? (val ? dayjs(val) : dayjs()) : (val || ''));
                                                     }}
-                                                    sx={{ color: 'rgba(255,255,255,0.3)' }}
+                                                    sx={{ color: 'rgba(255,255,255,0.2)', '&:hover': { color: '#818cf8' } }}
                                                 >
                                                     <Edit fontSize="small" />
                                                 </IconButton>
                                             )}
-                                            <Tooltip title="Reset to Default">
-                                                <IconButton size="small" onClick={() => handleReset(attr.attributeId)} sx={{ color: 'rgba(255,255,255,0.3)' }}>
+                                            <Tooltip title="Reset">
+                                                <IconButton size="small" onClick={() => handleReset(attr.attributeId)} sx={{ color: 'rgba(255,255,255,0.1)', '&:hover': { color: '#ef4444' } }}>
                                                     <RestartAlt fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
@@ -167,22 +180,22 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
                                             <DateTimePicker
                                                 value={editValue}
                                                 onChange={(newValue) => setEditValue(newValue)}
+                                                format="HH:mm DD/MM/YYYY"
                                                 ampm={false}
-                                                // Replaces the "weird vertical lists" with a standard clock face
-                                                viewRenderers={{
-                                                    hours: renderTimeViewClock,
-                                                    minutes: renderTimeViewClock,
-                                                }}
-                                                format="HH:mm DD.MM.YYYY"
+                                                viewRenderers={{ hours: renderTimeViewClock, minutes: renderTimeViewClock }}
                                                 slotProps={{
                                                     textField: {
                                                         variant: 'standard',
                                                         fullWidth: true,
+                                                        autoFocus: true,
+                                                        onKeyDown: (e) => e.key === 'Enter' && handleUpdate(attr.attributeId),
                                                         InputProps: {
                                                             disableUnderline: true,
-                                                            sx: { color: '#fff', fontSize: '1.2rem', fontWeight: 600 }
+                                                            sx: { color: '#fff', fontSize: '1.2rem', fontWeight: 700 }
                                                         }
                                                     },
+                                                    // This makes the field accept keyboard input
+                                                    field: { shouldRespectLeadingZeros: true },
                                                     desktopPaper: {
                                                         sx: {
                                                             bgcolor: '#1e293b',
@@ -202,10 +215,19 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
                                                 }}
                                             />
                                         ) : type === 'BOOLEAN' ? (
-                                            <FormControlLabel
-                                                control={<Switch checked={editValue === 'true'} onChange={(e) => setEditValue(String(e.target.checked))} />}
-                                                label={<Typography sx={{ color: '#fff', fontWeight: 600 }}>{editValue === 'true' ? 'True' : 'False'}</Typography>}
-                                            />
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <Typography sx={{ color: '#fff', fontWeight: 700 }}>
+                                                    {editValue === 'true' ? 'TRUE' : 'FALSE'}
+                                                </Typography>
+                                                <Switch
+                                                    checked={editValue === 'true'}
+                                                    onChange={(e) => setEditValue(String(e.target.checked))}
+                                                    sx={{
+                                                        '& .MuiSwitch-switchBase.Mui-checked': { color: '#6366f1' },
+                                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6366f1' }
+                                                    }}
+                                                />
+                                            </Box>
                                         ) : (
                                             <TextField
                                                 fullWidth
@@ -217,12 +239,16 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
                                                 onKeyDown={(e) => e.key === 'Enter' && handleUpdate(attr.attributeId)}
                                                 InputProps={{
                                                     disableUnderline: true,
-                                                    sx: { color: '#fff', fontSize: '1.2rem', fontWeight: 600 }
+                                                    sx: {
+                                                        color: '#fff', fontSize: '1.2rem', fontWeight: 700,
+                                                        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': { display: 'none', margin: 0 },
+                                                        '& input[type=number]': { MozAppearance: 'textfield' }
+                                                    }
                                                 }}
                                             />
                                         )
                                     ) : (
-                                        <Typography sx={{ color: '#fff', fontSize: '1.2rem', fontWeight: 600 }}>
+                                        <Typography sx={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700 }}>
                                             {type === 'DATE' ? formatReadableDate(attr.values[0]) : (attr.values.join(', ') || '—')}
                                         </Typography>
                                     )}
@@ -236,4 +262,4 @@ const AttributeDrawer = ({ open, customer, tenantUri, attributes, onClose, onRef
     );
 };
 
-export default AttributeDrawer;
+export default CustomerEditDrawer;

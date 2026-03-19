@@ -1,8 +1,8 @@
+import React from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar } from '@mui/material';
-import { Person, SupervisorAccount } from '@mui/icons-material';
+import { Person, SupervisorAccount, Groups, Bolt } from '@mui/icons-material';
 import { useNavigate, useParams, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Tune } from '@mui/icons-material';
 
 const drawerWidth = 260;
 
@@ -27,16 +27,16 @@ export default function Layout() {
         },
         {
             text: 'Customers',
-            icon: <Tune />,
+            icon: <Groups />,
             path: `/${tenantUri}/customers`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
         },
         {
             text: 'Actions',
-            icon: <Tune />,
+            icon: <Bolt />,
             path: `/${tenantUri}/actions`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
-        },
+        }
     ];
 
     return (
@@ -69,7 +69,7 @@ export default function Layout() {
                             display: 'block'
                         }}
                     >
-                        {tenantUri?.replace('-', ' ')}
+                        {tenantUri?.replace(/-/g, ' ')}
                     </Typography>
                 </Box>
 
@@ -87,7 +87,10 @@ export default function Layout() {
                                         '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.05)' }
                                     }}
                                 >
-                                    <ListItemIcon sx={{ color: active ? '#818cf8' : 'rgba(255,255,255,0.5)' }}>
+                                    <ListItemIcon sx={{
+                                        color: active ? '#818cf8' : 'rgba(255,255,255,0.5)',
+                                        minWidth: 40
+                                    }}>
                                         {item.icon}
                                     </ListItemIcon>
                                     <ListItemText

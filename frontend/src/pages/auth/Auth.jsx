@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Container, Fade, Link, Paper, TextField, Typography, Alert } from '@mui/material';
-import { loginUser, registerUser } from '../api';
-import { useAuth } from '../hooks/useAuth';
-import PageWrapper from "../components/PageWrapper.jsx";
+import { loginUser, registerUser } from '../../api';
+import { useAuth } from '../../hooks/useAuth';
+import PageWrapper from "../../components/PageWrapper.jsx";
 
 function Auth() {
     const { tenantUri } = useParams();

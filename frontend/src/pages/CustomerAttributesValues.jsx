@@ -14,7 +14,7 @@ import 'dayjs/locale/en-gb';
 
 import { getCustomers, getBulkAttributes, getCustomerAttributes } from '../api';
 import { useParams } from "react-router-dom";
-import AttributeDrawer from '../components/AttributeDrawer';
+import AttributeDrawer from '../components/customers/CustomerEditDrawer.jsx';
 
 const CustomerAttributesValues = () => {
     const { tenantUri } = useParams();
@@ -246,14 +246,15 @@ const CustomerAttributesValues = () => {
                                         value={dayjs(filterValue)}
                                         onChange={(newValue) => setFilterValue(newValue)}
                                         ampm={false}
+                                        format="HH:mm DD.MM.YYYY"
                                         viewRenderers={{
                                             hours: renderTimeViewClock,
                                             minutes: renderTimeViewClock,
                                         }}
-                                        format="HH:mm DD.MM.YYYY"
                                         slotProps={{
                                             textField: {
                                                 fullWidth: true,
+                                                onKeyDown: (e) => e.key === 'Enter' && addFilter(),
                                                 sx: {
                                                     '& .MuiOutlinedInput-root': {
                                                         color: '#fff', borderRadius: '12px', height: inputHeight, bgcolor: 'rgba(255,255,255,0.05)',
@@ -262,6 +263,7 @@ const CustomerAttributesValues = () => {
                                                     }
                                                 }
                                             },
+                                            field: { shouldRespectLeadingZeros: true },
                                             desktopPaper: {
                                                 sx: {
                                                     bgcolor: '#1e293b',
@@ -272,7 +274,8 @@ const CustomerAttributesValues = () => {
                                                     '& .MuiClock-pin': { bgcolor: '#6366f1' },
                                                     '& .MuiClockPointer-root': { bgcolor: '#6366f1' },
                                                     '& .MuiClockPointer-thumb': { bgcolor: '#6366f1', border: '16px solid #6366f1' },
-                                                    '& .MuiClockNumber-root': { color: '#fff' }
+                                                    '& .MuiClockNumber-root': { color: '#fff' },
+                                                    '& .MuiButtonBase-root': { color: '#818cf8' }
                                                 }
                                             }
                                         }}
@@ -280,13 +283,26 @@ const CustomerAttributesValues = () => {
                                 ) : (
                                     <TextField
                                         type={currentAttrType === 'NUMBER' ? 'number' : 'text'}
-                                        placeholder="Value..." value={filterValue} onChange={(e) => setFilterValue(e.target.value)}
+                                        placeholder="Value..."
+                                        value={filterValue}
+                                        onChange={(e) => setFilterValue(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && addFilter()}
                                         sx={{
                                             width: '100%',
                                             '& .MuiOutlinedInput-root': {
-                                                color: '#fff', borderRadius: '12px', height: inputHeight, bgcolor: 'rgba(255,255,255,0.05)',
+                                                color: '#fff',
+                                                borderRadius: '12px',
+                                                height: inputHeight,
+                                                bgcolor: 'rgba(255,255,255,0.05)',
                                                 '& fieldset': { border: '1px solid rgba(255,255,255,0.1)' }
-                                            }
+                                            },
+                                            '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                                                display: 'none',
+                                                margin: 0,
+                                            },
+                                            '& input[type=number]': {
+                                                MozAppearance: 'textfield',
+                                            },
                                         }}
                                     />
                                 )}

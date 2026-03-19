@@ -1,20 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-    Box, Typography, Button, TextField, MenuItem,
-    Grid, Card, IconButton, Chip, Drawer, Stack, Zoom
+    Box, Typography, Button, Grid, Card,
+    IconButton, Chip, Stack, Zoom
 } from '@mui/material';
 import {
     Add, DeleteOutline, Abc,
     Numbers, ToggleOn, CalendarToday
 } from '@mui/icons-material';
+
+import CustomerAttributeDrawer from '../components/customers/CustomerAttributeDrawer.jsx';
 import { getCustomerAttributes, createCustomerAttribute, deleteCustomerAttribute } from '../api';
 
 export default function CustomerAttributes() {
     const { tenantUri } = useParams();
     const [attributes, setAttributes] = useState([]);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [newAttr, setNewAttr] = useState({ name: '', type: 'STRING', isList: false });
+    const [loading, setLoading] = useState(false);
 
     const loadAttributes = useCallback(async () => {
         if (!tenantUri) return;
@@ -26,22 +28,31 @@ export default function CustomerAttributes() {
         }
     }, [tenantUri]);
 
-    useEffect(() => { loadAttributes(); }, [loadAttributes]);
+    useEffect(() => {
+        loadAttributes();
+    }, [loadAttributes]);
 
-    const handleCreate = async (e) => {
-        e.preventDefault();
+    const handleCreate = async (formData) => {
+        setLoading(true);
         try {
-            await createCustomerAttribute(tenantUri, newAttr);
+            // Map the drawer's internal 'type' to the API's 'valueType' if necessary
+            const payload = {
+                name: formData.name,
+                valueType: formData.type,
+                isList: formData.isList
+            };
+            await createCustomerAttribute(tenantUri, payload);
             setIsDrawerOpen(false);
-            setNewAttr({ name: '', type: 'STRING', isList: false });
             await loadAttributes();
         } catch (err) {
             console.error("Failed to create attribute", err);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure?")) {
+        if (window.confirm("Are you sure you want to delete this attribute definition?")) {
             try {
                 await deleteCustomerAttribute(tenantUri, id);
                 await loadAttributes();
@@ -79,7 +90,7 @@ export default function CustomerAttributes() {
                                 '&:hover': {
                                     bgcolor: 'rgba(255, 255, 255, 0.08)',
                                     transform: 'translateY(-8px)',
-                                    borderColor: '#818cf8',
+                                    borderColor: '#6366f1',
                                     '& .delete-btn': { opacity: 1 }
                                 }
                             }}>
@@ -122,69 +133,27 @@ export default function CustomerAttributes() {
                 ))}
             </Grid>
 
-            {/* THE BIG BUTTON - PINNED TO BOTTOM RIGHT */}
             <Button
                 variant="contained"
                 startIcon={<Add />}
                 onClick={() => setIsDrawerOpen(true)}
                 sx={{
-                    position: 'fixed',
-                    bottom: 40,
-                    right: 40,
-                    zIndex: 1000,
-                    borderRadius: '16px',
-                    px: 4,
-                    py: 2,
-                    fontWeight: 800,
-                    fontSize: '1rem',
+                    position: 'fixed', bottom: 40, right: 40, zIndex: 1000,
+                    borderRadius: '16px', px: 4, py: 2, fontWeight: 800,
                     background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)',
                     boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)',
-                    '&:hover': {
-                        transform: 'scale(1.05)',
-                        boxShadow: '0 12px 30px rgba(99, 102, 241, 0.6)',
-                    },
-                    transition: 'all 0.2s ease-in-out'
+                    '&:hover': { transform: 'scale(1.05)', transition: '0.2s' }
                 }}
             >
-                Add Property
+                Add Attribute
             </Button>
 
-            <Drawer
-                anchor="right"
+            <CustomerAttributeDrawer
                 open={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
-                PaperProps={{
-                    sx: { width: { xs: '100%', sm: 480 }, bgcolor: '#0f172a', p: 6, backgroundImage: 'none', borderLeft: '1px solid rgba(255,255,255,0.08)' }
-                }}
-            >
-                <Typography variant="h4" fontWeight={900} sx={{ color: '#fff', mb: 1 }}>Define Property</Typography>
-                <Typography variant="body1" sx={{ color: '#94a3b8', mb: 6 }}>Add a new global field to the customer engine.</Typography>
-                <Box component="form" onSubmit={handleCreate}>
-                    <Stack spacing={4}>
-                        <TextField fullWidth label="Property Name" value={newAttr.name} onChange={(e) => setNewAttr({ ...newAttr, name: e.target.value })} required />
-                        <TextField select fullWidth label="Data Type" value={newAttr.type} onChange={(e) => setNewAttr({ ...newAttr, type: e.target.value })}>
-                            <MenuItem value="STRING">String</MenuItem>
-                            <MenuItem value="NUMBER">Number</MenuItem>
-                            <MenuItem value="BOOLEAN">Boolean</MenuItem>
-                            <MenuItem value="DATE">Date</MenuItem>
-                        </TextField>
-                        <Box sx={{ p: 3, borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', bgcolor: newAttr.isList ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Box>
-                                    <Typography variant="h6" fontWeight={800} sx={{ color: '#fff' }}>Collection Type</Typography>
-                                    <Typography variant="body2" sx={{ color: '#64748b' }}>Store multiple values</Typography>
-                                </Box>
-                                <Button variant={newAttr.isList ? "contained" : "outlined"} onClick={() => setNewAttr({ ...newAttr, isList: !newAttr.isList })} sx={{ borderRadius: '10px', fontWeight: 900 }}>
-                                    {newAttr.isList ? "YES" : "NO"}
-                                </Button>
-                            </Stack>
-                        </Box>
-                        <Button fullWidth variant="contained" type="submit" size="large" sx={{ py: 2.5, borderRadius: '16px', fontWeight: 800, mt: 4, fontSize: '1.1rem' }}>
-                            Create Property
-                        </Button>
-                    </Stack>
-                </Box>
-            </Drawer>
+                onCreate={handleCreate}
+                loading={loading}
+            />
         </Box>
     );
 }

@@ -4,10 +4,10 @@ import {
     Box, Typography, ToggleButton, ToggleButtonGroup,
     Fade, Stack
 } from '@mui/material';
-import CustomerAttributes from '../pages/CustomerAttributes';
-import CustomerAttributesValues from '../pages/CustomerAttributesValues';
+import CustomerAttributes from '../../pages/CustomerAttributes';
+import CustomerAttributesValues from '../../pages/CustomerAttributesValues';
 
-const AttributeManagement = () => {
+const CustomerWrapper = () => {
     const { tenantUri } = useParams();
     const [view, setView] = useState('values');
 
@@ -84,4 +84,4 @@ const AttributeManagement = () => {
     );
 };
 
-export default AttributeManagement;
+export default CustomerWrapper;
