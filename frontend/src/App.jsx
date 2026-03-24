@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CustomerAttributesValues from "./pages/CustomerAttributesValues.jsx";
 import AttributeManagement from "./components/customers/CustomerWrapper.jsx";
 import Actions from './pages/Actions';
+import Items from "./pages/Items";
 
 function App() {
     return (
@@ -44,6 +45,7 @@ function App() {
                             <Route path="customer-attributes" element={<CustomerAttributesValues/>} />
                             <Route path="customers" element={<AttributeManagement />} />
                             <Route path="actions" element={<Actions />} />
+                            <Route path="items" element={<Items />} />
 
                         </Route>
 

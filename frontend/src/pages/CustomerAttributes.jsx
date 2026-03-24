@@ -9,7 +9,8 @@ import {
     Numbers, ToggleOn, CalendarToday
 } from '@mui/icons-material';
 
-import CustomerAttributeDrawer from '../components/customers/CustomerAttributeDrawer.jsx';
+// Only changing the drawer import
+import DefinitionDrawer from '../components/definitions/DefinitionDrawer';
 import { getCustomerAttributes, createCustomerAttribute, deleteCustomerAttribute } from '../api';
 
 export default function CustomerAttributes() {
@@ -32,16 +33,15 @@ export default function CustomerAttributes() {
         loadAttributes();
     }, [loadAttributes]);
 
-    const handleCreate = async (formData) => {
+    // Updated to use the payload from DefinitionDrawer
+    const handleCreate = async (payload) => {
         setLoading(true);
         try {
-            // Map the drawer's internal 'type' to the API's 'valueType' if necessary
-            const payload = {
-                name: formData.name,
-                valueType: formData.type,
-                isList: formData.isList
-            };
-            await createCustomerAttribute(tenantUri, payload);
+            await createCustomerAttribute(tenantUri, {
+                name: payload.name,
+                valueType: payload.type, // Map standardized 'type' to your API's 'valueType'
+                isList: payload.isList
+            });
             setIsDrawerOpen(false);
             await loadAttributes();
         } catch (err) {
@@ -148,11 +148,13 @@ export default function CustomerAttributes() {
                 Add Attribute
             </Button>
 
-            <CustomerAttributeDrawer
+            <DefinitionDrawer
                 open={isDrawerOpen}
+                title="Customer Attribute"
+                subtitle="DEFINE GLOBAL SCHEMA FIELD"
                 onClose={() => setIsDrawerOpen(false)}
-                onCreate={handleCreate}
-                loading={loading}
+                onRefresh={loadAttributes}
+                onSave={handleCreate}
             />
         </Box>
     );

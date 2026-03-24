@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar } from '@mui/material';
-import { Person, SupervisorAccount, Groups, Bolt } from '@mui/icons-material';
+import { Person, SupervisorAccount, Groups, Bolt, Inventory2 } from '@mui/icons-material';
 import { useNavigate, useParams, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -35,6 +35,12 @@ export default function Layout() {
             text: 'Actions',
             icon: <Bolt />,
             path: `/${tenantUri}/actions`,
+            visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
+        },
+        {
+            text: 'Items',
+            icon: <Inventory2 />,
+            path: `/${tenantUri}/items`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
         }
     ];

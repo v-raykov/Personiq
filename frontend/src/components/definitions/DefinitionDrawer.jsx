@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
     Drawer, Box, Typography, TextField, MenuItem,
-    Button, Stack, Switch, FormControlLabel, IconButton, Divider
+    Button, Stack, Switch, IconButton, Divider
 } from '@mui/material';
 import { Close, AddCircleOutline } from '@mui/icons-material';
-import { createActionAttribute } from '../../api';
 
-const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
+const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh }) => {
     const [name, setName] = useState('');
     const [type, setType] = useState('STRING');
     const [isList, setIsList] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    // Reset form on open/close
     useEffect(() => {
         if (!open) {
             setName('');
@@ -20,19 +20,15 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
         }
     }, [open]);
 
-    const handleSubmit = async () => {
+    const handleConfirm = async () => {
         if (!name) return;
         setLoading(true);
         try {
-            await createActionAttribute(tenantUri, action.id, {
-                name,
-                type,
-                isList
-            });
+            await onSave({ name, type, isList });
             onRefresh();
             onClose();
         } catch (err) {
-            console.error(err);
+            console.error("Save failed:", err);
         } finally {
             setLoading(false);
         }
@@ -48,8 +44,7 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
             '&.Mui-focused fieldset': { borderColor: '#6366f1' },
         },
         '& .MuiInputLabel-root': { color: '#94a3b8', fontWeight: 600 },
-        '& .MuiSvgIcon-root': { color: '#818cf8' },
-        '& .MuiMenuItem-root': { color: '#fff' }
+        '& .MuiSvgIcon-root': { color: '#818cf8' }
     };
 
     return (
@@ -72,10 +67,10 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                     <Box>
                         <Typography variant="h4" fontWeight={900} color="#fff">
-                            {action?.name?.toUpperCase() || 'ACTION'}
+                            {title?.toUpperCase() || 'DEFINITION'}
                         </Typography>
-                        <Typography variant="caption" color="#94a3b8" sx={{ fontSize: '0.9rem' }}>
-                            ADD NEW ATTRIBUTE
+                        <Typography variant="caption" color="#94a3b8" sx={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                            {subtitle}
                         </Typography>
                     </Box>
                     <IconButton onClick={onClose} sx={{ color: '#94a3b8' }}>
@@ -93,7 +88,7 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
                     <TextField
                         label="ATTRIBUTE NAME"
                         fullWidth
-                        placeholder="e.g. timeout_ms"
+                        placeholder="e.g. metadata_key"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         sx={inputStyles}
@@ -109,7 +104,7 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
                         SelectProps={{
                             MenuProps: {
                                 PaperProps: {
-                                    sx: { bgcolor: '#1e293b', color: '#fff', borderRadius: '12px' }
+                                    sx: { bgcolor: '#1e293b', color: '#fff', borderRadius: '12px', backgroundImage: 'none' }
                                 }
                             }
                         }}
@@ -150,7 +145,7 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
                         variant="contained"
                         fullWidth
                         disabled={loading || !name}
-                        onClick={handleSubmit}
+                        onClick={handleConfirm}
                         startIcon={<AddCircleOutline />}
                         sx={{
                             mt: 2,
@@ -172,4 +167,4 @@ const ActionDrawer = ({ open, tenantUri, action, onClose, onRefresh }) => {
     );
 };
 
-export default ActionDrawer;
+export default DefinitionDrawer;

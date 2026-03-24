@@ -21,7 +21,7 @@ export default function ProtectedRoute({children}) {
     }
 
     if (!user) {
-        return <Navigate to={`/${tenantUri}/auth`} replace/>;
+        return <Navigate to={`/${tenantUri}/login`} replace/>;
     }
 
     return children;
