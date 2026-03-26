@@ -110,3 +110,9 @@ export const getCustomerInventory = (tenantUri, customerId) =>
 
 export const grantItem = (tenantUri, itemId, customerId, attributes) =>
     api.post(`/${tenantUri}/admin/item/${itemId}/grant`, attributes, { params: { customerId } });
+
+export const getRules = (tenantUri) => api.get(`/${tenantUri}/admin/rule`);
+
+export const createRule = (tenantUri, data) => api.post(`/${tenantUri}/admin/rule`, data);
+
+export const deleteRule = (tenantUri, ruleId) => api.delete(`/${tenantUri}/admin/rule/${ruleId}`);

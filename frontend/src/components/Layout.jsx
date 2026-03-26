@@ -42,6 +42,12 @@ export default function Layout() {
             icon: <Inventory2 />,
             path: `/${tenantUri}/items`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
+        },
+        {
+            text: 'Rules',
+            icon: <Inventory2 />,
+            path: `/${tenantUri}/rules`,
+            visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
         }
     ];
 
