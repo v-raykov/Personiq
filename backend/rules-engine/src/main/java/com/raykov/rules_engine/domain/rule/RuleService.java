@@ -50,12 +50,12 @@ public class RuleService {
 
     public long createRule(CreateRuleRequest request) {
         try {
-            entityAttributeManager.getEntityById(request.triggerdByActionId(), EntityType.ACTION);
+            entityAttributeManager.getEntityById(request.triggeredByActionId(), EntityType.ACTION);
             RuleNode rule = parser.parse(request.ruleExpression());
 
             String expression = objectMapper.writeValueAsString(rule);
 
-            return ruleDao.createRule(request.triggerdByActionId(), expression);
+            return ruleDao.createRule(request.triggeredByActionId(), expression);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error encountered when parsing expression", e);
         }
