@@ -31,7 +31,7 @@ public class CustomerService {
     }
 
     public List<Attribute> getAttributes() {
-        return entityAttributeManager.getAllAttributesByEntityId(customerEntityId);
+        return entityAttributeManager.getAttributesByEntityId(customerEntityId);
     }
 
     public void deleteAttribute(long attributeId) {
@@ -39,7 +39,7 @@ public class CustomerService {
     }
 
     public List<AttributeValue> getAllAttributeValues(long customerId) {
-        return entityAttributeManager.getAllAttributeValuesByEntityInstanceId(customerId, EntityType.CUSTOMER);
+        return entityAttributeManager.getAttributeValuesByEntityInstanceId(customerId, EntityType.CUSTOMER);
     }
 
     public AttributeValue getAttributeValue(long attributeId, long customerId) {
@@ -56,7 +56,7 @@ public class CustomerService {
     }
 
     public Map<Long, List<AttributeValue>> getAllAttributeValuesByCustomerIds(List<Long> customerIds) {
-        Set<Long> attributeIds = entityAttributeManager.getAllAttributeIdsByEntityId(customerEntityId);
+        Set<Long> attributeIds = entityAttributeManager.getAttributeIdsByEntityId(customerEntityId);
         return entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, customerIds)
                                      .stream()
                                      .collect(Collectors.groupingBy(AttributeValue::entityInstanceId));

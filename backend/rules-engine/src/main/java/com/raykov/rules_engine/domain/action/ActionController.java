@@ -27,6 +27,11 @@ public class ActionController {
         return actionService.getActions();
     }
 
+    @GetMapping("/{actionId}")
+    public EntityAttributes getAction(@PathVariable Long actionId) {
+        return actionService.getAction(actionId);
+    }
+
     @DeleteMapping("/{actionId}")
     public void deleteAction(@PathVariable long actionId) {
         actionService.deleteAction(actionId);

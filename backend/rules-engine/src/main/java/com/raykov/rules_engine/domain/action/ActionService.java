@@ -68,13 +68,17 @@ public class ActionService {
     }
 
     public List<EntityAttributes> getActions() {
-        return entityAttributeManager.getAllEntitiesByType(EntityType.ACTION);
+        return entityAttributeManager.getEntityAttributesByType(EntityType.ACTION);
     }
 
     public List<ExecutedAction> getExecutedActions() {
-        return entityAttributeManager.getAllEntityInstancesByType(EntityType.ACTION)
+        return entityAttributeManager.getEntityInstancesByType(EntityType.ACTION)
                                      .stream()
                                      .map(ExecutedAction::fromEntityInstanceAttributes)
                                      .toList();
+    }
+
+    public EntityAttributes getAction(Long actionId) {
+        return entityAttributeManager.getEntityAttributesById(actionId, EntityType.ACTION);
     }
 }

@@ -60,7 +60,7 @@ public class EntityDao {
         jdbcTemplate.update(sql, params);
     }
 
-    public List<Entity> getAllByType(EntityType entityType) {
+    public List<Entity> getEntitiesByType(EntityType entityType) {
         String sql = """
                      SELECT id, name
                      FROM entity
@@ -73,7 +73,7 @@ public class EntityDao {
         return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(rs.getLong("id"), rs.getString("name"), entityType));
     }
 
-    public List<EntityInstance> getAllInstancesByType(EntityType entityType) {
+    public List<EntityInstance> getEntityInstancesByType(EntityType entityType) {
         String sql = """
                      SELECT ei.id, ei.entity_id, ei.target_instance_id
                      FROM entity_instance ei

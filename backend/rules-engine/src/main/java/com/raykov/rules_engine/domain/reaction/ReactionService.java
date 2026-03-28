@@ -75,7 +75,7 @@ public class ReactionService {
                                                   .map(ItemReaction::templateItemId)
                                                   .collect(Collectors.toSet());
 
-        Map<Long, Map<Long, String>> itemTemplates = entityAttributeManager.getAllEntityInstancesByIds(itemTemplatesIds, EntityType.ITEM)
+        Map<Long, Map<Long, String>> itemTemplates = entityAttributeManager.getEntityInstancesByIds(itemTemplatesIds, EntityType.ITEM)
                                                                            .stream()
                                                                            .collect(Collectors.toMap(
                                                                                    EntityInstanceAttributes::entityId,

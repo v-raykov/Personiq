@@ -33,7 +33,7 @@ public class ItemService {
     }
 
     public List<EntityAttributes> getItems() {
-        return entityAttributeManager.getAllEntitiesByType(EntityType.ITEM);
+        return entityAttributeManager.getEntityAttributesByType(EntityType.ITEM);
     }
 
     public void deleteItem(long itemId) {
@@ -53,15 +53,15 @@ public class ItemService {
     }
 
     public List<EntityInstanceAttributes> getItemsByCustomerId(long customerId) {
-        Set<Long> grantedItemsIds = entityAttributeManager.getAllEntityInstancesByTargetInstanceId(customerId, EntityType.ITEM)
+        Set<Long> grantedItemsIds = entityAttributeManager.getEntityInstancesByTargetInstanceId(customerId, EntityType.ITEM)
                                                           .stream()
                                                           .map(EntityInstance::id)
                                                           .collect(Collectors.toSet());
 
-        return entityAttributeManager.getAllEntityInstancesByIds(grantedItemsIds, EntityType.ITEM);
+        return entityAttributeManager.getEntityInstancesByIds(grantedItemsIds, EntityType.ITEM);
     }
 
     public EntityInstanceAttributes getGrantedItemById(long grantedItemId) {
-        return entityAttributeManager.getAllEntityInstancesByIds(Set.of(grantedItemId), EntityType.ITEM).getFirst();
+        return entityAttributeManager.getEntityInstancesByIds(Set.of(grantedItemId), EntityType.ITEM).getFirst();
     }
 }
