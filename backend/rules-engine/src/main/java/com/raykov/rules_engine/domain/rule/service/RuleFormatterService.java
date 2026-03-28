@@ -20,7 +20,7 @@ public class RuleFormatterService {
     public String formatExpression(RuleNode node) {
         return switch (node) {
             case LogicalRuleNode logical -> "(%s %s %s)".formatted(formatExpression(logical.left()),
-                                                                   logical.operation().name(),
+                                                                   logical.operation().getSign(),
                                                                    formatExpression(logical.right()));
 
             case ConditionalRuleNode cond -> "%s %s %s".formatted(resolveName(cond.attributeId()),
@@ -36,6 +36,6 @@ public class RuleFormatterService {
     private String resolveName(long id) {
         Attribute attribute = entityAttributeManager.getAttributeById(id);
         Entity entity = entityAttributeManager.getEntityById(attribute.entityId());
-        return "%s.%s.%d".formatted(entity.name(), attribute.name(), attribute.id());
+        return "%s.%s.%d".formatted(entity.type().name(), attribute.name(), attribute.id());
     }
 }

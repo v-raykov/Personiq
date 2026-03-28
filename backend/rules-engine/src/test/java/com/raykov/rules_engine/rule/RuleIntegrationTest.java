@@ -40,7 +40,7 @@ public class RuleIntegrationTest extends SpringBaseTest {
         // Then
         assertThat(rule.expression())
                 .matches("""
-                         \\(CUSTOMER\\.attribute[^ ]+ = 1 AND \\(CUSTOMER\\.attribute[^ ]+ > CUSTOMER\\.attribute[^ ]+ OR CUSTOMER\\.attribute[^ ]+ > 5\\)\\)\
+                         \\(CUSTOMER\\.attribute[^ ]+ = 1 & \\(CUSTOMER\\.attribute[^ ]+ > CUSTOMER\\.attribute[^ ]+ \\| CUSTOMER\\.attribute[^ ]+ > 5\\)\\)\
                          """);
         assertThat(rule.id()).isEqualTo(1L);
         assertThat(rule.triggerActionId()).isEqualTo(actionId);

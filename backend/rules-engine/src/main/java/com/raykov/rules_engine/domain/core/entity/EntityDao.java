@@ -70,7 +70,7 @@ public class EntityDao {
 
         SqlParameterSource params = new MapSqlParameterSource("entityType", entityType.name());
 
-        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(rs.getLong("id"), rs.getString("name")));
+        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(rs.getLong("id"), rs.getString("name"), entityType));
     }
 
     public List<EntityInstance> getAllInstancesByType(EntityType entityType) {
@@ -100,7 +100,7 @@ public class EntityDao {
                 .addValue("id", entityId)
                 .addValue("entityType", entityType.name());
 
-        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(entityId, rs.getString("name")))
+        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(entityId, rs.getString("name"), entityType))
                            .stream()
                            .findFirst();
     }
@@ -115,7 +115,7 @@ public class EntityDao {
 
         SqlParameterSource params = new MapSqlParameterSource("id", id);
 
-        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(id, rs.getString("name")))
+        return jdbcTemplate.query(sql, params, (rs, _) -> new Entity(id, rs.getString("name"), EntityType.valueOf(rs.getString("entity_type"))))
                            .stream()
                            .findFirst();
     }
