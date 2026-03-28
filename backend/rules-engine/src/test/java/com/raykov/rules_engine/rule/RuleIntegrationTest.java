@@ -2,6 +2,9 @@ package com.raykov.rules_engine.rule;
 
 import com.raykov.rules_engine.SpringBaseTest;
 import com.raykov.rules_engine.domain.action.ActionService;
+import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValue;
+import com.raykov.rules_engine.domain.core.attribute.model.AttributeValueType;
 import com.raykov.rules_engine.domain.reaction.model.CreateAttributeReactionRequest;
 import com.raykov.rules_engine.domain.reaction.model.CreateItemReactionRequest;
 import com.raykov.rules_engine.domain.rule.RuleController;
@@ -182,6 +185,12 @@ public class RuleIntegrationTest extends SpringBaseTest {
 
         // Then
         long grantedItemId = getItemsByCustomerId(customerId).getFirst().id();
+        assertThat(getGrantedItemById(grantedItemId))
+                .usingRecursiveComparison()
+                .ignoringFields("attributes.name")
+                .isEqualTo(new EntityInstanceAttributes(grantedItemId, itemId, customerId, List.of(
+                        new AttributeValue(grantedItemId, itemAttrId1, "", AttributeValueType.NUMBER, List.of("5"), false),
+                        new AttributeValue(grantedItemId, itemAttrId2, "", AttributeValueType.STRING, List.of("VALUE"), false))));
         assertThat(getAttributeValue(itemAttrId1, grantedItemId).values().getFirst()).isEqualTo("5");
         assertThat(getAttributeValue(itemAttrId2, grantedItemId).values().getFirst()).isEqualTo("VALUE");
 

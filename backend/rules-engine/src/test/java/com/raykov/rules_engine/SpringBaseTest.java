@@ -183,4 +183,8 @@ public abstract class SpringBaseTest {
     protected List<EntityInstanceAttributes> getItemsByCustomerId(long customerId) {
         return itemController.getItemsByCustomerId(customerId);
     }
+
+    protected EntityInstanceAttributes getGrantedItemById(long grantedItemId) {
+        return itemController.getGrantedItemById(grantedItemId);
+    }
 }

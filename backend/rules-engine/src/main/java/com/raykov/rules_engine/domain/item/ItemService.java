@@ -60,4 +60,8 @@ public class ItemService {
 
         return entityAttributeManager.getAllEntityInstancesByIds(grantedItemsIds, EntityType.ITEM);
     }
+
+    public EntityInstanceAttributes getGrantedItemById(long grantedItemId) {
+        return entityAttributeManager.getAllEntityInstancesByIds(Set.of(grantedItemId), EntityType.ITEM).getFirst();
+    }
 }

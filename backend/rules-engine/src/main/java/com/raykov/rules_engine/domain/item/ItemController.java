@@ -3,6 +3,7 @@ package com.raykov.rules_engine.domain.item;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
 import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
+import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,6 +54,11 @@ public class ItemController {
     @GetMapping("/customer/{customerId}")
     public List<EntityInstanceAttributes> getItemsByCustomerId(@PathVariable long customerId) {
         return itemService.getItemsByCustomerId(customerId);
+    }
+
+    @GetMapping("/granted/{grantedItemId}")
+    public EntityInstanceAttributes getGrantedItemById(@PathVariable long grantedItemId) {
+        return itemService.getGrantedItemById(grantedItemId);
     }
 
 }
