@@ -10,29 +10,28 @@ const RuleCard = ({ rule, actions, onDelete, tenantUri }) => {
     return (
         <Zoom in>
             <Card sx={{
-                p: 4, borderRadius: '32px', bgcolor: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.08)', position: 'relative',
-                display: 'inline-flex', flexDirection: 'column', minWidth: '280px', maxWidth: 'max-content'
+                p: 2.5,
+                borderRadius: '20px',
+                bgcolor: 'rgba(30, 41, 59, 0.7)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                width: 'max-content', // Shrink-wrap to the LogicTree width
+                height: 'auto',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
             }}>
-                <IconButton
-                    onClick={() => window.confirm("Delete rule?") && deleteRule(tenantUri, rule.id).then(onDelete)}
-                    sx={{ position: 'absolute', top: 20, right: 20, color: '#ef4444' }}
-                >
-                    <DeleteOutline fontSize="small" />
-                </IconButton>
-
-                <Stack direction="row" spacing={2.5} alignItems="center" sx={{ mb: 3, pr: 6 }}>
-                    <Box sx={{ p: 1.8, bgcolor: 'rgba(99, 102, 241, 0.12)', borderRadius: '18px' }}>
-                        <AccountTree sx={{ color: '#818cf8', fontSize: '2rem' }} />
-                    </Box>
-                    <Typography variant="h5" fontWeight={900} sx={{ color: '#fff' }}>
-                        {actionName.toUpperCase()}
-                    </Typography>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                        <AccountTree sx={{ color: '#818cf8', fontSize: '1.2rem' }} />
+                        <Typography variant="subtitle1" fontWeight={900} color="#fff">
+                            {actionName.toUpperCase()}
+                        </Typography>
+                    </Stack>
+                    <IconButton onClick={() => deleteRule(tenantUri, rule.id).then(onDelete)} size="small" sx={{ color: '#ef4444' }}>
+                        <DeleteOutline fontSize="small" />
+                    </IconButton>
                 </Stack>
-
-                <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)', mb: 3 }} />
-
-                {/* USE THE LOGIC TREE HERE */}
+                <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)', mb: 2 }} />
                 <LogicTree expr={rule.expression || rule.ruleExpression} />
             </Card>
         </Zoom>
