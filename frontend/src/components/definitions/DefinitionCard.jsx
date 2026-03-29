@@ -9,6 +9,7 @@ import {
 export default function DefinitionCard({
                                            index,
                                            data,
+                                           icon: IconComponent = Extension,
                                            onAddAttribute,
                                            onDeleteAttribute,
                                            onDeleteDefinition
@@ -33,7 +34,8 @@ export default function DefinitionCard({
                             p: 1.5, bgcolor: 'rgba(99, 102, 241, 0.12)',
                             borderRadius: '16px', display: 'flex', border: '1px solid rgba(129, 140, 248, 0.2)'
                         }}>
-                            <Extension sx={{ color: '#818cf8', fontSize: '1.8rem' }} />
+                            {/* Render the dynamic icon here */}
+                            <IconComponent sx={{ color: '#818cf8', fontSize: '1.8rem' }} />
                         </Box>
                         <Typography variant="h5" fontWeight={900} noWrap sx={{ color: '#fff' }}>
                             {data.name.toUpperCase()}
@@ -69,7 +71,14 @@ export default function DefinitionCard({
                                             </Typography>
                                         </Box>
                                     </Stack>
-                                    <IconButton size="small" onClick={() => onDeleteAttribute(attr.id)} sx={{ color: '#ef4444', p: 0.5 }}>
+                                    <IconButton
+                                        size="small"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDeleteAttribute(attr.id);
+                                        }}
+                                        sx={{ color: '#ef4444', p: 0.5 }}
+                                    >
                                         <HorizontalRule sx={{ fontSize: '1rem' }} />
                                     </IconButton>
                                 </Box>

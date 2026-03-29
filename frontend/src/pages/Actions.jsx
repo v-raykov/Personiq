@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Button, TextField, Grid, Drawer, Fade } from '@mui/material';
-import { Add } from '@mui/icons-material';
+import { Add, Bolt } from '@mui/icons-material';
 import { getActions, createAction, deleteAction, deleteActionAttribute, createActionAttribute } from '../api';
 import DefinitionCard from '../components/definitions/DefinitionCard';
 import DefinitionDrawer from '../components/definitions/DefinitionDrawer';
@@ -69,6 +69,7 @@ export default function Actions() {
                             <DefinitionCard
                                 index={index}
                                 data={action}
+                                icon={Bolt}
                                 onAddAttribute={setSelectedAction}
                                 onDeleteAttribute={(attrId) => deleteActionAttribute(tenantUri, attrId).then(loadActions)}
                                 onDeleteDefinition={(id) => {
