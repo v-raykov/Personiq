@@ -27,7 +27,6 @@ export default function Rules() {
     return (
         <Fade in timeout={800}>
             <Box sx={{ width: '100%', pb: 10, px: 2 }}>
-                {/* HEADER: Matched exactly to Actions page */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 6 }}>
                     <Box>
                         <Typography variant="h3" fontWeight={900} sx={{ color: '#fff', letterSpacing: -1.5 }}>

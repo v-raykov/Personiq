@@ -78,6 +78,8 @@ export const getBulkAttributes = (tenantUri, customerIds) =>
 export const getActions = (tenantUri) =>
     api.get(`${tenantUri}/admin/action`);
 
+export const getActionById = (tenantUri, actionId) => api.get(`/${tenantUri}/admin/action/${actionId}`);
+
 export const createAction = (tenantUri, name, attributes) =>
     api.post(`${tenantUri}/admin/action`, attributes, { params: { name } });
 
@@ -116,3 +118,11 @@ export const getRules = (tenantUri) => api.get(`/${tenantUri}/admin/rule`);
 export const createRule = (tenantUri, data) => api.post(`/${tenantUri}/admin/rule`, data);
 
 export const deleteRule = (tenantUri, ruleId) => api.delete(`/${tenantUri}/admin/rule/${ruleId}`);
+
+export const getReactions = (tenantUri) => api.get(`/${tenantUri}/admin/reaction`);
+
+export const createAttributeReaction = (tenantUri, data) => api.post(`/${tenantUri}/admin/reaction/attribute`, data);
+
+export const createItemReaction = (tenantUri, data) => api.post(`/${tenantUri}/admin/reaction/item`, data);
+
+export const getItemGrantedSchema = (tenantUri, templateId) => api.get(`/${tenantUri}/admin/item/granted/${templateId}`);

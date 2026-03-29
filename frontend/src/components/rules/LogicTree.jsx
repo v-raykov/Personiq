@@ -6,7 +6,6 @@ const LogicTree = ({ expr, isFirst = true }) => {
     if (!expr) return null;
     const trimmed = expr.trim();
 
-    // 1. Group Logic (AND/OR)
     if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
         const inner = trimmed.slice(1, -1);
         let braceDepth = 0;
@@ -31,13 +30,11 @@ const LogicTree = ({ expr, isFirst = true }) => {
             return (
                 <Box sx={{
                     position: 'relative',
-                    // Global shift to the right so the first vertical line is visible
-                    ml: isFirst ? 2 : 0,
+                    ml: isFirst ? 0 : 0,
                     pl: '48px',
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
-                    {/* The Operator Tag - Matches absolute positioning from image_4ac9c2.png */}
                     <Box sx={{
                         position: 'absolute',
                         left: -14,
@@ -60,7 +57,6 @@ const LogicTree = ({ expr, isFirst = true }) => {
                             position: 'relative',
                             display: 'flex',
                             alignItems: 'center',
-                            // VERTICAL LINE: Adjusted top to 0 so it connects to the tag above
                             '&::before': {
                                 content: '""',
                                 position: 'absolute',
@@ -71,7 +67,6 @@ const LogicTree = ({ expr, isFirst = true }) => {
                                 top: 0,
                                 bottom: i === children.length - 1 ? '50%' : 0
                             },
-                            // HORIZONTAL BRANCH
                             '&::after': {
                                 content: '""',
                                 position: 'absolute',
@@ -93,7 +88,6 @@ const LogicTree = ({ expr, isFirst = true }) => {
         }
     }
 
-    // 2. Condition Row (Pills)
     const match = trimmed.match(/^([^.]+)\.(.+)\.\d+\s*(=|>|<|!=|~|!~)\s*(.*)$/);
     if (!match) return <Typography sx={{ color: '#64748b' }}>{trimmed}</Typography>;
 
@@ -103,7 +97,6 @@ const LogicTree = ({ expr, isFirst = true }) => {
         const color = ent.toUpperCase() === 'CUSTOMER' ? '#6366f1' : '#10b981';
         let displayValue = name;
 
-        // Date Format: 13:48 28.03.2026
         if (isValue && /^\d{4}-\d{2}-\d{2}T/.test(name)) {
             displayValue = dayjs(name).format('HH:mm DD.MM.YYYY');
         }
@@ -119,7 +112,7 @@ const LogicTree = ({ expr, isFirst = true }) => {
                     <Typography variant="caption" sx={{
                         position: 'absolute', top: -8, right: 8, bgcolor: color,
                         color: '#fff', px: 0.7, py: 0.1, borderRadius: '3px',
-                        fontSize: '0.55rem', fontWeight: 900
+                        fontSize: '0.55rem', fontWeight: 900, whiteSpace: 'nowrap'
                     }}>
                         {ent}
                     </Typography>
@@ -135,7 +128,7 @@ const LogicTree = ({ expr, isFirst = true }) => {
     const opMap = { '=': 'is', '!=': 'is not', '~': 'contains', '!~': 'not contains' };
 
     return (
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ ml: isFirst ? 6 : 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ ml: isFirst ? 0 : 0 }}>
             {renderPill(entity, attrName)}
             <Typography sx={{ color: '#818cf8', fontSize: '0.85rem', fontWeight: 900, fontStyle: 'italic' }}>
                 {opMap[operator] || operator}
