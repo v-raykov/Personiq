@@ -26,8 +26,6 @@ export default function BuilderPill({
     const [dropMode, setDropMode] = useState(null);
     const entityColor = item.entity === 'CUSTOMER' ? '#6366f1' : '#10b981';
 
-    // --- LOGIC CHANGE START ---
-    // If it's a list, force "contains" and "not contains" only
     const listOps = [
         { value: '~', label: 'contains' },
         { value: '!~', label: 'not contains' }
@@ -36,7 +34,6 @@ export default function BuilderPill({
     const ops = item.isList
         ? listOps
         : (SUPPORTED_OPERATORS[item.valueType] || SUPPORTED_OPERATORS.STRING);
-    // --- LOGIC CHANGE END ---
 
     const isBoolean = item.valueType === 'BOOLEAN';
     const isNumber = item.valueType === 'NUMBER';
@@ -116,7 +113,6 @@ export default function BuilderPill({
                 </Typography>
 
                 <Select
-                    // Default to contains (~) for lists if no operator is stored
                     value={item.operator || (item.isList ? '~' : '=')}
                     onChange={(e) => onUpdate(item.id, { operator: e.target.value })}
                     sx={{

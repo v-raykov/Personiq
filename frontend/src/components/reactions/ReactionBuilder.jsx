@@ -1,24 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Drawer, Box, Typography, TextField, Button, MenuItem,
-    ToggleButton, ToggleButtonGroup, Stack, Autocomplete,
-    IconButton, InputAdornment, Divider, Fade
-} from '@mui/material';
-import { Link, LinkOff, Close, Save } from '@mui/icons-material';
-import {
-    createAttributeReaction, createItemReaction, getCustomerAttributes,
-    getActionById, getItemGrantedSchema, getItems
-} from '../../api';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Box, Button, Drawer, IconButton, Stack, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
+import {Close} from '@mui/icons-material';
+import {LocalizationProvider} from '@mui/x-date-pickers';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/en-gb';
 
-const OPERATIONS = [
-    "ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "INCREMENT",
-    "DECREMENT", "CONCATENATION", "SET_FALSE", "SET_TRUE", "FLIP",
-    "SET", "SET_NOW", "APPEND", "PREPEND", "REMOVE", "CLEAR"
-];
+import {createAttributeReaction, createItemReaction, getActionById, getCustomerAttributes, getItems} from '../../api';
+import AttributeUpdateForm from './create/AttributeUpdateForm.jsx';
+import ItemGrantForm from './create/ItemGrantForm.jsx';
 
 const NO_VALUE_OPS = ["INCREMENT", "DECREMENT", "SET_FALSE", "SET_TRUE", "FLIP", "SET_NOW", "CLEAR"];
 
-export default function ReactionBuilder({ open, onClose, onSave, fixedRuleId, tenantUri, ruleActionUri }) {
+export default function ReactionBuilder({open, onClose, onSave, fixedRuleId, tenantUri, ruleActionUri}) {
     const [type, setType] = useState('attribute');
     const [targetAttr, setTargetAttr] = useState(null);
     const [operation, setOperation] = useState('SET');
@@ -38,26 +31,42 @@ export default function ReactionBuilder({ open, onClose, onSave, fixedRuleId, te
             if (ruleActionUri) {
                 getActionById(tenantUri, ruleActionUri).then(res => setActionAttrs(res.data?.attributes || []));
             }
-            // Reset form on open
             setTargetAttr(null);
             setSelectedTemplate(null);
+            setOperation('SET');
+            setValue('');
+            setIsLinked(false);
+            setItemFields({});
         }
     }, [open, tenantUri, ruleActionUri]);
 
-    const handleTemplateChange = async (val) => {
-        setSelectedTemplate(val);
-        const res = await getItemGrantedSchema(tenantUri, val);
-        const fields = {};
-        (res.data || []).forEach(attr => fields[attr.id] = '');
-        setItemFields(fields);
-    };
+    const filteredOperations = useMemo(() => {
+        if (!targetAttr) return ["SET"];
+        const {valueType: vType, isList} = targetAttr;
+        if (isList) return ["SET", "APPEND", "PREPEND", "REMOVE", "CLEAR"];
+        const ops = ["SET"];
+        if (vType === 'NUMBER') ops.push("ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "INCREMENT", "DECREMENT");
+        if (vType === 'STRING') ops.push("CONCATENATION");
+        if (vType === 'BOOLEAN') ops.push("SET_FALSE", "SET_TRUE", "FLIP");
+        if (vType === 'DATE') ops.push("SET_NOW");
+        return ops;
+    }, [targetAttr]);
+
+    const availableLinks = useMemo(() => {
+        if (!targetAttr) return [];
+        const all = [
+            ...customerAttrs.map(a => ({...a, group: 'Customer', entity: 'CUSTOMER'})),
+            ...actionAttrs.map(a => ({...a, group: 'Action Payload', entity: 'ACTION'}))
+        ];
+        return all.filter(a => a.valueType === targetAttr.valueType && a.isList === targetAttr.isList);
+    }, [targetAttr, customerAttrs, actionAttrs]);
 
     const handleSave = async () => {
         try {
             if (type === 'attribute') {
                 await createAttributeReaction(tenantUri, {
                     ruleId: fixedRuleId,
-                    attributeId: targetAttr,
+                    attributeId: targetAttr.id,
                     operation,
                     value: NO_VALUE_OPS.includes(operation) ? null : value,
                     isValueAttributeId: isLinked
@@ -71,128 +80,105 @@ export default function ReactionBuilder({ open, onClose, onSave, fixedRuleId, te
             }
             onSave();
             onClose();
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const allAvailableAttributes = [
-        ...customerAttrs.map(a => ({ ...a, group: 'Customer' })),
-        ...actionAttrs.map(a => ({ ...a, group: 'Action Payload' }))
-    ];
-
     return (
-        <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 500, bgcolor: '#0f172a', p: 4, borderLeft: '1px solid rgba(255,255,255,0.1)' } }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography variant="h4" fontWeight={900} color="white">New Reaction</Typography>
-                <IconButton onClick={onClose} sx={{ color: 'white' }}><Close /></IconButton>
-            </Stack>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+            <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{
+                sx: {width: 500, bgcolor: '#0f172a', p: 4, borderLeft: '1px solid rgba(255,255,255,0.1)'}
+            }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography variant="h4" fontWeight={900} color="white">New Reaction</Typography>
+                    <IconButton onClick={onClose} sx={{color: 'white'}}><Close/></IconButton>
+                </Stack>
 
-            <ToggleButtonGroup
-                fullWidth
-                value={type}
-                exclusive
-                onChange={(e, v) => v && setType(v)}
-                sx={{ mb: 4, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: '12px', p: 0.5 }}
-            >
-                <ToggleButton value="attribute" sx={{ color: 'white', borderRadius: '10px !important', fontWeight: 800 }}>Update Attribute</ToggleButton>
-                <ToggleButton value="item" sx={{ color: 'white', borderRadius: '10px !important', fontWeight: 800 }}>Grant Item</ToggleButton>
-            </ToggleButtonGroup>
+                <ToggleButtonGroup
+                    fullWidth
+                    value={type}
+                    exclusive
+                    onChange={(e, v) => v && setType(v)}
+                    sx={{
+                        mb: 4,
+                        bgcolor: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '20px',
+                        p: 0.5,
+                        '& .MuiToggleButton-root': {
+                            color: '#94a3b8',
+                            border: 'none',
+                            borderRadius: '16px',
+                            px: 4,
+                            py: 1.5,
+                            textTransform: 'none',
+                            fontWeight: 800,
+                            fontSize: '0.95rem',
+                            transition: '0.3s',
+                            '&.Mui-selected': {
+                                bgcolor: '#6366f1',
+                                color: '#fff',
+                                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)',
+                                '&:hover': {bgcolor: '#4f46e5'}
+                            },
+                            '&:hover': {
+                                bgcolor: 'rgba(255,255,255,0.08)',
+                                color: '#fff'
+                            }
+                        }
+                    }}
+                >
+                    <ToggleButton value="attribute">
+                        Update Attribute
+                    </ToggleButton>
+                    <ToggleButton value="item">
+                        Grant Item
+                    </ToggleButton>
+                </ToggleButtonGroup>
 
-            <Stack spacing={3}>
-                {type === 'attribute' ? (
-                    <>
-                        <Autocomplete
-                            options={customerAttrs}
-                            getOptionLabel={(option) => option.name}
-                            onChange={(e, v) => setTargetAttr(v?.id)}
-                            renderInput={(params) => <TextField {...params} label="Select Target Attribute" required />}
+                <Box sx={{flexGrow: 1}}>
+                    {type === 'attribute' ? (
+                        <AttributeUpdateForm
+                            customerAttrs={customerAttrs}
+                            targetAttr={targetAttr}
+                            setTargetAttr={setTargetAttr}
+                            operation={operation}
+                            setOperation={setOperation}
+                            value={value}
+                            setValue={setValue}
+                            isLinked={isLinked}
+                            setIsLinked={setIsLinked}
+                            availableLinks={availableLinks}
+                            filteredOperations={filteredOperations}
                         />
-
-                        {targetAttr && (
-                            <Fade in>
-                                <Stack spacing={3}>
-                                    <TextField
-                                        select
-                                        label="Operation"
-                                        value={operation}
-                                        onChange={(e) => setOperation(e.target.value)}
-                                    >
-                                        {OPERATIONS.map(op => <MenuItem key={op} value={op}>{op}</MenuItem>)}
-                                    </TextField>
-
-                                    {!NO_VALUE_OPS.includes(operation) && (
-                                        isLinked ? (
-                                            <Autocomplete
-                                                options={allAvailableAttributes}
-                                                groupBy={(option) => option.group}
-                                                getOptionLabel={(option) => option.name}
-                                                onChange={(e, v) => setValue(v?.id?.toString())}
-                                                renderInput={(params) => (
-                                                    <TextField {...params} label="Source Attribute"
-                                                               InputProps={{ ...params.InputProps,
-                                                                   endAdornment: <InputAdornment position="end"><IconButton onClick={() => setIsLinked(false)}><LinkOff color="primary"/></IconButton></InputAdornment>
-                                                               }}
-                                                    />
-                                                )}
-                                            />
-                                        ) : (
-                                            <TextField
-                                                fullWidth
-                                                label="Value"
-                                                value={value}
-                                                onChange={(e) => setValue(e.target.value)}
-                                                InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <IconButton onClick={() => setIsLinked(true)}><Link /></IconButton>
-                                                        </InputAdornment>
-                                                    )
-                                                }}
-                                            />
-                                        )
-                                    )}
-                                </Stack>
-                            </Fade>
-                        )}
-                    </>
-                ) : (
-                    <>
-                        <Autocomplete
-                            options={items}
-                            getOptionLabel={(option) => option.name || `Item #${option.id}`}
-                            onChange={(e, v) => handleTemplateChange(v?.id)}
-                            renderInput={(params) => <TextField {...params} label="Select Item to Grant" required />}
+                    ) : (
+                        <ItemGrantForm
+                            items={items}
+                            itemFields={itemFields}
+                            setItemFields={setItemFields}
+                            selectedTemplate={selectedTemplate}
+                            setSelectedTemplate={setSelectedTemplate}
                         />
-
-                        {selectedTemplate && (
-                            <Box sx={{ mt: 2, p: 3, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                <Typography variant="caption" sx={{ color: '#6366f1', fontWeight: 900, mb: 3, display: 'block', letterSpacing: 1 }}>CONFIGURE GRANTED ATTRIBUTES</Typography>
-                                <Stack spacing={2}>
-                                    {Object.keys(itemFields).map(attrId => (
-                                        <TextField
-                                            key={attrId}
-                                            fullWidth
-                                            size="small"
-                                            label={`Attribute ID: ${attrId}`}
-                                            value={itemFields[attrId]}
-                                            onChange={(e) => setItemFields({ ...itemFields, [attrId]: e.target.value })}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Box>
-                        )}
-                    </>
-                )}
+                    )}
+                </Box>
 
                 <Button
                     fullWidth
                     variant="contained"
                     disabled={type === 'attribute' ? !targetAttr : !selectedTemplate}
                     onClick={handleSave}
-                    sx={{ py: 2, borderRadius: '12px', fontWeight: 800, background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)' }}
+                    sx={{
+                        py: 2,
+                        mt: 4,
+                        borderRadius: '12px',
+                        fontWeight: 800,
+                        background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)'
+                    }}
                 >
                     Create Reaction
                 </Button>
-            </Stack>
-        </Drawer>
+            </Drawer>
+        </LocalizationProvider>
     );
 }

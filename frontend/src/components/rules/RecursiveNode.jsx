@@ -40,7 +40,6 @@ export default function RecursiveNode({
             display: 'flex',
             flexDirection: 'column'
         }}>
-            {/* The Clickable Toggle for AND/OR */}
             {showLogic && (
                 <Box
                     onClick={() => onUpdate(node.id, {operator: node.operator === 'AND' ? 'OR' : 'AND'})}

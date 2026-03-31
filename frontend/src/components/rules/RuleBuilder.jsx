@@ -20,7 +20,6 @@ const fieldStyles = {
     }
 };
 
-// The segmented meta row for the sidebar
 const SidebarMeta = ({ entity, type, isList, color }) => (
     <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
         <Typography sx={{ color: color, fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase' }}>
@@ -196,7 +195,6 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
                 </IconButton>
 
                 <DialogContent sx={{ p: 0, display: 'flex', overflow: 'hidden' }}>
-                    {/* Left Sidebar: Attributes */}
                     <Box sx={{ width: 320, borderRight: '1px solid rgba(255,255,255,0.05)', p: 3, bgcolor: 'rgba(0,0,0,0.2)', overflowY: 'auto' }}>
                         <Typography sx={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', mb: 2, letterSpacing: '0.05em' }}>
                             Trigger Action
