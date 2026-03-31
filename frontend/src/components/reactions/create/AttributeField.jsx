@@ -31,29 +31,37 @@ export default function AttributeField({label, vType, value, onChange, endAdornm
                 fullWidth
                 label={label}
                 value={value === 'true' ? 'True' : 'False'}
-                InputLabelProps={{shrink: true}}
-                sx={{
-                    ...fieldStyles,
-                    '& .MuiOutlinedInput-root': {...fieldStyles['& .MuiOutlinedInput-root'], cursor: 'pointer'}
-                }}
-                InputProps={{
-                    readOnly: true,
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <Switch
-                                checked={value === 'true'}
-                                onChange={(e) => onChange(String(e.target.checked))}
-                                sx={{
-                                    ml: -1,
-                                    '& .MuiSwitch-switchBase.Mui-checked': {color: '#6366f1'},
-                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {bgcolor: '#6366f1'}
-                                }}
-                            />
-                        </InputAdornment>
-                    ),
-                    endAdornment: endAdornment &&
-                        <InputAdornment position="end" sx={{mr: 1}}>{endAdornment}</InputAdornment>
-                }}
+                slotProps={{
+                    inputLabel: {
+                        shrink: true
+                    },
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Switch
+                                    checked={value === 'true'}
+                                    onChange={(e) => onChange(String(e.target.checked))}
+                                    sx={{
+                                        ml: -1,
+                                        '& .MuiSwitch-switchBase.Mui-checked': {color: '#6366f1'},
+                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {bgcolor: '#6366f1'}
+                                    }}
+                                />
+                            </InputAdornment>
+                        ),
+                        endAdornment: endAdornment && (
+                            <InputAdornment position="end" sx={{mr: 1}}>
+                                {endAdornment}
+                            </InputAdornment>
+                        ),
+                    },
+                    htmlInput: {
+                        readOnly: true,
+                    }
+                }} sx={{
+                ...fieldStyles,
+                '& .MuiOutlinedInput-root': {...fieldStyles['& .MuiOutlinedInput-root'], cursor: 'pointer'}
+            }}
                 onClick={() => onChange(value === 'true' ? 'false' : 'true')}
                 onFocus={(e) => e.target.blur()}
             />
@@ -120,15 +128,23 @@ export default function AttributeField({label, vType, value, onChange, endAdornm
                 }
             }}
             sx={fieldStyles}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start" sx={{color: '#475569', opacity: 0.6}}>
-                        {vType === 'NUMBER' ? <Numbers/> : <Abc sx={{fontSize: '1.5rem'}}/>}
-                    </InputAdornment>
-                ),
-                endAdornment: endAdornment &&
-                    <InputAdornment position="end" sx={{mr: 1}}>{endAdornment}</InputAdornment>,
-                sx: {fontSize: '1.1rem', fontFamily: vType === 'NUMBER' ? 'monospace' : 'inherit'}
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start" sx={{color: '#475569', opacity: 0.6}}>
+                            {vType === 'NUMBER' ? <Numbers/> : <Abc sx={{fontSize: '1.5rem'}}/>}
+                        </InputAdornment>
+                    ),
+                    endAdornment: endAdornment && (
+                        <InputAdornment position="end" sx={{mr: 1}}>
+                            {endAdornment}
+                        </InputAdornment>
+                    ),
+                    sx: {
+                        fontSize: '1.1rem',
+                        fontFamily: vType === 'NUMBER' ? 'monospace' : 'inherit'
+                    }
+                }
             }}
         />
     );

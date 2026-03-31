@@ -1,5 +1,5 @@
 import {Navigate, useParams} from 'react-router-dom';
-import {useAuth} from '../hooks/useAuth';
+import {useAuth} from '@/hooks/useAuth';
 import {Box, CircularProgress} from '@mui/material';
 
 export default function ProtectedRoute({children}) {

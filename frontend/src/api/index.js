@@ -81,7 +81,7 @@ export const getActions = (tenantUri) =>
 export const getActionById = (tenantUri, actionId) => api.get(`/${tenantUri}/admin/action/${actionId}`);
 
 export const createAction = (tenantUri, name, attributes) =>
-    api.post(`${tenantUri}/admin/action`, attributes, { params: { name } });
+    api.post(`${tenantUri}/admin/action`, attributes, {params: {name}});
 
 export const deleteAction = (tenantUri, actionId) =>
     api.delete(`${tenantUri}/admin/action/${actionId}`);
@@ -90,13 +90,13 @@ export const createActionAttribute = (tenantUri, actionId, request) =>
     api.put(`${tenantUri}/admin/action/${actionId}`, request);
 
 export const deleteActionAttribute = (tenantUri, attributeId) =>
-    api.delete(`${tenantUri}/admin/action`, { params: { attributeId } });
+    api.delete(`${tenantUri}/admin/action`, {params: {attributeId}});
 
 export const getItems = (tenantUri) =>
     api.get(`/${tenantUri}/admin/item`);
 
 export const createItem = (tenantUri, name, attributes) =>
-    api.post(`/${tenantUri}/admin/item`, attributes, { params: { name } });
+    api.post(`/${tenantUri}/admin/item`, attributes, {params: {name}});
 
 export const deleteItem = (tenantUri, itemId) =>
     api.delete(`/${tenantUri}/admin/item/${itemId}`);
@@ -105,13 +105,13 @@ export const createItemAttribute = (tenantUri, itemId, attrRequest) =>
     api.put(`/${tenantUri}/admin/item/${itemId}`, attrRequest);
 
 export const deleteItemAttribute = (tenantUri, attributeId) =>
-    api.delete(`/${tenantUri}/admin/item`, { params: { attributeId } });
+    api.delete(`/${tenantUri}/admin/item`, {params: {attributeId}});
 
 export const getCustomerInventory = (tenantUri, customerId) =>
     api.get(`/${tenantUri}/admin/item/customer/${customerId}`);
 
 export const grantItem = (tenantUri, itemId, customerId, attributes) =>
-    api.post(`/${tenantUri}/admin/item/${itemId}/grant`, attributes, { params: { customerId } });
+    api.post(`/${tenantUri}/admin/item/${itemId}/grant`, attributes, {params: {customerId}});
 
 export const getRules = (tenantUri) => api.get(`/${tenantUri}/admin/rule`);
 

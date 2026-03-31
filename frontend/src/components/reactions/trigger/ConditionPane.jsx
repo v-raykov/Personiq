@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Typography} from '@mui/material';
-import LogicTree from '../../rules/LogicTree';
+import LogicTree from '@/components/rules/LogicTree';
 
 export default function ConditionPane({expression}) {
     return (

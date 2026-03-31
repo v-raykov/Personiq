@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import {
-    Box, Typography, ToggleButton, ToggleButtonGroup,
-    Fade, Stack
-} from '@mui/material';
-import CustomerAttributes from '../../pages/CustomerAttributes';
-import CustomerAttributesValues from '../../pages/CustomerAttributesValues';
+import React, {useState} from 'react';
+import {useParams} from 'react-router-dom';
+import {Box, Fade, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
+import CustomerAttributes from '@/pages/CustomerAttributes';
+import CustomerAttributesValues from '@/pages/CustomerAttributesValues';
 
 const CustomerWrapper = () => {
-    const { tenantUri } = useParams();
+    const {tenantUri} = useParams();
     const [view, setView] = useState('values');
 
     const handleViewChange = (event, nextView) => {
@@ -19,14 +16,14 @@ const CustomerWrapper = () => {
 
     return (
         <Fade in timeout={800}>
-            <Box sx={{ maxWidth: 1300, mx: 'auto', p: 4 }}>
+            <Box sx={{maxWidth: 1300, mx: 'auto', p: 4}}>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 6 }}>
+                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 6}}>
                     <Box>
-                        <Typography variant="h3" fontWeight={900} sx={{ color: '#fff', letterSpacing: -1.5 }}>
+                        <Typography variant="h3" fontWeight={900} sx={{color: '#fff', letterSpacing: -1.5}}>
                             Customer Attributes
                         </Typography>
-                        <Typography variant="h6" sx={{ color: '#94a3b8', mt: 1, fontWeight: 400 }}>
+                        <Typography variant="h6" sx={{color: '#94a3b8', mt: 1, fontWeight: 400}}>
                             Manage global definitions and values for {tenantUri?.replace('-', ' ')} customers
                         </Typography>
                     </Box>
@@ -54,7 +51,7 @@ const CustomerWrapper = () => {
                                     bgcolor: '#6366f1',
                                     color: '#fff',
                                     boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)',
-                                    '&:hover': { bgcolor: '#4f46e5' }
+                                    '&:hover': {bgcolor: '#4f46e5'}
                                 },
                                 '&:hover': {
                                     bgcolor: 'rgba(255,255,255,0.08)',
@@ -74,9 +71,9 @@ const CustomerWrapper = () => {
 
                 <Box>
                     {view === 'values' ? (
-                        <CustomerAttributesValues />
+                        <CustomerAttributesValues/>
                     ) : (
-                        <CustomerAttributes />
+                        <CustomerAttributes/>
                     )}
                 </Box>
             </Box>

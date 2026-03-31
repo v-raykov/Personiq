@@ -1,48 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Dialog, DialogContent, Box, Typography, Stack,
-    TextField, MenuItem, Button, IconButton
-} from '@mui/material';
-import { AccountTree, AddCircleOutline, Close, Save } from '@mui/icons-material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { getActions, getCustomerAttributes, createRule } from '../../api';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, Dialog, DialogContent, IconButton, MenuItem, Stack, TextField, Typography} from '@mui/material';
+import {AccountTree, AddCircleOutline, Close, Save} from '@mui/icons-material';
+import {LocalizationProvider} from '@mui/x-date-pickers';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
+import {createRule, getActions, getCustomerAttributes} from '@/api';
 import RecursiveNode from './RecursiveNode';
-import { getInitialValue, cleanTree, generateExpression } from './operators';
+import {cleanTree, generateExpression, getInitialValue} from './operators';
 
 const fieldStyles = {
     '& .MuiOutlinedInput-root': {
         color: '#fff',
         borderRadius: '12px',
         bgcolor: 'rgba(255,255,255,0.05)',
-        '& fieldset': { borderColor: 'rgba(255,255,255,0.1)' },
-        '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
+        '& fieldset': {borderColor: 'rgba(255,255,255,0.1)'},
+        '&:hover fieldset': {borderColor: 'rgba(255,255,255,0.2)'},
     }
 };
 
-const SidebarMeta = ({ entity, type, isList, color }) => (
-    <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
-        <Typography sx={{ color: color, fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase' }}>
+const SidebarMeta = ({entity, type, isList, color}) => (
+    <Stack direction="row" alignItems="center" spacing={0.5} sx={{mt: 0.5}}>
+        <Typography sx={{color: color, fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase'}}>
             {entity}
         </Typography>
-        <Typography sx={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.6rem', fontWeight: 900 }}>•</Typography>
-        <Typography sx={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', fontWeight: 900 }}>
+        <Typography sx={{color: 'rgba(255,255,255,0.2)', fontSize: '0.6rem', fontWeight: 900}}>•</Typography>
+        <Typography sx={{color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', fontWeight: 900}}>
             {type}
         </Typography>
         {isList && (
             <>
-                <Typography sx={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.6rem', fontWeight: 900 }}>•</Typography>
-                <Typography sx={{ color: '#f59e0b', fontSize: '0.6rem', fontWeight: 900 }}>LIST</Typography>
+                <Typography sx={{color: 'rgba(255,255,255,0.2)', fontSize: '0.6rem', fontWeight: 900}}>•</Typography>
+                <Typography sx={{color: '#f59e0b', fontSize: '0.6rem', fontWeight: 900}}>LIST</Typography>
             </>
         )}
     </Stack>
 );
 
-export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
+export default function RuleBuilder({open, onClose, onSave, tenantUri}) {
     const [actions, setActions] = useState([]);
     const [customerAttributes, setCustomerAttributes] = useState([]);
     const [selectedActionId, setSelectedActionId] = useState('');
-    const [tree, setTree] = useState({ id: 'root', type: 'group', operator: 'AND', children: [] });
+    const [tree, setTree] = useState({id: 'root', type: 'group', operator: 'AND', children: []});
     const [draggingId, setDraggingId] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -57,7 +54,7 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
     }, [open, tenantUri]);
 
     useEffect(() => {
-        setTree({ id: 'root', type: 'group', operator: 'AND', children: [] });
+        setTree({id: 'root', type: 'group', operator: 'AND', children: []});
     }, [selectedActionId]);
 
     const currentAction = actions.find(a => a.id === selectedActionId);
@@ -136,31 +133,31 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
                     }
                     return [...acc, node, newItem];
                 }
-                if (node.children) return [...acc, { ...node, children: insertNode(node.children) }];
+                if (node.children) return [...acc, {...node, children: insertNode(node.children)}];
                 return [...acc, node];
             }, []);
         };
 
         const updated = targetId === 'root' ? [...currentChildren, newItem] : insertNode(currentChildren);
-        setTree({ ...tree, children: cleanTree(updated) });
+        setTree({...tree, children: cleanTree(updated)});
         setDraggingId(null);
     };
 
     const modifyNode = (id, data) => {
         const rec = (node) => {
-            if (node.id === id) return { ...node, ...data };
-            if (node.children) return { ...node, children: node.children.map(rec) };
+            if (node.id === id) return {...node, ...data};
+            if (node.children) return {...node, children: node.children.map(rec)};
             return node;
         };
-        if (id === 'root') setTree(prev => ({ ...prev, ...data }));
-        else setTree(prev => ({ ...prev, children: prev.children.map(rec) }));
+        if (id === 'root') setTree(prev => ({...prev, ...data}));
+        else setTree(prev => ({...prev, children: prev.children.map(rec)}));
     };
 
     const deleteNode = (id) => {
         const removeRec = (list) => list
             .filter(n => n.id !== id)
-            .map(n => n.children ? { ...n, children: removeRec(n.children) } : n);
-        setTree(prev => ({ ...prev, children: cleanTree(removeRec(prev.children)) }));
+            .map(n => n.children ? {...n, children: removeRec(n.children)} : n);
+        setTree(prev => ({...prev, children: cleanTree(removeRec(prev.children))}));
     };
 
     const handleSave = async () => {
@@ -188,15 +185,38 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
                 onClose={onClose}
                 maxWidth="lg"
                 fullWidth
-                PaperProps={{ sx: { bgcolor: '#0f172a', borderRadius: '32px', height: '90vh', backgroundImage: 'none' } }}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            bgcolor: '#0f172a',
+                            borderRadius: '32px',
+                            height: '90vh',
+                            backgroundImage: 'none'
+                        }
+                    }
+                }}
             >
-                <IconButton onClick={onClose} sx={{ position: 'absolute', right: 24, top: 24, color: 'rgba(255,255,255,0.3)', zIndex: 10 }}>
-                    <Close />
+                <IconButton onClick={onClose}
+                            sx={{position: 'absolute', right: 24, top: 24, color: 'rgba(255,255,255,0.3)', zIndex: 10}}>
+                    <Close/>
                 </IconButton>
 
-                <DialogContent sx={{ p: 0, display: 'flex', overflow: 'hidden' }}>
-                    <Box sx={{ width: 320, borderRight: '1px solid rgba(255,255,255,0.05)', p: 3, bgcolor: 'rgba(0,0,0,0.2)', overflowY: 'auto' }}>
-                        <Typography sx={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', mb: 2, letterSpacing: '0.05em' }}>
+                <DialogContent sx={{p: 0, display: 'flex', overflow: 'hidden'}}>
+                    <Box sx={{
+                        width: 320,
+                        borderRight: '1px solid rgba(255,255,255,0.05)',
+                        p: 3,
+                        bgcolor: 'rgba(0,0,0,0.2)',
+                        overflowY: 'auto'
+                    }}>
+                        <Typography sx={{
+                            color: '#94a3b8',
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            mb: 2,
+                            letterSpacing: '0.05em'
+                        }}>
                             Trigger Action
                         </Typography>
                         <TextField
@@ -211,8 +231,14 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
                         </TextField>
 
                         {selectedActionId && (
-                            <Stack spacing={1.5} sx={{ mt: 4 }}>
-                                <Typography sx={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <Stack spacing={1.5} sx={{mt: 4}}>
+                                <Typography sx={{
+                                    color: '#94a3b8',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 800,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em'
+                                }}>
                                     Available Attributes
                                 </Typography>
                                 {allAttributes.map((attr, idx) => (
@@ -229,37 +255,63 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
                                             p: 1.5, bgcolor: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px',
                                             border: '1px solid rgba(255,255,255,0.06)', cursor: 'grab',
                                             transition: 'all 0.2s',
-                                            '&:hover': { borderColor: attr.color, bgcolor: 'rgba(255,255,255,0.06)' }
+                                            '&:hover': {borderColor: attr.color, bgcolor: 'rgba(255,255,255,0.06)'}
                                         }}
                                     >
-                                        <Typography sx={{ color: '#f8fafc', fontSize: '0.8rem', fontWeight: 600 }}>{attr.name}</Typography>
-                                        <SidebarMeta entity={attr.entity} type={attr.valueType} isList={attr.isList} color={attr.color} />
+                                        <Typography sx={{
+                                            color: '#f8fafc',
+                                            fontSize: '0.8rem',
+                                            fontWeight: 600
+                                        }}>{attr.name}</Typography>
+                                        <SidebarMeta entity={attr.entity} type={attr.valueType} isList={attr.isList}
+                                                     color={attr.color}/>
                                     </Box>
                                 ))}
                             </Stack>
                         )}
                     </Box>
 
-                    {/* Main Canvas */}
                     <Box
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDrop(e, 'root')}
-                        sx={{ flexGrow: 1, p: 4, bgcolor: '#0b1120', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                        sx={{
+                            flexGrow: 1,
+                            p: 4,
+                            bgcolor: '#0b1120',
+                            overflowY: 'auto',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center'
+                        }}
                     >
-                        <Box sx={{ width: '100%', maxWidth: '1000px' }}>
-                            <Box sx={{ p: 4, borderRadius: '32px', bgcolor: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', mb: 3 }}>
-                                <Stack direction="row" spacing={2.5} alignItems="center" sx={{ mb: 3 }}>
-                                    <AccountTree sx={{ color: '#818cf8', fontSize: '2rem' }} />
-                                    <Typography variant="h5" fontWeight={900} sx={{ color: '#fff', letterSpacing: '-0.02em' }}>
+                        <Box sx={{width: '100%', maxWidth: '1000px'}}>
+                            <Box sx={{
+                                p: 4,
+                                borderRadius: '32px',
+                                bgcolor: 'rgba(255, 255, 255, 0.02)',
+                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                mb: 3
+                            }}>
+                                <Stack direction="row" spacing={2.5} alignItems="center" sx={{mb: 3}}>
+                                    <AccountTree sx={{color: '#818cf8', fontSize: '2rem'}}/>
+                                    <Typography variant="h5" fontWeight={900}
+                                                sx={{color: '#fff', letterSpacing: '-0.02em'}}>
                                         {currentAction?.name.toUpperCase() || 'SELECT AN ACTION'}
                                     </Typography>
                                 </Stack>
 
-                                <Box sx={{ minHeight: '300px', py: 2 }}>
+                                <Box sx={{minHeight: '300px', py: 2}}>
                                     {tree.children.length === 0 ? (
-                                        <Box sx={{ border: '2px dashed rgba(255,255,255,0.05)', borderRadius: '24px', p: 10, textAlign: 'center', color: 'rgba(255,255,255,0.2)' }}>
-                                            <AddCircleOutline sx={{ fontSize: '3.5rem', mb: 2, opacity: 0.5 }} />
-                                            <Typography variant="h6" fontWeight={500}>Drag and drop attributes to build logic</Typography>
+                                        <Box sx={{
+                                            border: '2px dashed rgba(255,255,255,0.05)',
+                                            borderRadius: '24px',
+                                            p: 10,
+                                            textAlign: 'center',
+                                            color: 'rgba(255,255,255,0.2)'
+                                        }}>
+                                            <AddCircleOutline sx={{fontSize: '3.5rem', mb: 2, opacity: 0.5}}/>
+                                            <Typography variant="h6" fontWeight={500}>Drag and drop attributes to build
+                                                logic</Typography>
                                         </Box>
                                     ) : (
                                         <RecursiveNode
@@ -280,11 +332,11 @@ export default function RuleBuilder({ open, onClose, onSave, tenantUri }) {
                                 fullWidth
                                 disabled={tree.children.length === 0 || isSaving}
                                 onClick={handleSave}
-                                startIcon={<Save />}
+                                startIcon={<Save/>}
                                 sx={{
                                     borderRadius: '16px', bgcolor: '#6366f1', py: 2, fontWeight: 800, fontSize: '1rem',
                                     boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
-                                    '&:hover': { bgcolor: '#4f46e5' }
+                                    '&:hover': {bgcolor: '#4f46e5'}
                                 }}
                             >
                                 {isSaving ? 'Saving...' : 'Save Rule'}

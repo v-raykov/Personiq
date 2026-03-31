@@ -59,8 +59,12 @@ export default function ItemGrantForm({
                         {...params}
                         label="Select Item to Grant"
                         sx={fieldStyles}
-                        inputProps={{...params.inputProps, readOnly: true}}
-                    />
+                        slotProps={{
+                            htmlInput: {
+                                ...params.inputProps,
+                                readOnly: true,
+                            },
+                        }}/>
                 )}
             />
 

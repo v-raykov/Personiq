@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Drawer, Box, Typography, TextField, MenuItem,
-    Button, Stack, Switch, IconButton, Divider
-} from '@mui/material';
-import { Close, AddCircleOutline } from '@mui/icons-material';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, Divider, Drawer, IconButton, MenuItem, Stack, Switch, TextField, Typography} from '@mui/material';
+import {AddCircleOutline, Close} from '@mui/icons-material';
 
-const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh }) => {
+const DefinitionDrawer = ({open, title, subtitle, onSave, onClose, onRefresh}) => {
     const [name, setName] = useState('');
     const [type, setType] = useState('STRING');
     const [isList, setIsList] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Reset form on open/close
     useEffect(() => {
         if (!open) {
             setName('');
@@ -24,7 +20,7 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
         if (!name) return;
         setLoading(true);
         try {
-            await onSave({ name, type, isList });
+            await onSave({name, type, isList});
             onRefresh();
             onClose();
         } catch (err) {
@@ -39,12 +35,12 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
             color: '#fff',
             borderRadius: '20px',
             bgcolor: 'rgba(255,255,255,0.02)',
-            '& fieldset': { borderColor: 'rgba(255,255,255,0.05)' },
-            '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.1)' },
-            '&.Mui-focused fieldset': { borderColor: '#6366f1' },
+            '& fieldset': {borderColor: 'rgba(255,255,255,0.05)'},
+            '&:hover fieldset': {borderColor: 'rgba(255,255,255,0.1)'},
+            '&.Mui-focused fieldset': {borderColor: '#6366f1'},
         },
-        '& .MuiInputLabel-root': { color: '#94a3b8', fontWeight: 600 },
-        '& .MuiSvgIcon-root': { color: '#818cf8' }
+        '& .MuiInputLabel-root': {color: '#94a3b8', fontWeight: 600},
+        '& .MuiSvgIcon-root': {color: '#818cf8'}
     };
 
     return (
@@ -52,35 +48,38 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
             anchor="right"
             open={open}
             onClose={onClose}
-            transitionDuration={{ enter: 400, exit: 300 }}
-            PaperProps={{
-                sx: {
-                    width: { xs: '100%', sm: 550 },
-                    bgcolor: '#0f172a',
-                    backgroundImage: 'none',
-                    borderLeft: '1px solid rgba(255,255,255,0.1)',
-                    p: 4
+            transitionDuration={{enter: 400, exit: 300}}
+            slotProps={{
+                paper: {
+                    sx: {
+                        width: {xs: '100%', sm: 550},
+                        bgcolor: '#0f172a',
+                        backgroundImage: 'none',
+                        borderLeft: '1px solid rgba(255,255,255,0.1)',
+                        p: 4
+                    }
                 }
             }}
         >
-            <Box sx={{ opacity: open ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Box sx={{opacity: open ? 1 : 0, transition: 'opacity 0.3s ease'}}>
+                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4}}>
                     <Box>
                         <Typography variant="h4" fontWeight={900} color="#fff">
                             {title?.toUpperCase() || 'DEFINITION'}
                         </Typography>
-                        <Typography variant="caption" color="#94a3b8" sx={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                        <Typography variant="caption" color="#94a3b8"
+                                    sx={{fontSize: '0.9rem', textTransform: 'uppercase'}}>
                             {subtitle}
                         </Typography>
                     </Box>
-                    <IconButton onClick={onClose} sx={{ color: '#94a3b8' }}>
-                        <Close />
+                    <IconButton onClick={onClose} sx={{color: '#94a3b8'}}>
+                        <Close/>
                     </IconButton>
                 </Box>
 
-                <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', mb: 4 }} />
+                <Divider sx={{borderColor: 'rgba(255,255,255,0.05)', mb: 4}}/>
 
-                <Typography variant="h6" sx={{ color: '#818cf8', fontWeight: 800, mb: 3, fontSize: '1.1rem' }}>
+                <Typography variant="h6" sx={{color: '#818cf8', fontWeight: 800, mb: 3, fontSize: '1.1rem'}}>
                     CONFIGURATION
                 </Typography>
 
@@ -101,16 +100,26 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
                         value={type}
                         onChange={(e) => setType(e.target.value)}
                         sx={inputStyles}
-                        SelectProps={{
-                            MenuProps: {
-                                PaperProps: {
-                                    sx: { bgcolor: '#1e293b', color: '#fff', borderRadius: '12px', backgroundImage: 'none' }
+                        slotProps={{
+                            select: {
+                                MenuProps: {
+                                    slotProps: {
+                                        paper: {
+                                            sx: {
+                                                bgcolor: '#1e293b',
+                                                color: '#fff',
+                                                borderRadius: '12px',
+                                                backgroundImage: 'none',
+                                                border: '1px solid rgba(255,255,255,0.08)'
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }}
                     >
                         {['STRING', 'NUMBER', 'DATE', 'BOOLEAN'].map((t) => (
-                            <MenuItem key={t} value={t} sx={{ fontWeight: 600 }}>{t}</MenuItem>
+                            <MenuItem key={t} value={t} sx={{fontWeight: 600}}>{t}</MenuItem>
                         ))}
                     </TextField>
 
@@ -124,10 +133,10 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
                         justifyContent: 'space-between'
                     }}>
                         <Box>
-                            <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>
+                            <Typography sx={{color: '#fff', fontWeight: 800, fontSize: '0.9rem'}}>
                                 COLLECTION TYPE
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+                            <Typography variant="caption" sx={{color: '#64748b', fontWeight: 600}}>
                                 ALLOW MULTIPLE VALUES
                             </Typography>
                         </Box>
@@ -135,8 +144,8 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
                             checked={isList}
                             onChange={(e) => setIsList(e.target.checked)}
                             sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': { color: '#6366f1' },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6366f1' }
+                                '& .MuiSwitch-switchBase.Mui-checked': {color: '#6366f1'},
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {bgcolor: '#6366f1'}
                             }}
                         />
                     </Box>
@@ -146,7 +155,7 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
                         fullWidth
                         disabled={loading || !name}
                         onClick={handleConfirm}
-                        startIcon={<AddCircleOutline />}
+                        startIcon={<AddCircleOutline/>}
                         sx={{
                             mt: 2,
                             py: 2.2,
@@ -155,8 +164,8 @@ const DefinitionDrawer = ({ open, title, subtitle, onSave, onClose, onRefresh })
                             fontSize: '1rem',
                             background: 'linear-gradient(45deg, #6366f1 30%, #a855f7 90%)',
                             boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
-                            '&:disabled': { opacity: 0.4, background: '#1e293b' },
-                            '&:hover': { transform: 'translateY(-2px)', transition: '0.2s' }
+                            '&:disabled': {opacity: 0.4, background: '#1e293b'},
+                            '&:hover': {transform: 'translateY(-2px)', transition: '0.2s'}
                         }}
                     >
                         {loading ? 'PROCESSING...' : 'CONFIRM ATTRIBUTE'}

@@ -1,81 +1,58 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {Box, Button, Drawer, IconButton, Stack, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
 import {Close} from '@mui/icons-material';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/en-gb';
 
-import {createAttributeReaction, createItemReaction, getActionById, getCustomerAttributes, getItems} from '../../api';
+import {createAttributeReaction, createItemReaction} from '@/api';
+import {useReactionForm} from '@/hooks/useReactionForm.js';
 import AttributeUpdateForm from './create/AttributeUpdateForm.jsx';
 import ItemGrantForm from './create/ItemGrantForm.jsx';
 
 const NO_VALUE_OPS = ["INCREMENT", "DECREMENT", "SET_FALSE", "SET_TRUE", "FLIP", "SET_NOW", "CLEAR"];
 
 export default function ReactionBuilder({open, onClose, onSave, fixedRuleId, tenantUri, ruleActionUri}) {
-    const [type, setType] = useState('attribute');
-    const [targetAttr, setTargetAttr] = useState(null);
-    const [operation, setOperation] = useState('SET');
-    const [value, setValue] = useState('');
-    const [isLinked, setIsLinked] = useState(false);
-
-    const [customerAttrs, setCustomerAttrs] = useState([]);
-    const [actionAttrs, setActionAttrs] = useState([]);
-    const [items, setItems] = useState([]);
-    const [selectedTemplate, setSelectedTemplate] = useState(null);
-    const [itemFields, setItemFields] = useState({});
-
-    useEffect(() => {
-        if (open) {
-            getCustomerAttributes(tenantUri).then(res => setCustomerAttrs(res.data || []));
-            getItems(tenantUri).then(res => setItems(res.data || []));
-            if (ruleActionUri) {
-                getActionById(tenantUri, ruleActionUri).then(res => setActionAttrs(res.data?.attributes || []));
-            }
-            setTargetAttr(null);
-            setSelectedTemplate(null);
-            setOperation('SET');
-            setValue('');
-            setIsLinked(false);
-            setItemFields({});
-        }
-    }, [open, tenantUri, ruleActionUri]);
+    const form = useReactionForm(open, tenantUri, ruleActionUri);
 
     const filteredOperations = useMemo(() => {
-        if (!targetAttr) return ["SET"];
-        const {valueType: vType, isList} = targetAttr;
-        if (isList) return ["SET", "APPEND", "PREPEND", "REMOVE", "CLEAR"];
+        if (!form.targetAttr) return ["SET"];
+        const vType = (form.targetAttr.valueType || form.targetAttr.type || '').toUpperCase();
+        if (form.targetAttr.isList) return ["SET", "APPEND", "PREPEND", "REMOVE", "CLEAR"];
+
         const ops = ["SET"];
         if (vType === 'NUMBER') ops.push("ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "INCREMENT", "DECREMENT");
         if (vType === 'STRING') ops.push("CONCATENATION");
         if (vType === 'BOOLEAN') ops.push("SET_FALSE", "SET_TRUE", "FLIP");
         if (vType === 'DATE') ops.push("SET_NOW");
         return ops;
-    }, [targetAttr]);
+    }, [form.targetAttr]);
 
     const availableLinks = useMemo(() => {
-        if (!targetAttr) return [];
+        if (!form.targetAttr) return [];
+        const vType = (form.targetAttr.valueType || form.targetAttr.type || '').toUpperCase();
         const all = [
-            ...customerAttrs.map(a => ({...a, group: 'Customer', entity: 'CUSTOMER'})),
-            ...actionAttrs.map(a => ({...a, group: 'Action Payload', entity: 'ACTION'}))
+            ...form.customerAttrs.map(a => ({...a, group: 'Customer', entity: 'CUSTOMER'})),
+            ...form.actionAttrs.map(a => ({...a, group: 'Action Payload', entity: 'ACTION'}))
         ];
-        return all.filter(a => a.valueType === targetAttr.valueType && a.isList === targetAttr.isList);
-    }, [targetAttr, customerAttrs, actionAttrs]);
+        return all.filter(a => (a.valueType || a.type || '').toUpperCase() === vType && a.isList === form.targetAttr.isList);
+    }, [form.targetAttr, form.customerAttrs, form.actionAttrs]);
 
     const handleSave = async () => {
         try {
-            if (type === 'attribute') {
+            if (form.type === 'attribute') {
                 await createAttributeReaction(tenantUri, {
                     ruleId: fixedRuleId,
-                    attributeId: targetAttr.id,
-                    operation,
-                    value: NO_VALUE_OPS.includes(operation) ? null : value,
-                    isValueAttributeId: isLinked
+                    attributeId: form.targetAttr.id,
+                    operation: form.operation,
+                    value: NO_VALUE_OPS.includes(form.operation) ? null : form.value,
+                    isValueAttributeId: form.isLinked
                 });
             } else {
                 await createItemReaction(tenantUri, {
                     ruleId: fixedRuleId,
-                    itemId: selectedTemplate,
-                    itemAttributes: itemFields
+                    itemId: form.selectedTemplate,
+                    itemAttributes: form.itemFields
                 });
             }
             onSave();
@@ -87,8 +64,16 @@ export default function ReactionBuilder({open, onClose, onSave, fixedRuleId, ten
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-            <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{
-                sx: {width: 500, bgcolor: '#0f172a', p: 4, borderLeft: '1px solid rgba(255,255,255,0.1)'}
+            <Drawer anchor="right" open={open} onClose={onClose} slotProps={{
+                paper: {
+                    sx: {
+                        width: 500,
+                        bgcolor: '#0f172a',
+                        p: 4,
+                        borderLeft: '1px solid rgba(255,255,255,0.1)',
+                        backgroundImage: 'none'
+                    }
+                }
             }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
                     <Typography variant="h4" fontWeight={900} color="white">New Reaction</Typography>
@@ -96,10 +81,7 @@ export default function ReactionBuilder({open, onClose, onSave, fixedRuleId, ten
                 </Stack>
 
                 <ToggleButtonGroup
-                    fullWidth
-                    value={type}
-                    exclusive
-                    onChange={(e, v) => v && setType(v)}
+                    fullWidth value={form.type} exclusive onChange={(e, v) => v && form.setType(v)}
                     sx={{
                         mb: 4,
                         bgcolor: 'rgba(255,255,255,0.03)',
@@ -114,59 +96,47 @@ export default function ReactionBuilder({open, onClose, onSave, fixedRuleId, ten
                             py: 1.5,
                             textTransform: 'none',
                             fontWeight: 800,
-                            fontSize: '0.95rem',
-                            transition: '0.3s',
                             '&.Mui-selected': {
                                 bgcolor: '#6366f1',
                                 color: '#fff',
-                                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)',
-                                '&:hover': {bgcolor: '#4f46e5'}
-                            },
-                            '&:hover': {
-                                bgcolor: 'rgba(255,255,255,0.08)',
-                                color: '#fff'
+                                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
                             }
                         }
                     }}
                 >
-                    <ToggleButton value="attribute">
-                        Update Attribute
-                    </ToggleButton>
-                    <ToggleButton value="item">
-                        Grant Item
-                    </ToggleButton>
+                    <ToggleButton value="attribute">Update Attribute</ToggleButton>
+                    <ToggleButton value="item">Grant Item</ToggleButton>
                 </ToggleButtonGroup>
 
                 <Box sx={{flexGrow: 1}}>
-                    {type === 'attribute' ? (
+                    {form.type === 'attribute' ? (
                         <AttributeUpdateForm
-                            customerAttrs={customerAttrs}
-                            targetAttr={targetAttr}
-                            setTargetAttr={setTargetAttr}
-                            operation={operation}
-                            setOperation={setOperation}
-                            value={value}
-                            setValue={setValue}
-                            isLinked={isLinked}
-                            setIsLinked={setIsLinked}
+                            customerAttrs={form.customerAttrs}
+                            targetAttr={form.targetAttr}
+                            setTargetAttr={form.setTargetAttr}
+                            operation={form.operation}
+                            setOperation={form.setOperation}
+                            value={form.value}
+                            setValue={form.setValue}
+                            isLinked={form.isLinked}
+                            setIsLinked={form.setIsLinked}
                             availableLinks={availableLinks}
                             filteredOperations={filteredOperations}
                         />
                     ) : (
                         <ItemGrantForm
-                            items={items}
-                            itemFields={itemFields}
-                            setItemFields={setItemFields}
-                            selectedTemplate={selectedTemplate}
-                            setSelectedTemplate={setSelectedTemplate}
+                            items={form.items}
+                            itemFields={form.itemFields}
+                            setItemFields={form.setItemFields}
+                            selectedTemplate={form.selectedTemplate}
+                            setSelectedTemplate={form.setSelectedTemplate}
                         />
                     )}
                 </Box>
 
                 <Button
-                    fullWidth
-                    variant="contained"
-                    disabled={type === 'attribute' ? !targetAttr : !selectedTemplate}
+                    fullWidth variant="contained"
+                    disabled={form.type === 'attribute' ? !form.targetAttr : !form.selectedTemplate}
                     onClick={handleSave}
                     sx={{
                         py: 2,

@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
-import { AuthContext } from './AuthContext';
-import { getMe } from '../api';
+import {useCallback, useEffect, useState} from 'react';
+import {AuthContext} from './AuthContext';
+import {getMe} from '@/api';
 
-export function AuthProvider({ children }) {
+export function AuthProvider({children}) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
 
         try {
             const res = await getMe(tenantUri);
-            setUser({...res.data, role : res.data.authority.slice(5)});
+            setUser({...res.data, role: res.data.authority.slice(5)});
         } catch {
             setUser(null);
             localStorage.removeItem('token');
@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, checkUser, logout }}>
+        <AuthContext.Provider value={{user, setUser, loading, checkUser, logout}}>
             {children}
         </AuthContext.Provider>
     );

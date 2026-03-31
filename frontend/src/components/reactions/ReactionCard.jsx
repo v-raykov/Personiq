@@ -7,7 +7,6 @@ const ReactionCard = ({reaction, customerAttrs = [], onDelete}) => {
 
     const isItem = Boolean(reaction.templateItemId);
 
-    // Resolve Name from ID
     const attr = customerAttrs.find(a => String(a.id) === String(reaction.attributeId));
     const displayName = attr?.name || reaction.attributeId;
 

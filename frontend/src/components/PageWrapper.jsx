@@ -1,6 +1,6 @@
-import { Box } from '@mui/material';
+import {Box} from '@mui/material';
 
-export default function PageWrapper({ children, withImage = false }) {
+export default function PageWrapper({children, withImage = false}) {
     return (
         <Box sx={{
             minHeight: '100vh',

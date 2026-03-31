@@ -64,13 +64,11 @@ export default function RecursiveNode({
                 </Box>
             )}
 
-            {/* Render Children Recursively */}
             {node.children.map((child, i) => (
                 <Box key={child.id} sx={{
                     position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
-                    // Vertical Connector Line
                     '&::before': showLogic ? {
                         content: '""',
                         position: 'absolute',
@@ -81,7 +79,6 @@ export default function RecursiveNode({
                         top: i === 0 ? '24px' : 0,
                         bottom: i === node.children.length - 1 ? '50%' : 0
                     } : {},
-                    // Horizontal Connector Line
                     '&::after': showLogic ? {
                         content: '""',
                         position: 'absolute',

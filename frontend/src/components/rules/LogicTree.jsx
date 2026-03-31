@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Typography, Stack } from '@mui/material';
+import {Box, Stack, Typography} from '@mui/material';
 import dayjs from 'dayjs';
 
-const LogicTree = ({ expr, isFirst = true }) => {
+const LogicTree = ({expr, isFirst = true}) => {
     if (!expr) return null;
     const trimmed = expr.trim();
 
@@ -16,8 +16,15 @@ const LogicTree = ({ expr, isFirst = true }) => {
             if (inner[i] === '(') braceDepth++;
             else if (inner[i] === ')') braceDepth--;
             if (braceDepth === 0) {
-                if (inner[i] === '|') { splitIdx = i; operator = 'OR'; break; }
-                if (inner[i] === '&') { splitIdx = i; operator = 'AND'; }
+                if (inner[i] === '|') {
+                    splitIdx = i;
+                    operator = 'OR';
+                    break;
+                }
+                if (inner[i] === '&') {
+                    splitIdx = i;
+                    operator = 'AND';
+                }
             }
         }
 
@@ -78,8 +85,8 @@ const LogicTree = ({ expr, isFirst = true }) => {
                                 opacity: 0.4
                             }
                         }}>
-                            <Box sx={{ py: 1.5, width: '100%' }}>
-                                <LogicTree expr={child} isFirst={false} />
+                            <Box sx={{py: 1.5, width: '100%'}}>
+                                <LogicTree expr={child} isFirst={false}/>
                             </Box>
                         </Box>
                     ))}
@@ -89,7 +96,7 @@ const LogicTree = ({ expr, isFirst = true }) => {
     }
 
     const match = trimmed.match(/^([^.]+)\.(.+)\.\d+\s*(=|>|<|!=|~|!~)\s*(.*)$/);
-    if (!match) return <Typography sx={{ color: '#64748b' }}>{trimmed}</Typography>;
+    if (!match) return <Typography sx={{color: '#64748b'}}>{trimmed}</Typography>;
 
     const [_, entity, attrName, operator, rawValue] = match;
 
@@ -117,7 +124,7 @@ const LogicTree = ({ expr, isFirst = true }) => {
                         {ent}
                     </Typography>
                 )}
-                <Typography sx={{ color: isValue ? '#fff' : '#cbd5e1', fontSize: '0.85rem', fontWeight: 800 }}>
+                <Typography sx={{color: isValue ? '#fff' : '#cbd5e1', fontSize: '0.85rem', fontWeight: 800}}>
                     {displayValue}
                 </Typography>
             </Box>
@@ -125,12 +132,12 @@ const LogicTree = ({ expr, isFirst = true }) => {
     };
 
     const valueAttrMatch = rawValue.match(/^([^.]+)\.(.+)\.\d+$/);
-    const opMap = { '=': 'is', '!=': 'is not', '~': 'contains', '!~': 'not contains' };
+    const opMap = {'=': 'is', '!=': 'is not', '~': 'contains', '!~': 'not contains'};
 
     return (
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ ml: isFirst ? 0 : 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ml: isFirst ? 0 : 0}}>
             {renderPill(entity, attrName)}
-            <Typography sx={{ color: '#818cf8', fontSize: '0.85rem', fontWeight: 900, fontStyle: 'italic' }}>
+            <Typography sx={{color: '#818cf8', fontSize: '0.85rem', fontWeight: 900, fontStyle: 'italic'}}>
                 {opMap[operator] || operator}
             </Typography>
             {valueAttrMatch ? renderPill(valueAttrMatch[1], valueAttrMatch[2]) : renderPill('', rawValue, true)}

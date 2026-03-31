@@ -1,17 +1,17 @@
-import { Typography, Paper, Box, Grid, Avatar, Fade, Stack } from '@mui/material';
-import { useAuth } from '../hooks/useAuth';
+import {Avatar, Box, Fade, Grid, Paper, Stack, Typography} from '@mui/material';
+import {useAuth} from '@/hooks/useAuth';
 
 export default function Account() {
-    const { user } = useAuth();
+    const {user} = useAuth();
 
     return (
         <Fade in timeout={800}>
-            <Box sx={{ maxWidth: 1300, mx: 'auto', p: 4 }}>
-                <Box sx={{ mb: 6 }}>
-                    <Typography variant="h3" fontWeight={900} sx={{ color: '#fff', letterSpacing: -1.5 }}>
+            <Box sx={{maxWidth: 1300, mx: 'auto', p: 4}}>
+                <Box sx={{mb: 6}}>
+                    <Typography variant="h3" fontWeight={900} sx={{color: '#fff', letterSpacing: -1.5}}>
                         Account Dashboard
                     </Typography>
-                    <Typography variant="h6" sx={{ color: '#94a3b8', mt: 1, fontWeight: 400 }}>
+                    <Typography variant="h6" sx={{color: '#94a3b8', mt: 1, fontWeight: 400}}>
                         Manage your profile and security settings
                     </Typography>
                 </Box>
@@ -41,8 +41,9 @@ export default function Account() {
                             }}>
                                 {user?.username?.[0]?.toUpperCase()}
                             </Avatar>
-                            <Typography variant="h4" fontWeight={900} sx={{ color: '#fff' }}>{user?.username}</Typography>
-                            <Typography variant="body1" sx={{ color: '#818cf8', fontWeight: 800, mt: 1 }}>{user?.role}</Typography>
+                            <Typography variant="h4" fontWeight={900} sx={{color: '#fff'}}>{user?.username}</Typography>
+                            <Typography variant="body1"
+                                        sx={{color: '#818cf8', fontWeight: 800, mt: 1}}>{user?.role}</Typography>
                         </Paper>
                     </Grid>
 
@@ -54,10 +55,19 @@ export default function Account() {
                                 bgcolor: 'rgba(255, 255, 255, 0.03)',
                                 border: '1px solid rgba(255, 255, 255, 0.08)',
                             }}>
-                                <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                                <Typography variant="caption" sx={{
+                                    color: '#94a3b8',
+                                    fontWeight: 800,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: 1.5
+                                }}>
                                     Email Address
                                 </Typography>
-                                <Typography variant="h5" sx={{ mt: 1, color: '#fff', fontWeight: 700 }}>{user?.email || 'Not provided'}</Typography>
+                                <Typography variant="h5" sx={{
+                                    mt: 1,
+                                    color: '#fff',
+                                    fontWeight: 700
+                                }}>{user?.email || 'Not provided'}</Typography>
                             </Paper>
 
                             <Grid container spacing={3}>
@@ -68,10 +78,19 @@ export default function Account() {
                                         bgcolor: 'rgba(255, 255, 255, 0.03)',
                                         border: '1px solid rgba(255, 255, 255, 0.08)',
                                     }}>
-                                        <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                                        <Typography variant="caption" sx={{
+                                            color: '#94a3b8',
+                                            fontWeight: 800,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 1.5
+                                        }}>
                                             Organization Role
                                         </Typography>
-                                        <Typography variant="h5" sx={{ mt: 1, color: '#818cf8', fontWeight: 700 }}>{user?.role}</Typography>
+                                        <Typography variant="h5" sx={{
+                                            mt: 1,
+                                            color: '#818cf8',
+                                            fontWeight: 700
+                                        }}>{user?.role}</Typography>
                                     </Paper>
                                 </Grid>
 
@@ -82,10 +101,16 @@ export default function Account() {
                                         bgcolor: 'rgba(255, 255, 255, 0.03)',
                                         border: '1px solid rgba(255, 255, 255, 0.08)',
                                     }}>
-                                        <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                                        <Typography variant="caption" sx={{
+                                            color: '#94a3b8',
+                                            fontWeight: 800,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 1.5
+                                        }}>
                                             Account Status
                                         </Typography>
-                                        <Typography variant="h5" sx={{ mt: 1, color: '#10b981', fontWeight: 700 }}>Active</Typography>
+                                        <Typography variant="h5"
+                                                    sx={{mt: 1, color: '#10b981', fontWeight: 700}}>Active</Typography>
                                     </Paper>
                                 </Grid>
                             </Grid>

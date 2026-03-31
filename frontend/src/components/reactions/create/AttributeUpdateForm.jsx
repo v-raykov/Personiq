@@ -86,7 +86,12 @@ export default function AttributeUpdateForm({
                 onChange={(e, v) => handleAttributeChange(v)}
                 renderInput={(params) => (
                     <TextField {...params} label="Select Target Attribute" required sx={inputStyles}
-                               inputProps={{...params.inputProps, readOnly: true}}/>
+                               slotProps={{
+                                   htmlInput: {
+                                       ...params.inputProps,
+                                       readOnly: true,
+                                   },
+                               }}/>
                 )}
             />
 
@@ -114,9 +119,14 @@ export default function AttributeUpdateForm({
                                     value={value || ''}
                                     onChange={(e) => setValue(e.target.value)}
                                     sx={inputStyles}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end"
-                                                                      sx={{mr: 1}}>{toggleModeButton}</InputAdornment>
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: (
+                                                <InputAdornment position="end" sx={{mr: 1}}>
+                                                    {toggleModeButton}
+                                                </InputAdornment>
+                                            ),
+                                        },
                                     }}
                                 >
                                     {cleanAvailableLinks.map((link) => (

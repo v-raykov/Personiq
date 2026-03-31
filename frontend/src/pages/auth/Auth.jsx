@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
-import { Box, Button, Container, Fade, Link, Paper, TextField, Typography, Alert } from '@mui/material';
-import { loginUser, registerUser } from '../../api';
-import { useAuth } from '../../hooks/useAuth';
-import PageWrapper from "../../components/PageWrapper.jsx";
+import {useState} from 'react';
+import {Link as RouterLink, useNavigate, useParams} from 'react-router-dom';
+import {Alert, Box, Button, Container, Fade, Link, Paper, TextField, Typography} from '@mui/material';
+import {loginUser, registerUser} from '@/api';
+import {useAuth} from '@/hooks/useAuth';
+import PageWrapper from "@/components/PageWrapper.jsx";
 
 function Auth() {
-    const { tenantUri } = useParams();
+    const {tenantUri} = useParams();
     const navigate = useNavigate();
-    const { checkUser } = useAuth();
+    const {checkUser} = useAuth();
 
     const [isLogin, setIsLogin] = useState(true);
     const [error, setError] = useState('');
@@ -19,13 +19,13 @@ function Auth() {
     });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setFormData({...formData, [e.target.name]: e.target.value});
         if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Reset error on new attempt
+        setError('');
 
         try {
             if (isLogin) {
@@ -65,7 +65,7 @@ function Auth() {
         <PageWrapper withImage={true}>
             <Container maxWidth="xs">
                 <Fade in timeout={800}>
-                    <Box sx={{ mt: 8, pb: 4 }}>
+                    <Box sx={{mt: 8, pb: 4}}>
                         <RouterLink
                             to="/"
                             style={{
@@ -87,19 +87,19 @@ function Auth() {
                             border: '1px solid rgba(255, 255, 255, 0.1)',
                             animation: error ? 'shake 0.4s ease-in-out' : 'none',
                             '@keyframes shake': {
-                                '0%, 100%': { transform: 'translateX(0)' },
-                                '25%': { transform: 'translateX(-5px)' },
-                                '75%': { transform: 'translateX(5px)' },
+                                '0%, 100%': {transform: 'translateX(0)'},
+                                '25%': {transform: 'translateX(-5px)'},
+                                '75%': {transform: 'translateX(5px)'},
                             }
                         }}>
-                            <Typography variant="h4" fontWeight={900} sx={{ mb: 1, textTransform: 'capitalize', color: '#fff' }}>
+                            <Typography variant="h4" fontWeight={900}
+                                        sx={{mb: 1, textTransform: 'capitalize', color: '#fff'}}>
                                 {isLogin ? 'Sign In' : 'Join'}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', mb: 3 }}>
+                            <Typography variant="body2" sx={{color: 'rgba(255,255,255,0.5)', mb: 3}}>
                                 {tenantUri.replace('-', ' ')}
                             </Typography>
 
-                            {/* --- ERROR ALERT --- */}
                             {error && (
                                 <Fade in={!!error}>
                                     <Alert
@@ -171,7 +171,7 @@ function Auth() {
                                 </Button>
                             </form>
 
-                            <Box sx={{ textAlign: 'center', mt: 2 }}>
+                            <Box sx={{textAlign: 'center', mt: 2}}>
                                 <Link
                                     component="button"
                                     variant="body2"
@@ -179,7 +179,7 @@ function Auth() {
                                         setIsLogin(!isLogin);
                                         setError('');
                                     }}
-                                    sx={{ color: '#818cf8', textDecoration: 'none', fontWeight: 700 }}
+                                    sx={{color: '#818cf8', textDecoration: 'none', fontWeight: 700}}
                                 >
                                     {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
                                 </Link>
