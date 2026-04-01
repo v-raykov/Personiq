@@ -60,7 +60,7 @@ export default function Items() {
 
                 <Grid container spacing={3}>
                     {items.map((item, index) => (
-                        <Grid item xs={12} sm={6} md={4} lg={3} key={item.id || `item-${index}`}>
+                        <Grid size={{xs: 12, sm: 6, md: 4, lg: 3}} key={item.id || `item-${index}`}>
                             <DefinitionCard
                                 index={index}
                                 data={item}

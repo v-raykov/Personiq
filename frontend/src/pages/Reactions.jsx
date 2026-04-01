@@ -60,10 +60,10 @@ export default function Reactions() {
 
                 <Collapse in={showLogic}>
                     <Grid container spacing={4} sx={{mb: 6}} alignItems="flex-start">
-                        <Grid item>
+                        <Grid>
                             <ConditionPane expression={rule?.expression}/>
                         </Grid>
-                        <Grid item>
+                        <Grid>
                             <ActionPane metadata={actionMetadata} actionId={rule?.triggerActionId}/>
                         </Grid>
                     </Grid>

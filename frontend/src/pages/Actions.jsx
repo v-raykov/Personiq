@@ -62,7 +62,7 @@ export default function Actions() {
 
                 <Grid container spacing={3}>
                     {memoizedActions.map((action, index) => (
-                        <Grid item xs={12} sm={6} md={4} lg={3} key={action?.id || index}>
+                        <Grid size={{xs: 12, sm: 6, md: 4, lg: 3}} key={action?.id || index}>
                             <DefinitionCard
                                 index={index}
                                 data={action}
