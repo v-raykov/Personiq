@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import reactor.core.publisher.Mono;
 
+import javax.naming.AuthenticationException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,8 +29,8 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.status(status).body(errorResponse));
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public Mono<ResponseEntity<ErrorResponse>> handleBadCredentialsException(BadCredentialsException ex) {
+    @ExceptionHandler(AuthenticationException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleAuthenticationException(AuthenticationException ex) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         ErrorResponse errorResponse = new ErrorResponse(status, ex.getMessage());
         return Mono.just(ResponseEntity.status(status).body(errorResponse));

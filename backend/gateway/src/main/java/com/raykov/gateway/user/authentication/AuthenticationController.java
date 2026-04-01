@@ -2,6 +2,7 @@ package com.raykov.gateway.user.authentication;
 
 import com.raykov.gateway.user.authentication.model.*;
 import com.raykov.gateway.user.model.User;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,9 @@ public class AuthenticationController {
 
     @GetMapping("/me")
     public AuthenticationContext getAuthenticationContext(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            throw new InsufficientAuthenticationException("User not authenticated");
+        }
         return new AuthenticationContext(user.username(), user.email(), user.authority());
     }
 }
