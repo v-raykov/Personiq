@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class RuleIntegrationTest extends SpringBaseTest {
 
@@ -182,17 +182,19 @@ public class RuleIntegrationTest extends SpringBaseTest {
 
         // When
         actionService.executeAction(actionId, customerId, Map.of());
+        List<EntityInstanceAttributes> grantedItems = getItemsByCustomerId(customerId);
+        assertThat(grantedItems).hasSize(1);
+        EntityInstanceAttributes grantedItem = grantedItems.getFirst();
 
         // Then
-        long grantedItemId = getItemsByCustomerId(customerId).getFirst().id();
-        assertThat(getGrantedItemById(grantedItemId))
+        assertThat(grantedItem)
                 .usingRecursiveComparison()
                 .ignoringFields("attributes.name")
-                .isEqualTo(new EntityInstanceAttributes(grantedItemId, itemId, customerId, List.of(
-                        new AttributeValue(grantedItemId, itemAttrId1, "", AttributeValueType.NUMBER, List.of("5"), false),
-                        new AttributeValue(grantedItemId, itemAttrId2, "", AttributeValueType.STRING, List.of("VALUE"), false))));
-        assertThat(getAttributeValue(itemAttrId1, grantedItemId).values().getFirst()).isEqualTo("5");
-        assertThat(getAttributeValue(itemAttrId2, grantedItemId).values().getFirst()).isEqualTo("VALUE");
+                .isEqualTo(new EntityInstanceAttributes(grantedItem.id(), itemId, customerId, List.of(
+                        new AttributeValue(grantedItem.id(), itemAttrId1, "", AttributeValueType.NUMBER, List.of("5"), false),
+                        new AttributeValue(grantedItem.id(), itemAttrId2, "", AttributeValueType.STRING, List.of("VALUE"), false))));
+        assertThat(getAttributeValue(itemAttrId1, grantedItem.id()).values().getFirst()).isEqualTo("5");
+        assertThat(getAttributeValue(itemAttrId2, grantedItem.id()).values().getFirst()).isEqualTo("VALUE");
 
     }
 }

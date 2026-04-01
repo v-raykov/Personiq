@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.raykov.rules_engine.config.tenant.TenantContext.clearTenantId;
@@ -181,10 +182,10 @@ public abstract class SpringBaseTest {
     }
 
     protected List<EntityInstanceAttributes> getItemsByCustomerId(long customerId) {
-        return itemController.getItemsByCustomerId(customerId);
+        return itemController.getGrantedItemsByCustomerId(customerId);
     }
 
-    protected EntityInstanceAttributes getGrantedItemById(long grantedItemId) {
-        return itemController.getGrantedItemById(grantedItemId);
+    protected List<EntityInstanceAttributes> getItemsByIds(Set<Long> itemIds) {
+        return itemController.getGrantedItemsByIds(itemIds);
     }
 }

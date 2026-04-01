@@ -84,7 +84,7 @@ public class EntityDao {
 
         SqlParameterSource params = new MapSqlParameterSource("entityType", entityType.name());
 
-        return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getLong("target_instance_id")));
+        return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getObject("target_instance_id", Long.class)));
     }
 
     public Optional<Entity> getEntityById(long entityId, EntityType entityType) {

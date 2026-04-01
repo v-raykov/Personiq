@@ -3,11 +3,11 @@ package com.raykov.rules_engine.domain.item;
 import com.raykov.rules_engine.domain.core.EntityAttributes;
 import com.raykov.rules_engine.domain.core.EntityInstanceAttributes;
 import com.raykov.rules_engine.domain.core.attribute.model.CreateAttributeRequest;
-import com.raykov.rules_engine.domain.core.entity.EntityType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/item")
@@ -52,13 +52,12 @@ public class ItemController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<EntityInstanceAttributes> getItemsByCustomerId(@PathVariable long customerId) {
-        return itemService.getItemsByCustomerId(customerId);
+    public List<EntityInstanceAttributes> getGrantedItemsByCustomerId(@PathVariable long customerId) {
+        return itemService.getGrantedItemsByCustomerId(customerId);
     }
 
-    @GetMapping("/granted/{grantedItemId}")
-    public EntityInstanceAttributes getGrantedItemById(@PathVariable long grantedItemId) {
-        return itemService.getGrantedItemById(grantedItemId);
+    @PostMapping("/granted/bulk")
+    public List<EntityInstanceAttributes> getGrantedItemsByIds(@RequestBody Set<Long> itemIds) {
+        return itemService.getGrantedItemsByIds(itemIds);
     }
-
 }

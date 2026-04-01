@@ -52,7 +52,7 @@ public class ItemService {
         return entityAttributeManager.createEntityInstanceAndSetAttributeValue(itemId, customerId, attributes);
     }
 
-    public List<EntityInstanceAttributes> getItemsByCustomerId(long customerId) {
+    public List<EntityInstanceAttributes> getGrantedItemsByCustomerId(long customerId) {
         Set<Long> grantedItemsIds = entityAttributeManager.getEntityInstancesByTargetInstanceId(customerId, EntityType.ITEM)
                                                           .stream()
                                                           .map(EntityInstance::id)
@@ -61,7 +61,7 @@ public class ItemService {
         return entityAttributeManager.getEntityInstancesByIds(grantedItemsIds, EntityType.ITEM);
     }
 
-    public EntityInstanceAttributes getGrantedItemById(long grantedItemId) {
-        return entityAttributeManager.getEntityInstancesByIds(Set.of(grantedItemId), EntityType.ITEM).getFirst();
+    public List<EntityInstanceAttributes> getGrantedItemsByIds(Set<Long> itemIds) {
+        return entityAttributeManager.getEntityInstancesByIds(itemIds, EntityType.ITEM);
     }
 }
