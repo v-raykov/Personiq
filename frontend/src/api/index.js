@@ -125,4 +125,4 @@ export const createAttributeReaction = (tenantUri, data) => api.post(`/${tenantU
 
 export const createItemReaction = (tenantUri, data) => api.post(`/${tenantUri}/admin/reaction/item`, data);
 
-export const getGrantedItem = (tenantUri, templateId) => api.get(`/${tenantUri}/admin/item/granted/${templateId}`);
+export const getGrantedItemsByIds = (tenantUri, data) => api.post(`/${tenantUri}/admin/item/granted/bulk`, data)

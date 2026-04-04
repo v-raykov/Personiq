@@ -20,6 +20,7 @@ export default function Reactions() {
         reactions,
         rule,
         actionMetadata,
+        itemTemplates,
         LoadData
     } = useReactions(tenantUri, ruleId);
 
@@ -60,10 +61,10 @@ export default function Reactions() {
 
                 <Collapse in={showLogic}>
                     <Grid container spacing={4} sx={{mb: 6}} alignItems="flex-start">
-                        <Grid>
+                        <Grid item xs={12} md={6}>
                             <ConditionPane expression={rule?.expression}/>
                         </Grid>
-                        <Grid>
+                        <Grid item xs={12} md={6}>
                             <ActionPane metadata={actionMetadata} actionId={rule?.triggerActionId}/>
                         </Grid>
                     </Grid>
@@ -93,8 +94,10 @@ export default function Reactions() {
                     {reactions.map((re) => (
                         <ReactionCard
                             key={re.id}
-                            rule={rule}
                             reaction={re}
+                            itemData={re.templateItemId ? itemTemplates[re.templateItemId] : null}
+                            customerAttrs={actionMetadata?.customerAttrs || []}
+                            tenantUri={tenantUri}
                             onDelete={() => {
                                 void LoadData();
                             }}
