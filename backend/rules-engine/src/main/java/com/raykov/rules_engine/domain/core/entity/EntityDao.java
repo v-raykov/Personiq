@@ -75,7 +75,7 @@ public class EntityDao {
 
     public List<EntityInstance> getEntityInstancesByType(EntityType entityType) {
         String sql = """
-                     SELECT ei.id, ei.entity_id, ei.target_instance_id
+                     SELECT ei.id, ei.entity_id, ei.target_instance_id, e.name
                      FROM entity_instance ei
                      JOIN entity e ON e.id = ei.entity_id
                      WHERE e.entity_type = CAST(:entityType AS entity_type)
@@ -84,7 +84,7 @@ public class EntityDao {
 
         SqlParameterSource params = new MapSqlParameterSource("entityType", entityType.name());
 
-        return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getObject("target_instance_id", Long.class)));
+        return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getObject("target_instance_id", Long.class), rs.getString("name")));
     }
 
     public Optional<Entity> getEntityById(long entityId, EntityType entityType) {

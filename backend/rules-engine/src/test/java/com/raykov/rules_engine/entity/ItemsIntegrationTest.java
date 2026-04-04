@@ -41,8 +41,8 @@ public class ItemsIntegrationTest extends SpringBaseTest {
         assertThat(grantedItem).hasSize(1)
                                .first()
                                .usingRecursiveComparison()
-                               .ignoringFields("attributes.entityInstanceId", "attributes.name")
-                               .isEqualTo(new EntityInstanceAttributes(grantedItemId, itemId, customerId, List.of(
+                               .ignoringFields("attributes.entityInstanceId", "attributes.name", "name")
+                               .isEqualTo(new EntityInstanceAttributes(grantedItemId, itemId, customerId, "", List.of(
                                        new AttributeValue(0, itemAttrId1, "", AttributeValueType.STRING, List.of("value1"), false),
                                        new AttributeValue(1, itemAttrId2, "", AttributeValueType.STRING, List.of("value2"), false),
                                        new AttributeValue(2, itemAttrId3, "", AttributeValueType.NUMBER, List.of("123"), false)
@@ -67,12 +67,12 @@ public class ItemsIntegrationTest extends SpringBaseTest {
 
         // Then
         List<EntityInstanceAttributes> expected = List.of(
-                new EntityInstanceAttributes(grantedItemId1, itemId1, customerId, List.of(new AttributeValue(0, itemAttrId1, "", AttributeValueType.STRING, List.of("value1"), false))),
-                new EntityInstanceAttributes(grantedItemId2, itemId2, customerId, List.of(new AttributeValue(0, itemAttrId2, "", AttributeValueType.STRING, List.of("value2"), false)))
+                new EntityInstanceAttributes(grantedItemId1, itemId1, customerId, "", List.of(new AttributeValue(0, itemAttrId1, "", AttributeValueType.STRING, List.of("value1"), false))),
+                new EntityInstanceAttributes(grantedItemId2, itemId2, customerId, "", List.of(new AttributeValue(0, itemAttrId2, "", AttributeValueType.STRING, List.of("value2"), false)))
         );
 
         assertThat(grantedItems).usingRecursiveComparison()
-                                .ignoringFields("attributes.entityInstanceId", "attributes.name")
+                                .ignoringFields("attributes.entityInstanceId", "attributes.name", "name")
                                 .isEqualTo(expected);
     }
 }

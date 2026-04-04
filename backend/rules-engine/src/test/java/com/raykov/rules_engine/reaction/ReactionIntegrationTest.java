@@ -134,12 +134,12 @@ public class ReactionIntegrationTest extends SpringBaseTest {
         assertThat(itemTemplates).hasSize(2);
 
         List<EntityInstanceAttributes> expected = List.of(
-                new EntityInstanceAttributes(grantedItemId1, itemId1, null, List.of(new AttributeValue(grantedItemId1, itemAttrId1, "", AttributeValueType.STRING, List.of("value"), false))),
-                new EntityInstanceAttributes(grantedItemId2, itemId2, null, List.of(new AttributeValue(grantedItemId2, itemAttrId2, "", AttributeValueType.STRING, List.of("value"), false)))
+                new EntityInstanceAttributes(grantedItemId1, itemId1, null, "", List.of(new AttributeValue(grantedItemId1, itemAttrId1, "", AttributeValueType.STRING, List.of("value"), false))),
+                new EntityInstanceAttributes(grantedItemId2, itemId2, null, "", List.of(new AttributeValue(grantedItemId2, itemAttrId2, "", AttributeValueType.STRING, List.of("value"), false)))
         );
         assertThat(itemTemplates)
                 .usingRecursiveComparison()
-                .ignoringFields("attributes.name")
+                .ignoringFields("attributes.name", "name")
                 .isEqualTo(expected);
 
     }

@@ -159,7 +159,7 @@ public class EntityAttributeManager {
                                                                   .collect(Collectors.groupingBy(AttributeValue::entityInstanceId));
 
         return entityInstances.stream()
-                              .map(row -> new EntityInstanceAttributes(row.id(), row.entityId(), row.targetInstanceId(), values.get(row.id())))
+                              .map(row -> new EntityInstanceAttributes(row.id(), row.entityId(), row.targetInstanceId(), row.name(), values.get(row.id())))
                               .toList();
     }
 
@@ -213,6 +213,7 @@ public class EntityAttributeManager {
 
     public List<EntityInstance> getEntityInstancesByTargetInstanceId(long targetInstanceId, EntityType entityType) {
         return entityDao.getEntityInstancesByType(entityType).stream()
+                        .filter(row -> row.targetInstanceId() != null)
                         .filter(row -> row.targetInstanceId() == targetInstanceId)
                         .toList();
     }

@@ -189,8 +189,8 @@ public class RuleIntegrationTest extends SpringBaseTest {
         // Then
         assertThat(grantedItem)
                 .usingRecursiveComparison()
-                .ignoringFields("attributes.name")
-                .isEqualTo(new EntityInstanceAttributes(grantedItem.id(), itemId, customerId, List.of(
+                .ignoringFields("attributes.name", "name")
+                .isEqualTo(new EntityInstanceAttributes(grantedItem.id(), itemId, customerId, "", List.of(
                         new AttributeValue(grantedItem.id(), itemAttrId1, "", AttributeValueType.NUMBER, List.of("5"), false),
                         new AttributeValue(grantedItem.id(), itemAttrId2, "", AttributeValueType.STRING, List.of("VALUE"), false))));
         assertThat(getAttributeValue(itemAttrId1, grantedItem.id()).values().getFirst()).isEqualTo("5");
