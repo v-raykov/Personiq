@@ -11,8 +11,6 @@ import {
     TableRow,
     TableSortLabel
 } from '@mui/material';
-import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en-gb';
 
@@ -140,93 +138,91 @@ export default function CustomerAttributesValues() {
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-            <Box sx={{width: '100%', p: 2}}>
-                <FilterManager
-                    showFilters={showFilters} setShowFilters={setShowFilters}
-                    filterKey={filterKey} setFilterKey={handleFilterKeyChange}
-                    filterOperator={filterOperator} setFilterOperator={setFilterOperator}
-                    filterValue={filterValue} setFilterValue={setFilterValue}
-                    currentAttrType={currentAttrType} columnNames={columnNames}
-                    addFilter={addFilter} filterBlocks={filterBlocks}
-                    formatValue={formatValue} rowsCount={rows.length}
-                    dragData={dragData} dropTargetIdx={dropTargetIdx} setDropTargetIdx={setDropTargetIdx}
-                    onDragStart={(e, b, c) => {
-                        setDragData({blockIdx: b, condIdx: c});
-                        e.dataTransfer.effectAllowed = "move";
-                    }}
-                    onDropOnBlock={(e, idx) => handleDnd(idx)}
-                    onDropOnContainer={() => {
-                        if (!dragData) return;
-                        const blocks = filterBlocks.map(b => [...b]);
-                        if (blocks[dragData.blockIdx].length === 1) return;
-                        const [moved] = blocks[dragData.blockIdx].splice(dragData.condIdx, 1);
-                        if (moved) {
-                            setFilterBlocks([...blocks.filter(b => b.length > 0), [moved]]);
-                        }
-                        setDragData(null);
-                    }}
-                    removeCondition={(bIdx, id) => setFilterBlocks(filterBlocks.map((b, i) => i === bIdx ? b.filter(c => c.id !== id) : b).filter(g => g.length > 0))}
-                />
+        <Box sx={{width: '100%', p: 2}}>
+            <FilterManager
+                showFilters={showFilters} setShowFilters={setShowFilters}
+                filterKey={filterKey} setFilterKey={handleFilterKeyChange}
+                filterOperator={filterOperator} setFilterOperator={setFilterOperator}
+                filterValue={filterValue} setFilterValue={setFilterValue}
+                currentAttrType={currentAttrType} columnNames={columnNames}
+                addFilter={addFilter} filterBlocks={filterBlocks}
+                formatValue={formatValue} rowsCount={rows.length}
+                dragData={dragData} dropTargetIdx={dropTargetIdx} setDropTargetIdx={setDropTargetIdx}
+                onDragStart={(e, b, c) => {
+                    setDragData({blockIdx: b, condIdx: c});
+                    e.dataTransfer.effectAllowed = "move";
+                }}
+                onDropOnBlock={(e, idx) => handleDnd(idx)}
+                onDropOnContainer={() => {
+                    if (!dragData) return;
+                    const blocks = filterBlocks.map(b => [...b]);
+                    if (blocks[dragData.blockIdx].length === 1) return;
+                    const [moved] = blocks[dragData.blockIdx].splice(dragData.condIdx, 1);
+                    if (moved) {
+                        setFilterBlocks([...blocks.filter(b => b.length > 0), [moved]]);
+                    }
+                    setDragData(null);
+                }}
+                removeCondition={(bIdx, id) => setFilterBlocks(filterBlocks.map((b, i) => i === bIdx ? b.filter(c => c.id !== id) : b).filter(g => g.length > 0))}
+            />
 
-                {loading && <LinearProgress
-                    sx={{height: 3, mb: 1, bgcolor: 'transparent', '& .MuiLinearProgress-bar': {bgcolor: '#6366f1'}}}/>}
+            {loading && <LinearProgress
+                sx={{height: 3, mb: 1, bgcolor: 'transparent', '& .MuiLinearProgress-bar': {bgcolor: '#6366f1'}}}/>}
 
-                <TableContainer component={Paper} sx={{
-                    width: '100%',
-                    borderRadius: '24px',
-                    bgcolor: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    boxShadow: 'none',
-                    overflow: 'hidden'
-                }}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow sx={{bgcolor: 'rgba(255,255,255,0.02)'}}>
-                                <TableCell sx={{color: '#94a3b8', fontWeight: 800, py: 2.5, pl: 4}}>
-                                    <TableSortLabel active={sortConfig.key === 'username'}
+            <TableContainer component={Paper} sx={{
+                width: '100%',
+                borderRadius: '24px',
+                bgcolor: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: 'none',
+                overflow: 'hidden'
+            }}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow sx={{bgcolor: 'rgba(255,255,255,0.02)'}}>
+                            <TableCell sx={{color: '#94a3b8', fontWeight: 800, py: 2.5, pl: 4}}>
+                                <TableSortLabel active={sortConfig.key === 'username'}
+                                                direction={sortConfig.direction} onClick={() => setSortConfig({
+                                    key: 'username',
+                                    direction: sortConfig.direction === 'asc' ? 'desc' : 'asc'
+                                })} sx={{color: 'inherit !important'}}>USERNAME</TableSortLabel>
+                            </TableCell>
+                            {columnNames.map(name => (
+                                <TableCell key={name} sx={{color: '#94a3b8', fontWeight: 800, py: 2.5}}>
+                                    <TableSortLabel active={sortConfig.key === name}
                                                     direction={sortConfig.direction} onClick={() => setSortConfig({
-                                        key: 'username',
+                                        key: name,
                                         direction: sortConfig.direction === 'asc' ? 'desc' : 'asc'
-                                    })} sx={{color: 'inherit !important'}}>USERNAME</TableSortLabel>
+                                    })} sx={{color: 'inherit !important'}}>{name.toUpperCase()}</TableSortLabel>
                                 </TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rows.map((row) => (
+                            <TableRow key={row.customerId} onClick={() => setSelectedCustomer(row)}
+                                      sx={{cursor: 'pointer', '&:hover': {bgcolor: 'rgba(255,255,255,0.05)'}}}>
+                                <TableCell sx={{
+                                    py: 2.5,
+                                    pl: 4,
+                                    color: '#fff',
+                                    fontWeight: 700,
+                                    fontSize: '1.1rem'
+                                }}>{row.username}</TableCell>
                                 {columnNames.map(name => (
-                                    <TableCell key={name} sx={{color: '#94a3b8', fontWeight: 800, py: 2.5}}>
-                                        <TableSortLabel active={sortConfig.key === name}
-                                                        direction={sortConfig.direction} onClick={() => setSortConfig({
-                                            key: name,
-                                            direction: sortConfig.direction === 'asc' ? 'desc' : 'asc'
-                                        })} sx={{color: 'inherit !important'}}>{name.toUpperCase()}</TableSortLabel>
+                                    <TableCell key={name} sx={{color: 'rgba(255,255,255,0.5)', fontSize: '1.1rem'}}>
+                                        {formatValue(row[name], schema.find(s => s.name === name)?.valueType || 'STRING')}
                                     </TableCell>
                                 ))}
                             </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows.map((row) => (
-                                <TableRow key={row.customerId} onClick={() => setSelectedCustomer(row)}
-                                          sx={{cursor: 'pointer', '&:hover': {bgcolor: 'rgba(255,255,255,0.05)'}}}>
-                                    <TableCell sx={{
-                                        py: 2.5,
-                                        pl: 4,
-                                        color: '#fff',
-                                        fontWeight: 700,
-                                        fontSize: '1.1rem'
-                                    }}>{row.username}</TableCell>
-                                    {columnNames.map(name => (
-                                        <TableCell key={name} sx={{color: 'rgba(255,255,255,0.5)', fontSize: '1.1rem'}}>
-                                            {formatValue(row[name], schema.find(s => s.name === name)?.valueType || 'STRING')}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
-                <AttributeDrawer open={Boolean(selectedCustomer)} customer={selectedCustomer} tenantUri={tenantUri}
-                                 attributes={attributeData} onClose={() => setSelectedCustomer(null)}
-                                 onRefresh={refresh}/>
-            </Box>
-        </LocalizationProvider>
+            <AttributeDrawer open={Boolean(selectedCustomer)} customer={selectedCustomer} tenantUri={tenantUri}
+                             attributes={attributeData} onClose={() => setSelectedCustomer(null)}
+                             onRefresh={refresh}/>
+        </Box>
     );
 };

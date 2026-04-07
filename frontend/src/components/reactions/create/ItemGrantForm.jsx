@@ -1,25 +1,9 @@
 import React from 'react';
 import {Autocomplete, Stack, TextField} from "@mui/material";
-import AttributeField from './AttributeField';
+import AttributeField from '@/components/AttributeField';
 import dayjs from 'dayjs';
 
-const fieldStyles = {
-    '& .MuiOutlinedInput-root': {
-        height: 64,
-        borderRadius: '16px',
-        bgcolor: 'rgba(255,255,255,0.03)',
-        color: '#fff',
-        '& fieldset': {border: '1px solid rgba(255,255,255,0.1)'},
-        '&:hover fieldset': {borderColor: 'rgba(255,255,255,0.25)', bgcolor: 'rgba(255,255,255,0.05)'},
-        '&.Mui-focused fieldset': {border: '1px solid #6366f1'},
-    },
-    '& .MuiInputLabel-root': {
-        color: '#94a3b8',
-        fontSize: '1.1rem',
-        '&.Mui-focused': {color: '#6366f1'},
-        '&.MuiInputLabel-shrink': {transform: 'translate(14px, -9px) scale(0.75)'}
-    }
-};
+import {glassInputStyles} from '@/styles/formStyles'
 
 export default function ItemGrantForm({
                                           items = [],
@@ -58,7 +42,7 @@ export default function ItemGrantForm({
                     <TextField
                         {...params}
                         label="Select Item to Grant"
-                        sx={fieldStyles}
+                        sx={glassInputStyles}
                         slotProps={{
                             htmlInput: {
                                 ...params.inputProps,
@@ -75,6 +59,7 @@ export default function ItemGrantForm({
                             key={attr.id}
                             label={attr.name || attr.id}
                             vType={attr.valueType}
+                            isList={attr.isList}
                             value={itemFields[attr.id] ?? ''}
                             onChange={(val) => setItemFields({...itemFields, [attr.id]: val})}
                         />

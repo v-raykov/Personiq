@@ -26,13 +26,14 @@ export default function ReactionCard({reaction, itemData, customerAttrs = [], on
                     icon: <AccessTime sx={{fontSize: 14, mr: 0.5, color: '#a855f7'}}/>,
                     color: '#f8fafc'
                 };
-            case 'BOOLEAN':
+            case 'BOOLEAN': {
                 const isTrue = String(val).toLowerCase() === 'true';
                 return {
                     text: isTrue ? 'ENABLED' : 'DISABLED',
                     icon: <ToggleOnOutlined sx={{fontSize: 14, mr: 0.5, color: isTrue ? '#10b981' : '#ef4444'}}/>,
                     color: isTrue ? '#10b981' : '#ef4444'
                 };
+            }
             default:
                 return {text: String(val), icon: null, color: '#f8fafc'};
         }

@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Button, Dialog, DialogContent, IconButton, MenuItem, Stack, TextField, Typography} from '@mui/material';
 import {AccountTree, AddCircleOutline, Close, Save} from '@mui/icons-material';
-import {LocalizationProvider} from '@mui/x-date-pickers';
-import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {createRule, getActions, getCustomerAttributes} from '@/api';
 import RecursiveNode from './RecursiveNode';
 import {cleanTree, generateExpression, getInitialValue} from './operators';
@@ -179,172 +177,170 @@ export default function RuleBuilder({open, onClose, onSave, tenantUri}) {
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-            <Dialog
-                open={open}
-                onClose={onClose}
-                maxWidth="lg"
-                fullWidth
-                slotProps={{
-                    paper: {
-                        sx: {
-                            bgcolor: '#0f172a',
-                            borderRadius: '32px',
-                            height: '90vh',
-                            backgroundImage: 'none'
-                        }
+        <Dialog
+            open={open}
+            onClose={onClose}
+            maxWidth="lg"
+            fullWidth
+            slotProps={{
+                paper: {
+                    sx: {
+                        bgcolor: '#0f172a',
+                        borderRadius: '32px',
+                        height: '90vh',
+                        backgroundImage: 'none'
                     }
-                }}
-            >
-                <IconButton onClick={onClose}
-                            sx={{position: 'absolute', right: 24, top: 24, color: 'rgba(255,255,255,0.3)', zIndex: 10}}>
-                    <Close/>
-                </IconButton>
+                }
+            }}
+        >
+            <IconButton onClick={onClose}
+                        sx={{position: 'absolute', right: 24, top: 24, color: 'rgba(255,255,255,0.3)', zIndex: 10}}>
+                <Close/>
+            </IconButton>
 
-                <DialogContent sx={{p: 0, display: 'flex', overflow: 'hidden'}}>
-                    <Box sx={{
-                        width: 320,
-                        borderRight: '1px solid rgba(255,255,255,0.05)',
-                        p: 3,
-                        bgcolor: 'rgba(0,0,0,0.2)',
-                        overflowY: 'auto'
+            <DialogContent sx={{p: 0, display: 'flex', overflow: 'hidden'}}>
+                <Box sx={{
+                    width: 320,
+                    borderRight: '1px solid rgba(255,255,255,0.05)',
+                    p: 3,
+                    bgcolor: 'rgba(0,0,0,0.2)',
+                    overflowY: 'auto'
+                }}>
+                    <Typography sx={{
+                        color: '#94a3b8',
+                        fontSize: '0.7rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        mb: 2,
+                        letterSpacing: '0.05em'
                     }}>
-                        <Typography sx={{
-                            color: '#94a3b8',
-                            fontSize: '0.7rem',
-                            fontWeight: 800,
-                            textTransform: 'uppercase',
-                            mb: 2,
-                            letterSpacing: '0.05em'
-                        }}>
-                            Trigger Action
-                        </Typography>
-                        <TextField
-                            select
-                            fullWidth
-                            value={selectedActionId}
-                            onChange={(e) => setSelectedActionId(e.target.value)}
-                            sx={fieldStyles}
-                            size="small"
-                        >
-                            {actions.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
-                        </TextField>
-
-                        {selectedActionId && (
-                            <Stack spacing={1.5} sx={{mt: 4}}>
-                                <Typography sx={{
-                                    color: '#94a3b8',
-                                    fontSize: '0.7rem',
-                                    fontWeight: 800,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.05em'
-                                }}>
-                                    Available Attributes
-                                </Typography>
-                                {allAttributes.map((attr, idx) => (
-                                    <Box
-                                        key={idx}
-                                        draggable
-                                        onDragStart={(e) => {
-                                            e.dataTransfer.setData("entity", attr.entity);
-                                            e.dataTransfer.setData("attrName", attr.name);
-                                            e.dataTransfer.setData("valueType", attr.valueType);
-                                            e.dataTransfer.setData("isList", attr.isList);
-                                        }}
-                                        sx={{
-                                            p: 1.5, bgcolor: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px',
-                                            border: '1px solid rgba(255,255,255,0.06)', cursor: 'grab',
-                                            transition: 'all 0.2s',
-                                            '&:hover': {borderColor: attr.color, bgcolor: 'rgba(255,255,255,0.06)'}
-                                        }}
-                                    >
-                                        <Typography sx={{
-                                            color: '#f8fafc',
-                                            fontSize: '0.8rem',
-                                            fontWeight: 600
-                                        }}>{attr.name}</Typography>
-                                        <SidebarMeta entity={attr.entity} type={attr.valueType} isList={attr.isList}
-                                                     color={attr.color}/>
-                                    </Box>
-                                ))}
-                            </Stack>
-                        )}
-                    </Box>
-
-                    <Box
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => handleDrop(e, 'root')}
-                        sx={{
-                            flexGrow: 1,
-                            p: 4,
-                            bgcolor: '#0b1120',
-                            overflowY: 'auto',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center'
-                        }}
+                        Trigger Action
+                    </Typography>
+                    <TextField
+                        select
+                        fullWidth
+                        value={selectedActionId}
+                        onChange={(e) => setSelectedActionId(e.target.value)}
+                        sx={fieldStyles}
+                        size="small"
                     >
-                        <Box sx={{width: '100%', maxWidth: '1000px'}}>
-                            <Box sx={{
-                                p: 4,
-                                borderRadius: '32px',
-                                bgcolor: 'rgba(255, 255, 255, 0.02)',
-                                border: '1px solid rgba(255, 255, 255, 0.05)',
-                                mb: 3
+                        {actions.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
+                    </TextField>
+
+                    {selectedActionId && (
+                        <Stack spacing={1.5} sx={{mt: 4}}>
+                            <Typography sx={{
+                                color: '#94a3b8',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
                             }}>
-                                <Stack direction="row" spacing={2.5} alignItems="center" sx={{mb: 3}}>
-                                    <AccountTree sx={{color: '#818cf8', fontSize: '2rem'}}/>
-                                    <Typography variant="h5" fontWeight={900}
-                                                sx={{color: '#fff', letterSpacing: '-0.02em'}}>
-                                        {currentAction?.name.toUpperCase() || 'SELECT AN ACTION'}
-                                    </Typography>
-                                </Stack>
-
-                                <Box sx={{minHeight: '300px', py: 2}}>
-                                    {tree.children.length === 0 ? (
-                                        <Box sx={{
-                                            border: '2px dashed rgba(255,255,255,0.05)',
-                                            borderRadius: '24px',
-                                            p: 10,
-                                            textAlign: 'center',
-                                            color: 'rgba(255,255,255,0.2)'
-                                        }}>
-                                            <AddCircleOutline sx={{fontSize: '3.5rem', mb: 2, opacity: 0.5}}/>
-                                            <Typography variant="h6" fontWeight={500}>Drag and drop attributes to build
-                                                logic</Typography>
-                                        </Box>
-                                    ) : (
-                                        <RecursiveNode
-                                            node={tree}
-                                            allAttributes={allAttributes}
-                                            onDrop={handleDrop}
-                                            onUpdate={modifyNode}
-                                            onDelete={deleteNode}
-                                            draggingId={draggingId}
-                                            setDraggingId={setDraggingId}
-                                        />
-                                    )}
+                                Available Attributes
+                            </Typography>
+                            {allAttributes.map((attr, idx) => (
+                                <Box
+                                    key={idx}
+                                    draggable
+                                    onDragStart={(e) => {
+                                        e.dataTransfer.setData("entity", attr.entity);
+                                        e.dataTransfer.setData("attrName", attr.name);
+                                        e.dataTransfer.setData("valueType", attr.valueType);
+                                        e.dataTransfer.setData("isList", attr.isList);
+                                    }}
+                                    sx={{
+                                        p: 1.5, bgcolor: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px',
+                                        border: '1px solid rgba(255,255,255,0.06)', cursor: 'grab',
+                                        transition: 'all 0.2s',
+                                        '&:hover': {borderColor: attr.color, bgcolor: 'rgba(255,255,255,0.06)'}
+                                    }}
+                                >
+                                    <Typography sx={{
+                                        color: '#f8fafc',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 600
+                                    }}>{attr.name}</Typography>
+                                    <SidebarMeta entity={attr.entity} type={attr.valueType} isList={attr.isList}
+                                                 color={attr.color}/>
                                 </Box>
-                            </Box>
+                            ))}
+                        </Stack>
+                    )}
+                </Box>
 
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                disabled={tree.children.length === 0 || isSaving}
-                                onClick={handleSave}
-                                startIcon={<Save/>}
-                                sx={{
-                                    borderRadius: '16px', bgcolor: '#6366f1', py: 2, fontWeight: 800, fontSize: '1rem',
-                                    boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
-                                    '&:hover': {bgcolor: '#4f46e5'}
-                                }}
-                            >
-                                {isSaving ? 'Saving...' : 'Save Rule'}
-                            </Button>
+                <Box
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => handleDrop(e, 'root')}
+                    sx={{
+                        flexGrow: 1,
+                        p: 4,
+                        bgcolor: '#0b1120',
+                        overflowY: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}
+                >
+                    <Box sx={{width: '100%', maxWidth: '1000px'}}>
+                        <Box sx={{
+                            p: 4,
+                            borderRadius: '32px',
+                            bgcolor: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            mb: 3
+                        }}>
+                            <Stack direction="row" spacing={2.5} alignItems="center" sx={{mb: 3}}>
+                                <AccountTree sx={{color: '#818cf8', fontSize: '2rem'}}/>
+                                <Typography variant="h5" fontWeight={900}
+                                            sx={{color: '#fff', letterSpacing: '-0.02em'}}>
+                                    {currentAction?.name.toUpperCase() || 'SELECT AN ACTION'}
+                                </Typography>
+                            </Stack>
+
+                            <Box sx={{minHeight: '300px', py: 2}}>
+                                {tree.children.length === 0 ? (
+                                    <Box sx={{
+                                        border: '2px dashed rgba(255,255,255,0.05)',
+                                        borderRadius: '24px',
+                                        p: 10,
+                                        textAlign: 'center',
+                                        color: 'rgba(255,255,255,0.2)'
+                                    }}>
+                                        <AddCircleOutline sx={{fontSize: '3.5rem', mb: 2, opacity: 0.5}}/>
+                                        <Typography variant="h6" fontWeight={500}>Drag and drop attributes to build
+                                            logic</Typography>
+                                    </Box>
+                                ) : (
+                                    <RecursiveNode
+                                        node={tree}
+                                        allAttributes={allAttributes}
+                                        onDrop={handleDrop}
+                                        onUpdate={modifyNode}
+                                        onDelete={deleteNode}
+                                        draggingId={draggingId}
+                                        setDraggingId={setDraggingId}
+                                    />
+                                )}
+                            </Box>
                         </Box>
+
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            disabled={tree.children.length === 0 || isSaving}
+                            onClick={handleSave}
+                            startIcon={<Save/>}
+                            sx={{
+                                borderRadius: '16px', bgcolor: '#6366f1', py: 2, fontWeight: 800, fontSize: '1rem',
+                                boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
+                                '&:hover': {bgcolor: '#4f46e5'}
+                            }}
+                        >
+                            {isSaving ? 'Saving...' : 'Save Rule'}
+                        </Button>
                     </Box>
-                </DialogContent>
-            </Dialog>
-        </LocalizationProvider>
+                </Box>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -12,7 +12,7 @@ import {
     Typography
 } from '@mui/material';
 import {SyncAlt} from '@mui/icons-material';
-import AttributeField from './AttributeField.jsx';
+import AttributeField from '@/components/AttributeField.jsx';
 import dayjs from 'dayjs';
 
 const NO_VALUE_OPS = ["INCREMENT", "DECREMENT", "SET_FALSE", "SET_TRUE", "FLIP", "SET_NOW", "CLEAR"];
@@ -149,6 +149,7 @@ export default function AttributeUpdateForm({
                                 <AttributeField
                                     label={targetAttr.valueType === 'NUMBER' ? "Numeric Value" : targetAttr.valueType === 'DATE' ? "Date & Time" : "Value"}
                                     vType={targetAttr.valueType}
+                                    isList={targetAttr.isList}
                                     value={value}
                                     onChange={setValue}
                                     endAdornment={toggleModeButton}

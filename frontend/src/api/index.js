@@ -126,3 +126,5 @@ export const createAttributeReaction = (tenantUri, data) => api.post(`/${tenantU
 export const createItemReaction = (tenantUri, data) => api.post(`/${tenantUri}/admin/reaction/item`, data);
 
 export const getGrantedItemsByIds = (tenantUri, data) => api.post(`/${tenantUri}/admin/item/granted/bulk`, data)
+
+export const executeAction = (tenantUri, actionId, customerId, data) => api.post(`/${tenantUri}/admin/action/${actionId}/execute?customerId=${customerId}`, data);

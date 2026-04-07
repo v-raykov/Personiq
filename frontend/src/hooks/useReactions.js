@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
-import {getActionById, getReactions, getRules, getCustomerAttributes, getGrantedItemsByIds} from '@/api';
+import {getActionById, getCustomerAttributes, getGrantedItemsByIds, getReactions, getRules} from '@/api';
 
 export const useReactions = (tenantUri, ruleId) => {
     const [reactions, setReactions] = useState([]);
@@ -41,10 +41,10 @@ export const useReactions = (tenantUri, ruleId) => {
                 setItemTemplates(itemMap);
             }
 
-            let metadata = { customerAttrs: attrRes?.data || [] };
+            let metadata = {customerAttrs: attrRes?.data || []};
             if (currentRule?.triggerActionId) {
                 const actionRes = await getActionById(tenantUri, currentRule.triggerActionId);
-                metadata = { ...metadata, ...actionRes?.data };
+                metadata = {...metadata, ...actionRes?.data};
             }
             setActionMetadata(metadata);
 
