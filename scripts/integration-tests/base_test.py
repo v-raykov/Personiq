@@ -17,7 +17,7 @@ _GLOBAL_SETUP_DONE = False
 class BaseIntegrationTest(unittest.TestCase):
     base_url = os.getenv("BASE_URL", "http://localhost:8080").rstrip('/')
     tenant_name = os.getenv("TENANT_NAME", f"test_{random.randint(1000, 9999)}")
-    session = requests.Session()
+    admin_session = requests.Session()
 
     @classmethod
     def setUpClass(cls):
@@ -42,21 +42,21 @@ class BaseIntegrationTest(unittest.TestCase):
     @classmethod
     def _setup_tenant_and_admin(cls):
         print(f"Creating tenant at {cls.base_url}...")
-        cls.session.post(
+        cls.admin_session.post(
             f"{cls.base_url}/tenant?tenantUriName={cls.tenant_name}",
             json={"username": "admin", "password": "admin", "email": "admin@test.com"}
         )
-        login_res = cls.session.post(
+        login_res = cls.admin_session.post(
             f"{cls.base_url}/{cls.tenant_name}/login",
             json={"username": "admin", "password": "admin"}
         )
         token = login_res.json().get("token")
-        cls.session.headers.update({"Authorization": f"Bearer {token}"})
+        cls.admin_session.headers.update({"Authorization": f"Bearer {token}"})
         print("Admin session initialized.\n")
 
     def create_test_user(self):
         username = f"user_{random.randint(100, 999)}"
         print(f"  > Creating test user: {username}")
         payload = {"username": username, "password": "password123", "email": f"{username}@test.com"}
-        res = self.session.post(f"{self.base_url}/{self.tenant_name}/register", json=payload)
+        res = self.admin_session.post(f"{self.base_url}/{self.tenant_name}/register", json=payload)
         return res.json()["customerId"]

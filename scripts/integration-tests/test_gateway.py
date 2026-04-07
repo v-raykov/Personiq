@@ -7,13 +7,13 @@ class TenantIntegrationTest(BaseIntegrationTest):
         print("Running: Tenant Creation and Login Flow")
         alt_tenant = f"{self.tenant_name}_alt"
 
-        res = self.session.post(
+        res = self.admin_session.post(
             f"{self.base_url}/tenant?tenantUriName={alt_tenant}",
             json={"username": "admin", "password": "admin", "email": "admin@alt.com"}
         )
         self.assertEqual(res.status_code, 200)
 
-        res = self.session.post(
+        res = self.admin_session.post(
             f"{self.base_url}/{self.tenant_name}/login",
             json={"username": "admin", "password": "admin"}
         )
@@ -27,7 +27,7 @@ class TenantIntegrationTest(BaseIntegrationTest):
             "email": "mgr@test.com",
             "authority": "ROLE_MANAGER"
         }
-        res = self.session.post(f"{self.base_url}/{self.tenant_name}/admin/register", json=payload)
+        res = self.admin_session.post(f"{self.base_url}/{self.tenant_name}/admin/register", json=payload)
         self.assertEqual(res.status_code, 200)
 
         # Login as Manager

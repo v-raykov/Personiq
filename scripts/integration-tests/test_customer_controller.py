@@ -6,29 +6,29 @@ class CustomerControllerTest(BaseIntegrationTest):
         print("Running: Attribute Lifecycle (CRUD)")
         # Create
         payload = {"name": "tier", "type": "STRING", "isList": False}
-        res = self.session.post(f"{self.base_url}/{self.tenant_name}/admin/customer/attribute", json=payload)
+        res = self.admin_session.post(f"{self.base_url}/{self.tenant_name}/admin/customer/attribute", json=payload)
         self.assertEqual(res.status_code, 200)
         attr_id = res.json()
 
         # Verify
-        res = self.session.get(f"{self.base_url}/{self.tenant_name}/admin/customer/attribute")
+        res = self.admin_session.get(f"{self.base_url}/{self.tenant_name}/admin/customer/attribute")
         self.assertTrue(any(a['id'] == attr_id for a in res.json()))
 
         # Delete
-        res = self.session.delete(f"{self.base_url}/{self.tenant_name}/admin/customer/attribute", params={"attributeId": attr_id})
+        res = self.admin_session.delete(f"{self.base_url}/{self.tenant_name}/admin/customer/attribute", params={"attributeId": attr_id})
         self.assertEqual(res.status_code, 200)
 
     def test_customer_attribute_values(self):
         print("Running: Customer Attribute Values")
         c_id = self.create_test_user()
 
-        attr_res = self.session.post(
+        attr_res = self.admin_session.post(
             f"{self.base_url}/{self.tenant_name}/admin/customer/attribute",
             json={"name": "status", "type": "STRING", "isList": False}
         )
         attr_id = attr_res.json()
 
-        res = self.session.post(
+        res = self.admin_session.post(
             f"{self.base_url}/{self.tenant_name}/admin/customer/attribute/value",
             params={"customerId": c_id},
             json={str(attr_id): "active"}
