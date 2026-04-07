@@ -38,7 +38,7 @@ public class CustomerService {
         entityAttributeManager.deleteAttribute(attributeId);
     }
 
-    public List<AttributeValue> getAllAttributeValues(long customerId) {
+    public List<AttributeValue> getAttributeValues(long customerId) {
         return entityAttributeManager.getAttributeValuesByEntityInstanceId(customerId, EntityType.CUSTOMER);
     }
 

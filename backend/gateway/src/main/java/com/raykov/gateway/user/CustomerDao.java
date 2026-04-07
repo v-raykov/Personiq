@@ -49,4 +49,15 @@ public class CustomerDao {
                            .stream()
                            .collect(Collectors.toMap(CustomerAccount::accountId, CustomerAccount::customerId));
     }
+
+    public Long getCustomerIdByUserId(Long userId) {
+        String sql = """
+                     SELECT customer_id
+                     FROM customer
+                     WHERE account_id = :userId
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbcTemplate.queryForObject(sql, params, Long.class);
+    }
 }

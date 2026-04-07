@@ -55,7 +55,7 @@ public class CustomerController {
 
     @GetMapping("/attribute/value")
     public List<AttributeValue> getAllAttributeValues(@RequestParam long customerId) {
-        return customerService.getAllAttributeValues(customerId);
+        return customerService.getAttributeValues(customerId);
     }
 
     @PostMapping("/attribute/value/bulk")

@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/register", "/login", "/tenant/**").permitAll()
                         .pathMatchers("/admin/**").hasAnyAuthority(Authority.ROLE_MANAGER.getAuthority(), Authority.ROLE_ADMIN.getAuthority())
+                        .pathMatchers("/customer-portal/**").hasAnyAuthority(Authority.ROLE_CUSTOMER.getAuthority())
                         .pathMatchers("/private/**").denyAll()
                         .anyExchange().permitAll()
                 )

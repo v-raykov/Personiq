@@ -31,4 +31,8 @@ public class CustomerService {
                     .map(u -> new CustomerDto(u.id(), customerIdsByUserIds.get(u.id()), u.username()))
                     .toList();
     }
+
+    public long getCustomerIdByUserId(Long userId) {
+        return customerDao.getCustomerIdByUserId(userId);
+    }
 }

@@ -25,7 +25,8 @@ public class TenantContextFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String tenantId = request.getHeader("X-Tenant-Id");
-        logger.info("Request Path: {}, X-Tenant-Id header: {}", request.getRequestURI(), tenantId);
+        String customerId = request.getHeader("X-Customer-Id");
+        logger.debug("Request Path: {}, X-Tenant-Id header: {}, X-Customer-Id header: {}", request.getRequestURI(), tenantId, customerId);
         try {
             if (tenantId != null && !tenantId.isBlank()) {
                 setTenantId(tenantId);

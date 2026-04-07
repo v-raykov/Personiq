@@ -56,7 +56,7 @@ public class ActionsIntegrationTest extends SpringBaseTest {
         assertThat(executedActions).hasSize(1);
 
         List<AttributeValue> attributes = List.of(new AttributeValue(executedActionId, attributeId, "attribute", AttributeValueType.STRING, List.of("value"), false));
-        assertThat(executedActions).containsExactly(new ExecutedAction(executedActionId, actionId, customerId, attributes));
+        assertThat(executedActions).containsExactly(new ExecutedAction(executedActionId, actionId, customerId, "action", attributes));
     }
 
     @Test
