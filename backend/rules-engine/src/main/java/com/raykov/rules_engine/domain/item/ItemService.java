@@ -58,10 +58,10 @@ public class ItemService {
                                                           .map(EntityInstance::id)
                                                           .collect(Collectors.toSet());
 
-        return entityAttributeManager.getEntityInstancesByIds(grantedItemsIds, EntityType.ITEM);
+        return entityAttributeManager.getEntityInstanceAttributesByIds(grantedItemsIds, EntityType.ITEM);
     }
 
     public List<EntityInstanceAttributes> getGrantedItemsByIds(Set<Long> itemIds) {
-        return entityAttributeManager.getEntityInstancesByIds(itemIds, EntityType.ITEM);
+        return entityAttributeManager.getEntityInstanceAttributesByIds(itemIds, EntityType.ITEM);
     }
 }

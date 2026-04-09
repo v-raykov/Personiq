@@ -5,10 +5,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -65,7 +62,7 @@ public class EntityDao {
                      SELECT id, name
                      FROM entity
                      WHERE entity_type = CAST(:entityType AS entity_type)
-                        AND removed = FALSE
+                         AND removed = FALSE
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource("entityType", entityType.name());
@@ -79,12 +76,30 @@ public class EntityDao {
                      FROM entity_instance ei
                      JOIN entity e ON e.id = ei.entity_id
                      WHERE e.entity_type = CAST(:entityType AS entity_type)
-                       AND e.removed = FALSE
+                         AND e.removed = FALSE
                      """;
 
         SqlParameterSource params = new MapSqlParameterSource("entityType", entityType.name());
 
         return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getObject("target_instance_id", Long.class), rs.getString("name")));
+    }
+
+    public Optional<EntityInstance> getEntityInstanceById(long entityInstanceId, EntityType entityType) {
+        String sql = """
+                     SELECT *
+                     FROM entity_instance ei
+                     JOIN entity e ON e.id = ei.entity_id
+                     WHERE ei.id = :entityInstanceId
+                        AND e.entity_type = CAST(:entityType AS entity_type)
+                        AND e.removed = FALSE
+                     """;
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("entityInstanceId", entityInstanceId)
+                .addValue("entityType", entityType.name());
+
+        return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(entityInstanceId, rs.getLong("entity_id"), rs.getObject("target_instance_id", Long.class), rs.getString("name")))
+                           .stream()
+                           .findFirst();
     }
 
     public Optional<Entity> getEntityById(long entityId, EntityType entityType) {
@@ -121,6 +136,9 @@ public class EntityDao {
     }
 
     public Map<Long, Long> getInstanceToEntityMap(Collection<Long> entityInstanceIds) {
+        if (entityInstanceIds.isEmpty()) {
+            return Map.of();
+        }
         String sql = """
                      SELECT ei.id, ei.entity_id
                      FROM entity_instance ei
@@ -135,6 +153,25 @@ public class EntityDao {
                            .stream()
                            .collect(Collectors.toMap(InstanceEntityIdPair::instanceId,
                                                      InstanceEntityIdPair::entityId));
+    }
+
+    public List<EntityInstance> getEntityInstancesByIds(Set<Long> entityInstanceIds, EntityType entityType) {
+        if (entityInstanceIds.isEmpty()) {
+            return List.of();
+        }
+        String sql = """
+                     SELECT *
+                     FROM entity_instance ei
+                     JOIN entity e ON e.id = ei.entity_id
+                     WHERE ei.id IN (:ids)
+                         AND e.entity_type = CAST(:entityType AS entity_type)
+                         AND e.removed = false
+                     """;
+
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("ids", entityInstanceIds)
+                .addValue("entityType", entityType.name());
+        return jdbcTemplate.query(sql, params, (rs, _) -> new EntityInstance(rs.getLong("id"), rs.getLong("entity_id"), rs.getObject("target_instance_id", Long.class), rs.getString("name")));
     }
 
     private record InstanceEntityIdPair(long instanceId, long entityId) {

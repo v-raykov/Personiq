@@ -85,7 +85,7 @@ public class RuleService {
 
     public boolean isRuleApplicable(Rule rule, long executedActionId, long customerId) {
         Map<Long, AttributeValue> attributeValues =
-                entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(collectIds(rule.ruleRoot()), List.of(executedActionId, customerId))
+                entityAttributeManager.getAttributeValuesByEntityInstanceIds(collectIds(rule.ruleRoot()), List.of(executedActionId, customerId))
                                       .stream()
                                       .collect(Collectors.toMap(AttributeValue::attributeId, av -> av));
 

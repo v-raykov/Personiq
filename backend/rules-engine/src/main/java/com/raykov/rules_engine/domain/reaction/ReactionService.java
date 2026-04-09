@@ -75,7 +75,7 @@ public class ReactionService {
                                                   .map(ItemReaction::templateItemId)
                                                   .collect(Collectors.toSet());
 
-        Map<Long, Map<Long, String>> itemTemplates = entityAttributeManager.getEntityInstancesByIds(itemTemplatesIds, EntityType.ITEM)
+        Map<Long, Map<Long, String>> itemTemplates = entityAttributeManager.getEntityInstanceAttributesByIds(itemTemplatesIds, EntityType.ITEM)
                                                                            .stream()
                                                                            .collect(Collectors.toMap(
                                                                                    EntityInstanceAttributes::entityId,
@@ -97,7 +97,7 @@ public class ReactionService {
         }
 
         Map<Long, AttributeValue> attributeValues =
-                entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, List.of(executedActionId, customerId))
+                entityAttributeManager.getAttributeValuesByEntityInstanceIds(attributeIds, List.of(executedActionId, customerId))
                                       .stream()
                                       .collect(Collectors.toMap(AttributeValue::attributeId, av -> av));
 

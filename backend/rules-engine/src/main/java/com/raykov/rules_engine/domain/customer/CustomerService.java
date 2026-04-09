@@ -57,7 +57,7 @@ public class CustomerService {
 
     public Map<Long, List<AttributeValue>> getAllAttributeValuesByCustomerIds(List<Long> customerIds) {
         Set<Long> attributeIds = entityAttributeManager.getAttributeIdsByEntityId(customerEntityId);
-        return entityAttributeManager.getAttributeValuesByIdsAndEntityInstanceIds(attributeIds, customerIds)
+        return entityAttributeManager.getAttributeValuesByEntityInstanceIds(attributeIds, customerIds)
                                      .stream()
                                      .collect(Collectors.groupingBy(AttributeValue::entityInstanceId));
     }

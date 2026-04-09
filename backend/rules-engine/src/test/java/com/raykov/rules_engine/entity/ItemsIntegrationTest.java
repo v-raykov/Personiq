@@ -41,6 +41,7 @@ public class ItemsIntegrationTest extends SpringBaseTest {
         assertThat(grantedItem).hasSize(1)
                                .first()
                                .usingRecursiveComparison()
+                               .ignoringCollectionOrder()
                                .ignoringFields("attributes.entityInstanceId", "attributes.name", "name")
                                .isEqualTo(new EntityInstanceAttributes(grantedItemId, itemId, customerId, "", List.of(
                                        new AttributeValue(0, itemAttrId1, "", AttributeValueType.STRING, List.of("value1"), false),
