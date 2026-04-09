@@ -20,8 +20,8 @@ import {
     Typography
 } from '@mui/material';
 import {Add} from '@mui/icons-material';
-import {useAuth} from '@/hooks/useAuth';
-import {useUserManagement} from '@/hooks/useUserManagement';
+import {useAuth} from '@/hooks/useAuth.js';
+import {useUserManagement} from '@/hooks/useUserManagement.js';
 
 export default function Manage() {
     const {tenantUri} = useParams();

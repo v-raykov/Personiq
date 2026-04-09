@@ -1,5 +1,5 @@
 import {Avatar, Box, Fade, Grid, Paper, Stack, Typography} from '@mui/material';
-import {useAuth} from '@/hooks/useAuth';
+import {useAuth} from '@/hooks/useAuth.js';
 
 export default function Account() {
     const {user} = useAuth();

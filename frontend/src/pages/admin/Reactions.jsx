@@ -3,12 +3,12 @@ import {useNavigate, useParams} from 'react-router-dom';
 import {Box, Button, Collapse, Fade, Grid, IconButton, Stack, Typography} from '@mui/material';
 import {Add, ArrowBack, KeyboardArrowDown} from '@mui/icons-material';
 import Masonry from '@mui/lab/Masonry';
-import {useReactions} from '@/hooks/useReactions';
+import {useReactions} from '@/hooks/useReactions.js';
 
 import ConditionPane from '@/components/reactions/trigger/ConditionPane.jsx';
 import ActionPane from '@/components/reactions/trigger/ActionPane.jsx';
-import ReactionCard from '@/components/reactions/ReactionCard';
-import ReactionBuilder from '@/components/reactions/ReactionBuilder';
+import ReactionCard from '@/components/reactions/ReactionCard.jsx';
+import ReactionBuilder from '@/components/reactions/ReactionBuilder.jsx';
 
 export default function Reactions() {
     const {tenantUri, ruleId} = useParams();

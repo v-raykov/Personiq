@@ -1,32 +1,34 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {Box, Button, Drawer, Fade, Grid, TextField, Typography} from '@mui/material';
-import {Add, Inventory2} from '@mui/icons-material';
-import DefinitionCard from '@/components/definitions/DefinitionCard';
-import DefinitionDrawer from '@/components/definitions/DefinitionDrawer';
-import {useItems} from '@/hooks/useItems';
+import {Add, Bolt} from '@mui/icons-material';
+import DefinitionCard from '@/components/definitions/DefinitionCard.jsx';
+import DefinitionDrawer from '@/components/definitions/DefinitionDrawer.jsx';
+import {useActions} from '@/hooks/useActions.js';
 
-export default function Items() {
+export default function Actions() {
     const {tenantUri} = useParams();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [newItemName, setNewItemName] = useState('');
+    const [selectedAction, setSelectedAction] = useState(null);
+    const [newActionName, setNewActionName] = useState('');
 
     const {
-        items,
-        loadItems,
+        actions,
         handleCreate,
         handleDelete,
         handleDeleteAttribute,
-        handleAddAttribute
-    } = useItems(tenantUri);
+        handleAddAttribute,
+        loadActions
+    } = useActions(tenantUri);
+
+    const memoizedActions = useMemo(() => actions || [], [actions]);
 
     const onSubmitCreate = async (e) => {
         e.preventDefault();
         try {
-            await handleCreate(newItemName);
+            await handleCreate(newActionName);
             setIsCreateOpen(false);
-            setNewItemName('');
+            setNewActionName('');
         } catch (err) {
             console.error(err);
         }
@@ -38,10 +40,10 @@ export default function Items() {
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 6}}>
                     <Box>
                         <Typography variant="h3" fontWeight={900} sx={{color: '#fff', letterSpacing: -1.5}}>
-                            Item Library
+                            Action Modules
                         </Typography>
                         <Typography variant="h6" sx={{color: '#94a3b8', mt: 1, fontWeight: 400}}>
-                            Define different items for {tenantUri}
+                            Manage execution logic for {tenantUri}
                         </Typography>
                     </Box>
                     <Button
@@ -54,18 +56,18 @@ export default function Items() {
                             boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)'
                         }}
                     >
-                        Create Item
+                        Create Action
                     </Button>
                 </Box>
 
                 <Grid container spacing={3}>
-                    {items.map((item, index) => (
-                        <Grid size={{xs: 12, sm: 6, md: 4, lg: 3}} key={item.id || `item-${index}`}>
+                    {memoizedActions.map((action, index) => (
+                        <Grid size={{xs: 12, sm: 6, md: 4, lg: 3}} key={action?.id || index}>
                             <DefinitionCard
                                 index={index}
-                                data={item}
-                                icon={Inventory2}
-                                onAddAttribute={() => setSelectedItem(item)}
+                                data={action}
+                                icon={Bolt}
+                                onAddAttribute={() => setSelectedAction(action)}
                                 onDeleteAttribute={(attrId) => {
                                     void handleDeleteAttribute(attrId);
                                 }}
@@ -92,15 +94,13 @@ export default function Items() {
                         }
                     }}
                 >
-                    <Typography variant="h4" fontWeight={900} sx={{color: '#fff', mb: 6}}>
-                        New Item Blueprint
-                    </Typography>
+                    <Typography variant="h4" fontWeight={900} sx={{color: '#fff', mb: 6}}>New Action</Typography>
                     <form onSubmit={onSubmitCreate}>
                         <TextField
                             fullWidth
-                            label="Item Name"
-                            value={newItemName}
-                            onChange={(e) => setNewItemName(e.target.value)}
+                            label="Action Name"
+                            value={newActionName}
+                            onChange={(e) => setNewActionName(e.target.value)}
                             required
                             sx={{mb: 4}}
                         />
@@ -111,21 +111,21 @@ export default function Items() {
                             size="large"
                             sx={{py: 2.5, borderRadius: '16px', fontWeight: 800}}
                         >
-                            Create Blueprint
+                            Create Action
                         </Button>
                     </form>
                 </Drawer>
 
-                {selectedItem && (
+                {selectedAction && (
                     <DefinitionDrawer
-                        open={Boolean(selectedItem)}
-                        title={selectedItem?.name}
-                        subtitle="Add Item Attribute"
-                        onClose={() => setSelectedItem(null)}
+                        open={!!selectedAction}
+                        title={String(selectedAction?.name || '')}
+                        subtitle="Add Action Attribute"
+                        onClose={() => setSelectedAction(null)}
                         onRefresh={() => {
-                            void loadItems();
+                            void loadActions();
                         }}
-                        onSave={(payload) => handleAddAttribute(selectedItem.id, payload)}
+                        onSave={(payload) => handleAddAttribute(selectedAction.id, payload)}
                     />
                 )}
             </Box>

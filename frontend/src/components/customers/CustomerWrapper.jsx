@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {Box, Fade, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
-import CustomerAttributes from '@/pages/CustomerAttributes';
-import CustomerAttributesValues from '@/pages/CustomerAttributesValues';
+import CustomerAttributes from '@/pages/admin/CustomerAttributes.jsx';
+import CustomerAttributesValues from '@/pages/admin/CustomerAttributesValues.jsx';
 
 const CustomerWrapper = () => {
     const {tenantUri} = useParams();
