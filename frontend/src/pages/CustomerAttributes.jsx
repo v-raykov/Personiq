@@ -10,8 +10,7 @@ export default function CustomerAttributes() {
     const {tenantUri} = useParams();
     const [attributes, setAttributes] = useState([]);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [setLoading] = useState(false);
-
+    const [loading, setLoading] = useState(false);
     const loadAttributes = useCallback(async () => {
         if (!tenantUri) return;
         try {
@@ -31,7 +30,7 @@ export default function CustomerAttributes() {
         try {
             await createCustomerAttribute(tenantUri, {
                 name: payload.name,
-                valueType: payload.type,
+                type: payload.type,
                 isList: payload.isList
             });
             setIsDrawerOpen(false);
@@ -144,6 +143,7 @@ export default function CustomerAttributes() {
             <Button
                 variant="contained"
                 startIcon={<Add/>}
+                disabled={loading}
                 onClick={() => setIsDrawerOpen(true)}
                 sx={{
                     position: 'fixed', bottom: 40, right: 40, zIndex: 1000,
@@ -153,7 +153,7 @@ export default function CustomerAttributes() {
                     '&:hover': {transform: 'scale(1.05)', transition: '0.2s'}
                 }}
             >
-                Add Attribute
+                {loading ? 'Adding...' : 'Add Attribute'}
             </Button>
 
             <DefinitionDrawer

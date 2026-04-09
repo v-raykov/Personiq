@@ -7,6 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
+    root: './',
     plugins: [react()],
     define: {
         __API_BASE_URL__: JSON.stringify('http://localhost:8080')

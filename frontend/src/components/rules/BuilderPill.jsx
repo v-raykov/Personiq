@@ -133,7 +133,10 @@ export default function BuilderPill({
                     {ops.map(op => <MenuItem key={op.value} value={op.value}>{op.label}</MenuItem>)}
                 </Select>
 
-                <Box sx={{flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1}}>
+                <Box sx={{flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1}}
+                     onMouseDown={(e) => e.stopPropagation()}
+                     onKeyDown={(e) => e.stopPropagation()}
+                >
                     {item.valueMode === 'attribute' ? (
                         <Select
                             variant="standard"
