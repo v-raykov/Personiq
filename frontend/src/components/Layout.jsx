@@ -10,7 +10,16 @@ import {
     ListItemText,
     Typography
 } from '@mui/material';
-import {AccountTree, Bolt, Groups, Inventory2, Person, RocketLaunch, SupervisorAccount} from '@mui/icons-material';
+import {
+    AccountTree,
+    Badge,
+    Bolt,
+    Groups,
+    Inventory2,
+    Person,
+    RocketLaunch,
+    SupervisorAccount
+} from '@mui/icons-material';
 import {Outlet, useLocation, useNavigate, useParams} from 'react-router-dom';
 import {useAuth} from '@/hooks/useAuth';
 
@@ -64,6 +73,12 @@ export default function Layout() {
             icon: <RocketLaunch/>,
             path: `/${tenantUri}/execute-action`,
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
+        },
+        {
+            text: 'Attribute Values',
+            icon: <Badge/>,
+            path: `/${tenantUri}/attribute-values`,
+            visible: user?.role === 'CUSTOMER'
         }
     ];
 

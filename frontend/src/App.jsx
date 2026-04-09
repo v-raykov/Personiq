@@ -20,6 +20,7 @@ import ActionExecution from "@/pages/admin/ActionExecution.jsx";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {useAuth} from "@/hooks/useAuth.js";
+import CustomerPortalAttributeValues from "@/pages/customer/CustomerPortalAttributeValues.jsx";
 
 const RoleGuard = ({children, role}) => {
     const {user} = useAuth();
@@ -75,6 +76,8 @@ export default function App() {
                                        element={<RoleGuard role="ADMIN"><ActionExecution/></RoleGuard>}/>
 
                                 {/* CUSTOMER ONLY: (Optional) if you have specific pages later */}
+                                <Route path="attribute-values"
+                                       element={<RoleGuard role="CUSTOMER"><CustomerPortalAttributeValues/></RoleGuard>}/>
                             </Route>
 
                             <Route path="*" element={<Navigate to="/" replace/>}/>

@@ -128,3 +128,9 @@ export const createItemReaction = (tenantUri, data) => api.post(`/${tenantUri}/a
 export const getGrantedItemsByIds = (tenantUri, data) => api.post(`/${tenantUri}/admin/item/granted/bulk`, data)
 
 export const executeAction = (tenantUri, actionId, customerId, data) => api.post(`/${tenantUri}/admin/action/${actionId}/execute?customerId=${customerId}`, data);
+
+export const getCustomerPortalAttributeValues = (tenantUri) => api.get(`${tenantUri}/customer-portal/attribute-value`)
+
+export const getCustomerPortalGrantedItems= (tenantUri) => api.get(`${tenantUri}/customer-portal/granted-item`)
+
+export const getCustomerPortalExecutedActions = (tenantUri) => api.get(`${tenantUri}/customer-portal/executed-action`)
