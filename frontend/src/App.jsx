@@ -22,6 +22,7 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {useAuth} from "@/hooks/useAuth.js";
 import CustomerPortalAttributeValues from "@/pages/customer/CustomerPortalAttributeValues.jsx";
 import CustomerPortalGrantedItems from "@/pages/customer/CustomerPortalGrantedItems.jsx";
+import CustomerExecutedActions from "@/pages/customer/CustomerPortalExecutedActions.jsx";
 
 const RoleGuard = ({children, role}) => {
     const {user} = useAuth();
@@ -76,12 +77,14 @@ export default function App() {
                                 <Route path="execute-action"
                                        element={<RoleGuard role="ADMIN"><ActionExecution/></RoleGuard>}/>
 
-                                {/* CUSTOMER ONLY: (Optional) if you have specific pages later */}
+                                {/* CUSTOMER ONLY */}
                                 <Route path="attribute-values"
                                        element={<RoleGuard
                                            role="CUSTOMER"><CustomerPortalAttributeValues/></RoleGuard>}/>
                                 <Route path="granted-items"
                                        element={<RoleGuard role="CUSTOMER"><CustomerPortalGrantedItems/></RoleGuard>}/>
+                                <Route path="executed-actions"
+                                       element={<RoleGuard role="CUSTOMER"><CustomerExecutedActions/></RoleGuard>}/>
 
                             </Route>
 

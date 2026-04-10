@@ -14,7 +14,7 @@ import {
     AccountTree,
     Badge,
     Bolt,
-    Groups,
+    Groups, HistoryEdu,
     Inventory,
     Inventory2,
     Person,
@@ -85,6 +85,12 @@ export default function Layout() {
             text: 'My Items',
             icon: <Inventory/>,
             path: `/${tenantUri}/granted-items`,
+            visible: user?.role === 'CUSTOMER'
+        },
+        {
+            text: 'Actions History',
+            icon: <HistoryEdu/>,
+            path: `/${tenantUri}/executed-actions`,
             visible: user?.role === 'CUSTOMER'
         }
     ];
