@@ -1,10 +1,10 @@
-import { Navigate, useParams, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { Box, CircularProgress } from '@mui/material';
+import {Navigate, useLocation, useParams} from 'react-router-dom';
+import {useAuth} from '@/hooks/useAuth';
+import {Box, CircularProgress} from '@mui/material';
 
-export default function ProtectedRoute({ children, requiredRole }) {
-    const { user, loading } = useAuth();
-    const { tenantUri } = useParams();
+export default function ProtectedRoute({children, requiredRole}) {
+    const {user, loading} = useAuth();
+    const {tenantUri} = useParams();
     const location = useLocation();
 
     if (loading) {
@@ -16,17 +16,17 @@ export default function ProtectedRoute({ children, requiredRole }) {
                 minHeight: '100vh',
                 bgcolor: '#0f172a'
             }}>
-                <CircularProgress sx={{ color: '#818cf8' }} />
+                <CircularProgress sx={{color: '#818cf8'}}/>
             </Box>
         );
     }
 
     if (!user) {
-        return <Navigate to={`/${tenantUri}/login`} state={{ from: location }} replace />;
+        return <Navigate to={`/${tenantUri}/login`} state={{from: location}} replace/>;
     }
 
     if (requiredRole && user.role !== requiredRole) {
-        return <Navigate to={`/${tenantUri}/account`} replace />;
+        return <Navigate to={`/${tenantUri}/account`} replace/>;
     }
 
     return children;

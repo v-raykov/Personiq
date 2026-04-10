@@ -16,7 +16,7 @@ import 'dayjs/locale/en-gb';
 
 import {useParams} from "react-router-dom";
 import {useCustomerData} from '@/hooks/useCustomerData.js';
-import AttributeDrawer from '@/components/customers/CustomerEditDrawer.jsx';
+import AttributeDrawer from '@/components/customers/UpdateDrawer.jsx';
 import FilterManager from '@/components/customers/FilterManager.jsx';
 
 export default function CustomerAttributesValues() {

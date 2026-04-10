@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {Box, Button, Drawer, Fade, Grid, TextField, Typography} from '@mui/material';
 import {Add, Inventory2} from '@mui/icons-material';
-import DefinitionCard from '@/components/definitions/DefinitionCard.jsx';
-import DefinitionDrawer from '@/components/definitions/DefinitionDrawer.jsx';
+import DefinitionCard from '@/components/shared/DefinitionCard.jsx';
+import DefinitionDrawer from '@/components/shared/DefinitionDrawer.jsx';
 import {useItems} from '@/hooks/useItems.js';
 
 export default function Items() {

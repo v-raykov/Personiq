@@ -131,6 +131,6 @@ export const executeAction = (tenantUri, actionId, customerId, data) => api.post
 
 export const getCustomerPortalAttributeValues = (tenantUri) => api.get(`${tenantUri}/customer-portal/attribute-value`)
 
-export const getCustomerPortalGrantedItems= (tenantUri) => api.get(`${tenantUri}/customer-portal/granted-item`)
+export const getCustomerPortalGrantedItems = (tenantUri) => api.get(`${tenantUri}/customer-portal/granted-item`)
 
 export const getCustomerPortalExecutedActions = (tenantUri) => api.get(`${tenantUri}/customer-portal/executed-action`)

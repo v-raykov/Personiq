@@ -12,28 +12,11 @@ import {
     Typography
 } from '@mui/material';
 import {SyncAlt} from '@mui/icons-material';
-import AttributeField from '@/components/AttributeField.jsx';
+import AttributeField from '@/components/shared/AttributeField.jsx';
 import dayjs from 'dayjs';
+import {glassInputStyles} from "@/styles/formStyles.js";
 
 const NO_VALUE_OPS = ["INCREMENT", "DECREMENT", "SET_FALSE", "SET_TRUE", "FLIP", "SET_NOW", "CLEAR"];
-
-const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-        height: 64,
-        borderRadius: '16px',
-        bgcolor: 'rgba(255,255,255,0.03)',
-        color: '#fff',
-        '& fieldset': {border: '1px solid rgba(255,255,255,0.1)'},
-        '&:hover fieldset': {borderColor: 'rgba(255,255,255,0.25)', bgcolor: 'rgba(255,255,255,0.05)'},
-        '&.Mui-focused fieldset': {border: '1px solid #6366f1'}
-    },
-    '& .MuiInputLabel-root': {
-        color: '#94a3b8',
-        fontSize: '1.1rem',
-        '&.Mui-focused': {color: '#6366f1'},
-        '&.MuiInputLabel-shrink': {transform: 'translate(14px, -9px) scale(0.75)'}
-    }
-};
 
 export default function AttributeUpdateForm({
                                                 customerAttrs,
@@ -85,7 +68,7 @@ export default function AttributeUpdateForm({
                 disableClearable
                 onChange={(e, v) => handleAttributeChange(v)}
                 renderInput={(params) => (
-                    <TextField {...params} label="Select Target Attribute" required sx={inputStyles}
+                    <TextField {...params} label="Select Target Attribute" required sx={glassInputStyles}
                                slotProps={{
                                    htmlInput: {
                                        ...params.inputProps,
@@ -103,7 +86,7 @@ export default function AttributeUpdateForm({
                             label="Operation"
                             value={operation}
                             onChange={(e) => setOperation(e.target.value)}
-                            sx={inputStyles}
+                            sx={glassInputStyles}
                         >
                             {filteredOperations.map(op => (
                                 <MenuItem key={op} value={op}>{op.replace('_', ' ')}</MenuItem>
@@ -118,7 +101,7 @@ export default function AttributeUpdateForm({
                                     label="Source Attribute"
                                     value={value || ''}
                                     onChange={(e) => setValue(e.target.value)}
-                                    sx={inputStyles}
+                                    sx={glassInputStyles}
                                     slotProps={{
                                         input: {
                                             endAdornment: (

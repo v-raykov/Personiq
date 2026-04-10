@@ -5,8 +5,8 @@ import 'dayjs/locale/en-gb';
 
 import {createAttributeReaction, createItemReaction} from '@/api';
 import {useReactionForm} from '@/hooks/useReactionForm.js';
-import AttributeUpdateForm from './create/AttributeUpdateForm.jsx';
-import ItemGrantForm from './create/ItemGrantForm.jsx';
+import AttributeUpdateForm from './AttributeUpdateForm.jsx';
+import ItemGrantForm from '@/components/shared/ItemGrantForm.jsx';
 
 const NO_VALUE_OPS = ["INCREMENT", "DECREMENT", "SET_FALSE", "SET_TRUE", "FLIP", "SET_NOW", "CLEAR"];
 

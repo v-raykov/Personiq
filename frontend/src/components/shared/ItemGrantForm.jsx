@@ -1,9 +1,9 @@
 import React from 'react';
 import {Autocomplete, Stack, TextField} from "@mui/material";
-import AttributeField from '@/components/AttributeField';
+import AttributeField from '@/components/shared/AttributeField.jsx';
 import dayjs from 'dayjs';
 
-import {glassInputStyles} from '@/styles/formStyles'
+import {glassInputStyles} from '@/styles/formStyles.js'
 
 export default function ItemGrantForm({
                                           items = [],

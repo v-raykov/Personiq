@@ -4,7 +4,7 @@ import {Abc, CalendarMonth, Numbers} from '@mui/icons-material';
 import {DateTimePicker} from '@mui/x-date-pickers';
 import {renderTimeViewClock} from '@mui/x-date-pickers/timeViewRenderers';
 import dayjs from 'dayjs';
-import {glassInputStyles} from '@/styles/formStyles';
+import {glassInputStyles} from '@/styles/formStyles.js';
 
 const IconWithList = ({children, isList}) => (
     <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>

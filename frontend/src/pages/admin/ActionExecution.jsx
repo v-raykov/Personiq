@@ -18,7 +18,7 @@ import {
 import {PersonOutline, RocketLaunch, SettingsSuggest, TuneOutlined} from '@mui/icons-material';
 import {useActionExecution} from '@/hooks/useActionExecution.js';
 import {useCustomerData} from '@/hooks/useCustomerData.js';
-import AttributeField from '@/components/AttributeField.jsx';
+import AttributeField from '@/components/shared/AttributeField.jsx';
 import {glassInputStyles} from '@/styles/formStyles.js';
 
 export default function ActionExecution() {

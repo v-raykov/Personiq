@@ -21,6 +21,7 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {useAuth} from "@/hooks/useAuth.js";
 import CustomerPortalAttributeValues from "@/pages/customer/CustomerPortalAttributeValues.jsx";
+import CustomerPortalGrantedItems from "@/pages/customer/CustomerPortalGrantedItems.jsx";
 
 const RoleGuard = ({children, role}) => {
     const {user} = useAuth();
@@ -77,7 +78,11 @@ export default function App() {
 
                                 {/* CUSTOMER ONLY: (Optional) if you have specific pages later */}
                                 <Route path="attribute-values"
-                                       element={<RoleGuard role="CUSTOMER"><CustomerPortalAttributeValues/></RoleGuard>}/>
+                                       element={<RoleGuard
+                                           role="CUSTOMER"><CustomerPortalAttributeValues/></RoleGuard>}/>
+                                <Route path="granted-items"
+                                       element={<RoleGuard role="CUSTOMER"><CustomerPortalGrantedItems/></RoleGuard>}/>
+
                             </Route>
 
                             <Route path="*" element={<Navigate to="/" replace/>}/>

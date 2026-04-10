@@ -15,6 +15,7 @@ import {
     Badge,
     Bolt,
     Groups,
+    Inventory,
     Inventory2,
     Person,
     RocketLaunch,
@@ -75,9 +76,15 @@ export default function Layout() {
             visible: user?.role === 'ADMIN' || user?.role === 'MANAGER'
         },
         {
-            text: 'Attribute Values',
+            text: 'My Attributes',
             icon: <Badge/>,
             path: `/${tenantUri}/attribute-values`,
+            visible: user?.role === 'CUSTOMER'
+        },
+        {
+            text: 'My Items',
+            icon: <Inventory/>,
+            path: `/${tenantUri}/granted-items`,
             visible: user?.role === 'CUSTOMER'
         }
     ];

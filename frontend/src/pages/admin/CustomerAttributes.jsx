@@ -3,7 +3,7 @@ import {useParams} from 'react-router-dom';
 import {Box, Button, Card, Chip, Grid, IconButton, Stack, Typography, Zoom} from '@mui/material';
 import {Abc, Add, CalendarToday, DeleteOutline, Numbers, ToggleOn} from '@mui/icons-material';
 
-import DefinitionDrawer from '@/components/definitions/DefinitionDrawer.jsx';
+import DefinitionDrawer from '@/components/shared/DefinitionDrawer.jsx';
 import {createCustomerAttribute, deleteCustomerAttribute, getCustomerAttributes} from '@/api/index.js';
 
 export default function CustomerAttributes() {
