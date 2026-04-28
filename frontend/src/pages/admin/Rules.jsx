@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {Box, Button, Fade, Typography} from '@mui/material';
 import {Add} from '@mui/icons-material';
-import Masonry from '@mui/lab/Masonry';
 import RuleCard from '@/components/rules/RuleCard.jsx';
 import RuleBuilder from '@/components/rules/RuleBuilder.jsx';
 import {useRules} from '@/hooks/useRules.js';
@@ -43,7 +42,13 @@ export default function Rules() {
                     </Button>
                 </Box>
 
-                <Masonry columns={{xs: 1, sm: 2, md: 3}} spacing={4}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 4,
+                        alignItems: 'flex-start'
+                    }}>
                     {rules.map((rule) => (
                         <RuleCard
                             key={rule.id}
@@ -55,7 +60,7 @@ export default function Rules() {
                             tenantUri={tenantUri}
                         />
                     ))}
-                </Masonry>
+                </Box>
 
                 <RuleBuilder
                     open={isModalOpen}
